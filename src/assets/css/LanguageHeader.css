@@ -35,12 +35,32 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-/* Empujar el selector de idioma al extremo derecho */
-.navbar .language-switcher { margin-left: auto; }
+/* Agrupar idioma + Google a la derecha */
+.navbar-right {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+}
 
 /* Responsive */
 @media (max-width: 700px) {
-    .navbar { flex-wrap: wrap; gap: 0.4rem; }
-    .navbar a { padding: 0.45rem 0.7rem; font-size: 0.95rem; }
-    .navbar .language-switcher { width: 100%; justify-content: flex-start; margin-top: 0.25rem; }
+    .navbar {
+        flex-wrap: nowrap;
+        gap: 0.35rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    .navbar::-webkit-scrollbar { height: 6px; }
+    .navbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 6px; }
+    .navbar a { padding: 0.38rem 0.6rem; font-size: 0.9rem; }
+    .navbar-right { gap: 0.3rem; }
+}
+
+/* Tablet landscape / medium (840–1200px) */
+@media (min-width: 840px) and (max-width: 1200px) {
+    .navbar { gap: 0.6rem; }
+    .navbar a { padding: 0.48rem 0.75rem; font-size: 0.95rem; }
+    .navbar-right { gap: 0.4rem; }
 }

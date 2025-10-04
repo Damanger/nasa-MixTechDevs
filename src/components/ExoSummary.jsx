@@ -193,10 +193,11 @@ export default function ExoSummary({ src = "/exoplanets.csv", lang = DEFAULT_LAN
               @media (max-width:640px){ .summary-bento{ grid-template-columns:1fr; gap:.7rem; } }
               .tile{ position:relative; padding:1.1rem; border-radius:16px; overflow:hidden; }
               .tile .kicker{ display:inline-flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:999px; background:rgba(255,255,255,.06); border:1px solid var(--glass-brd); box-shadow:0 0 28px rgba(137,180,255,.25), inset 0 1px 0 rgba(255,255,255,.05); }
-              .tile .heading{ margin:.5rem 0 .25rem; }
-              .tile .heading.small{ margin:.25rem 0; font-size:1.05rem; }
-              .tile .copy{ margin:.35rem 0 0; }
-              .tile .copy.muted{ opacity:.8; }
+                            .tile .heading{ margin:.5rem 0 .25rem; color: var(--text); }
+                            .tile .heading.small{ margin:.25rem 0; font-size:1.05rem; color: var(--text); }
+                            .tile .value{ color: var(--text); }
+                            .tile .copy{ margin:.35rem 0 0; color: var(--text); }
+                            .tile .copy.muted{ color: var(--muted); }
               .tile.total{ grid-row:1 / span 2; grid-column:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem 1.5rem; }
               .tile.total .numb{ font-weight:900; font-size: clamp(2rem, 6.5vw, 3.4rem); letter-spacing:.5px; background:linear-gradient(180deg,#e6eaff 0%,#b7c0e6 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 0 32px rgba(137,180,255,.15); }
               .tile.total::before{ content:""; position:absolute; right:-140px; top:-140px; width:360px; height:360px; border-radius:50%; background: radial-gradient(closest-side, rgba(137,180,255,.22), rgba(137,180,255,.1) 50%, transparent 70%); filter:blur(12px); }
@@ -215,8 +216,8 @@ export default function ExoSummary({ src = "/exoplanets.csv", lang = DEFAULT_LAN
                 .tile.time, .tile.methods, .tile.nearest{ grid-column:auto; }
               }
               .tile .list{ margin:.25rem 0 0; padding:0; list-style:none; display:grid; gap:.25rem; }
-              .tile .list li{ display:flex; justify-content:space-between; gap:.75rem; border:1px solid var(--glass-brd); background:rgba(255,255,255,.04); padding:.5rem .6rem; border-radius:10px; }
-              .tile .list li span{ opacity:.85; }
+                            .tile .list li{ display:flex; justify-content:space-between; gap:.75rem; border:1px solid var(--glass-brd); background:rgba(255,255,255,.04); padding:.5rem .6rem; border-radius:10px; }
+                            .tile .list li span{ color: var(--text); }
               .tile.nearest .list{ grid-template-columns:1fr; max-height:200px; overflow:auto; padding-right:.25rem; }
               @media (max-width:640px){ .tile.nearest .list{ max-height:260px; } }
               .tile.nearest .note{ margin-top:.5rem; }

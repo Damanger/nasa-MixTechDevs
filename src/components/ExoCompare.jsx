@@ -131,8 +131,8 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
             viewport={{ once: true, margin: "-10% 0px" }}
             transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
         >
-            <h2 style={{ textAlign: "center", margin: "0 0 .4rem" }}>{compareMessages.heading}</h2>
-            <p className="subtitle" style={{ textAlign: "center", margin: "0 0 1rem" }}>
+            <h2 className="compare-title" style={{ textAlign: "center", margin: "0 0 .4rem" }}>{compareMessages.heading}</h2>
+            <p className="subtitle compare-subtitle" style={{ textAlign: "center", margin: "0 0 1rem" }}>
                 {compareMessages.description.intro}{' '}
                 <span aria-label={compareMessages.formula.base} style={{ whiteSpace: "nowrap" }}>
                     {compareMessages.formula.base}
@@ -164,7 +164,7 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
                         else if (mode === "jupiter-exo") bodies.push(exo, jupiter);
                         else bodies.push(earth, exo, jupiter);
                         return (
-                            <Suspense fallback={<div style={{textAlign:"center", opacity:.8}}>{compareMessages.loading3D || "Cargando visualización 3D…"}</div>}>
+                            <Suspense fallback={<div style={{textAlign:"center"}}>{compareMessages.loading3D || "Cargando visualización 3D…"}</div>}>
                                 <ThreeCompare bodies={bodies} autoRotate={autoRotate} />
                             </Suspense>
                         );
@@ -210,7 +210,7 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
                         <h3 style={{ marginTop: 0 }}>{planet?.name || nullLabel}</h3>
                         <ul className="compare-facts" style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".35rem .75rem" }}>
                             {facts?.map(({ label, value }) => (
-                                <li key={label}><strong>{label}:</strong> <span style={{ opacity: .85 }}>{value}</span></li>
+                                <li key={label}><strong>{label}:</strong> <span>{value}</span></li>
                             ))}
                         </ul>
                         <p className="subtitle" style={{ marginTop: ".75rem" }}>

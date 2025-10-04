@@ -20,7 +20,7 @@ const persistLanguage = (value) => {
   }
 };
 
-const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} }) => {
+const LanguageSwitcher = ({ lang = DEFAULT_LANG, options = {} }) => {
   const entries = useMemo(() => Object.entries(options), [options]);
   const [current, setCurrent] = useState(lang);
 
@@ -41,7 +41,11 @@ const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} 
     }
 
     persistLanguage(safeTarget);
-    const shouldNavigate = window.location.pathname.startsWith("/analizar") && safeTarget !== current;
+    const shouldNavigate = (
+      window.location.pathname.startsWith("/analizar") ||
+      window.location.pathname.startsWith("/apod") ||
+      window.location.pathname.startsWith("/luna")
+    ) && safeTarget !== current;
 
     if (shouldNavigate) {
       window.location.assign(url.toString());
@@ -88,11 +92,14 @@ const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} 
     };
   }, [lang]);
 
-  const shouldForceNavigation = typeof window !== "undefined" && window.location.pathname.startsWith("/analizar");
+  const shouldForceNavigation = typeof window !== "undefined" && (
+    window.location.pathname.startsWith("/analizar") ||
+    window.location.pathname.startsWith("/apod") ||
+    window.location.pathname.startsWith("/luna")
+  );
 
   return (
     <div className="language-switcher">
-      <span className="language-switcher__label" id={labelId}>{label}</span>
       <div className="language-switcher__group" role="group" aria-labelledby={labelId}>
         {entries.map(([value, text]) => (
           <button

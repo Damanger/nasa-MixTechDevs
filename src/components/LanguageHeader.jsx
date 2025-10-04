@@ -8,6 +8,7 @@ import {
   detectClientLanguage
 } from "../i18n/translations.js";
 import '../assets/css/LanguageHeader.css';
+import GoogleAuthButton from "./GoogleAuthButton.jsx";
 
 const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
   const [lang, setLang] = useState(initialLang);
@@ -37,6 +38,8 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
   const homeBase = lang === DEFAULT_LANG ? "/" : `/?lang=${lang}`;
   const analyzeBase = lang === DEFAULT_LANG ? "/analizar" : `/analizar?lang=${lang}`;
   const teamBase = lang === DEFAULT_LANG ? "/equipo" : `/equipo?lang=${lang}`;
+  const apodBase = lang === DEFAULT_LANG ? "/apod" : `/apod?lang=${lang}`;
+  const moonBase = lang === DEFAULT_LANG ? "/luna" : `/luna?lang=${lang}`;
 
   // Helper para extraer pathname de un href relativo/absoluto
   const hrefToPath = (href) => {
@@ -57,9 +60,11 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
     () => [
       { href: homeBase, label: layoutMessages.nav.home },
       { href: analyzeBase, label: layoutMessages.nav.analyze },
+      { href: apodBase, label: layoutMessages.nav.apod },
+      { href: moonBase, label: layoutMessages.nav.moon },
       { href: teamBase, label: layoutMessages.nav.team }
     ],
-    [homeBase, analyzeBase, teamBase, layoutMessages]
+    [homeBase, analyzeBase, apodBase, moonBase, teamBase, layoutMessages]
   );
 
   return (
@@ -82,11 +87,14 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
           );
         })}
 
-        <LanguageSwitcher
-          lang={lang}
-          label={layoutMessages.languageSwitcher.label}
-          options={layoutMessages.languageSwitcher.options}
-        />
+        <div className="navbar-right">
+          <LanguageSwitcher
+            lang={lang}
+            options={layoutMessages.languageSwitcher.options}
+          />
+          {/* Google Sign-In */}
+          <GoogleAuthButton />
+        </div>
       </nav>
     </>
   );

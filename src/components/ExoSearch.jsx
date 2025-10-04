@@ -73,7 +73,7 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
         return [filters.methodAll, ...unique];
     }, [rows, filters.methodAll]);
 
-    const filtered = useMemo(() => {
+    const filteredAll = useMemo(() => {
         const qx = q.trim().toLowerCase();
         const yMin = yearMin ? Number(yearMin) : -Infinity;
         const yMax = yearMax ? Number(yearMax) : Infinity;
@@ -84,8 +84,19 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
             const y = r.year ?? NaN;
             const okY = Number.isNaN(y) ? true : (y >= yMin && y <= yMax);
             return okQ && okM && okY;
-        }).slice(0, 20);
+        });
     }, [rows, q, method, yearMin, yearMax, filters.methodAll]);
+
+    // Pagination
+    const PAGE_SIZE = 20;
+    const [page, setPage] = useState(1);
+    const totalPages = Math.max(1, Math.ceil(filteredAll.length / PAGE_SIZE));
+    const currentPage = Math.min(page, totalPages);
+    const startIdx = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = filteredAll.slice(startIdx, startIdx + PAGE_SIZE);
+
+    // Reset/clamp page when filters or dataset change
+    useEffect(() => { setPage(1); }, [q, method, yearMin, yearMax, rows]);
 
     const fmt = (n, opts={}) => (n == null ? "—" : Number(n).toLocaleString(currentLang, { maximumFractionDigits: 2, ...opts }));
 
@@ -97,6 +108,43 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
         };
         return map[currentLang] || map.en;
     }, [currentLang]);
+
+    const paginationLang = useMemo(() => {
+        const map = {
+            es: {
+                nav: "Paginación",
+                first: "Primera página",
+                prev: "Página anterior",
+                next: "Página siguiente",
+                last: "Última página",
+            },
+            en: {
+                nav: "Pagination",
+                first: "First page",
+                prev: "Previous page",
+                next: "Next page",
+                last: "Last page",
+            },
+            de: {
+                nav: "Seitennavigation",
+                first: "Erste Seite",
+                prev: "Vorherige Seite",
+                next: "Nächste Seite",
+                last: "Letzte Seite",
+            },
+        };
+        return map[currentLang] || map.en;
+    }, [currentLang]);
+
+    // Year range (from first exoplanet discovery or dataset min to current year)
+    const yearsRange = useMemo(() => {
+        const now = new Date().getFullYear();
+        const years = rows.map(r => r.year).filter(y => Number.isFinite(y));
+        const minData = years.length ? Math.min(...years) : 1992; // 1992: primeros exoplanetas
+        const start = Math.min(1992, minData);
+        const list = Array.from({ length: now - start + 1 }, (_, i) => String(start + i));
+        return { start, now, list };
+    }, [rows]);
 
     const emptyState = useMemo(() => {
         const map = {
@@ -143,6 +191,10 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
                     value={yearMin}
                     onChange={e => setYearMin(e.target.value)}
                     style={{ padding: ".6rem .8rem" }}
+                    min={yearsRange.start}
+                    max={yearsRange.now}
+                    step={1}
+                    list="exo-years"
                 />
                 <input
                     className="glass"
@@ -152,8 +204,19 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
                     value={yearMax}
                     onChange={e => setYearMax(e.target.value)}
                     style={{ padding: ".6rem .8rem" }}
+                    min={yearsRange.start}
+                    max={yearsRange.now}
+                    step={1}
+                    list="exo-years"
                 />
             </div>
+
+            {/* Year suggestions shared by both inputs */}
+            <datalist id="exo-years">
+                {yearsRange.list.map((y) => (
+                    <option key={y} value={y} />
+                ))}
+            </datalist>
 
             <div className="exo-info">
                 <span className="exo-chip" title={searchMessages.legend.planetHint}>{searchMessages.legend.planet}</span>
@@ -166,7 +229,7 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
 
             <div className="exo-table-wrap">
                 <div className="exo-table-glow" aria-hidden />
-                {filtered.length > 0 ? (
+                {filteredAll.length > 0 ? (
                     <table className="exo-table">
                         <caption className="sr-only">{searchMessages.title}</caption>
                         <thead>
@@ -180,7 +243,7 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map((r, idx) => (
+                            {pageItems.map((r, idx) => (
                                 <motion.tr
                                     key={r.id}
                                     className="exo-row"
@@ -227,11 +290,39 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
                         <span className="exo-stats-chip">
                             <span className="dot" aria-hidden />
                             {searchMessages.summary
-                                .replace("{shown}", filtered.length.toLocaleString(currentLang))
+                                .replace("{shown}", pageItems.length.toLocaleString(currentLang))
                                 .replace("{total}", rows.length.toLocaleString(currentLang))}
                         </span>
                         <span className="exo-stats-chip ghost">{searchMessages.footerHint}</span>
                     </div>
+                    {totalPages > 1 && (
+                        <nav className="exo-pagination" aria-label={paginationLang.nav} style={{ display: "flex", gap: ".4rem", alignItems: "center", flexWrap: "wrap" }}>
+                            <button className="btn secondary" onClick={() => setPage(1)} disabled={currentPage === 1} aria-label={paginationLang.first}>&laquo;</button>
+                            <button className="btn secondary" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} aria-label={paginationLang.prev}>&lsaquo;</button>
+                            {(() => {
+                                const windowSize = 5;
+                                const start = Math.max(1, currentPage - Math.floor(windowSize / 2));
+                                const end = Math.min(totalPages, start + windowSize - 1);
+                                const items = [];
+                                for (let i = start; i <= end; i++) {
+                                    items.push(
+                                        <button
+                                            key={i}
+                                            className="btn secondary"
+                                            aria-current={i === currentPage ? "page" : undefined}
+                                            onClick={() => setPage(i)}
+                                            style={i === currentPage ? { borderColor: "rgba(137,180,255,.5)" } : undefined}
+                                        >
+                                            {i}
+                                        </button>
+                                    );
+                                }
+                                return items;
+                            })()}
+                            <button className="btn secondary" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} aria-label={paginationLang.next}>&rsaquo;</button>
+                            <button className="btn secondary" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} aria-label={paginationLang.last}>&raquo;</button>
+                        </nav>
+                    )}
                     <button
                         type="button"
                         className="exo-scroll-top"
