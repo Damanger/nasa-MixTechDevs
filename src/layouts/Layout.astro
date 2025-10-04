@@ -1,0 +1,119 @@
+---
+import LanguageHeader from "../components/LanguageHeader.jsx";
+import LanguageFooter from "../components/LanguageFooter.jsx";
+import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
+
+const {
+  title,
+  description,
+  lang: incomingLang,
+  translations: providedTranslations
+} = Astro.props;
+
+const queryLang = Astro.url.searchParams.get("lang");
+const langSource = incomingLang ?? queryLang;
+const lang = getLanguageSafe(langSource ?? DEFAULT_LANG);
+const messages = providedTranslations ?? getTranslations(lang);
+const metaTitle = title ?? messages.meta.title;
+const metaDescription = description ?? messages.meta.description;
+---
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{metaTitle}</title>
+    <meta name="description" content={metaDescription} />
+    <style is:global>
+      :root{
+        --bg-1:#0b1020;
+        --bg-2:#111a35;
+        --accent:#89b4ff;
+        --text:#e6eaff;
+        --muted:#b7c0e6;
+        --glass-bg: rgba(255,255,255,0.06);
+        --glass-brd: rgba(255,255,255,0.18);
+      }
+      *{box-sizing:border-box}
+      html,body{height:100%}
+      body{
+        margin:0; color:var(--text); background: radial-gradient(1200px 800px at 10% 10%, #19254a 0%, transparent 50%),
+                                          radial-gradient(900px 600px at 90% 30%, #0f1f47 0%, transparent 50%),
+                                          linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+        background-attachment: fixed;
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      }
+      a{color:var(--accent); text-decoration:none}
+      header{display:flex; justify-content:space-between; align-items:center; padding:1rem 1.25rem;}
+      nav{display:flex; align-items:center; gap:1rem;}
+      nav a{opacity:.9}
+      .container{max-width:1100px; margin:0 auto; padding:1.25rem}
+      .glass{
+        background: var(--glass-bg);
+        border:1px solid var(--glass-brd);
+        backdrop-filter: blur(14px) saturate(120%);
+        -webkit-backdrop-filter: blur(14px) saturate(120%);
+        border-radius: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.05);
+      }
+      .hero{
+        padding: clamp(2rem, 5vw, 4rem);
+        display:grid; grid-template-columns: 1.2fr 1fr; gap:2rem; align-items:center;
+      }
+      .badge{display:inline-block; padding:.35rem .6rem; border-radius:999px; border:1px solid var(--glass-brd); background:rgba(255,255,255,.05); font-size:.85rem; color:var(--muted)}
+      .title{font-size: clamp(2.2rem, 5vw, 3.4rem); margin:.5rem 0 0}
+      .subtitle{color:var(--muted); line-height:1.6}
+      .cta{display:flex; gap:.75rem; margin-top:1rem}
+      .btn{
+        padding:.9rem 1.1rem; border-radius:14px; border:1px solid var(--glass-brd);
+        background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+        color:var(--text); font-weight:600; cursor:pointer;
+        transition: transform .15s ease, box-shadow .15s ease, border-color .2s ease;
+      }
+      .btn:hover{transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,0,0,.25); border-color:rgba(255,255,255,.35)}
+      .btn.secondary{background:transparent}
+      .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:2rem}
+      .card{padding:1.25rem}
+      .card h3{margin:.2rem 0 .5rem}
+      .language-switcher{display:flex; align-items:center; gap:.6rem; font-size:.85rem; color:var(--muted);}
+      .language-switcher__label{font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; opacity:.7;}
+      .language-switcher__group{
+        display:flex;
+        border:1px solid var(--glass-brd);
+        border-radius:999px;
+        background:rgba(0,0,0,.2);
+        padding:.2rem;
+        gap:.2rem;
+      }
+      .language-switcher__button{
+        border:0;
+        border-radius:999px;
+        padding:.35rem .7rem;
+        background:transparent;
+        color:var(--muted);
+        font-size:.85rem;
+        cursor:pointer;
+        transition: background .2s ease, color .2s ease;
+      }
+      .language-switcher__button:hover{color:var(--text); background:rgba(255,255,255,.08);}
+      .language-switcher__button[data-active="true"]{
+        background:var(--accent);
+        color:#0b1020;
+        font-weight:600;
+      }
+      footer{opacity:.75; font-size:.9rem; padding:2rem 1.25rem}
+      @media (max-width: 900px){
+        .hero{grid-template-columns:1fr}
+        .grid{grid-template-columns:1fr}
+      }
+    </style>
+  </head>
+  <body>
+    <header class="container">
+      <LanguageHeader client:load initialLang={lang} />
+    </header>
+    <main class="container">
+      <slot />
+    </main>
+    <LanguageFooter client:load initialLang={lang} />
+  </body>
+</html>
