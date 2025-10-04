@@ -41,8 +41,14 @@ const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} 
     }
 
     persistLanguage(safeTarget);
-    window.history.replaceState({}, "", url.toString());
-    window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: { lang: safeTarget } }));
+    const shouldNavigate = window.location.pathname.startsWith("/analizar") && safeTarget !== current;
+
+    if (shouldNavigate) {
+      window.location.assign(url.toString());
+    } else {
+      window.history.replaceState({}, "", url.toString());
+      window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: { lang: safeTarget } }));
+    }
   };
 
   const labelId = useId();
@@ -53,23 +59,27 @@ const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} 
     const preferred = detectClientLanguage(lang);
     const safePreferred = getLanguageSafe(preferred);
 
-    setCurrent((prev) => (prev === safePreferred ? prev : safePreferred));
+    const syncUrl = (target) => {
+      const url = new URL(window.location.href);
+      if (target === DEFAULT_LANG) {
+        url.searchParams.delete("lang");
+      } else {
+        url.searchParams.set("lang", target);
+      }
+      window.history.replaceState({}, "", url.toString());
+    };
 
-    // ensure URL reflects preferred language without causing navigation
-    const url = new URL(window.location.href);
-    if (safePreferred === DEFAULT_LANG) {
-      url.searchParams.delete("lang");
-    } else {
-      url.searchParams.set("lang", safePreferred);
+    if (!window.location.pathname.startsWith("/analizar")) {
+      setCurrent((prev) => (prev === safePreferred ? prev : safePreferred));
+      syncUrl(safePreferred);
+      persistLanguage(safePreferred);
+      window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: { lang: safePreferred } }));
     }
-    window.history.replaceState({}, "", url.toString());
-
-    persistLanguage(safePreferred);
-    window.dispatchEvent(new CustomEvent(LANG_EVENT, { detail: { lang: safePreferred } }));
 
     const syncListener = (event) => {
       const nextLang = getLanguageSafe(event.detail?.lang ?? DEFAULT_LANG);
       setCurrent(nextLang);
+      if (!window.location.pathname.startsWith("/analizar")) syncUrl(nextLang);
     };
 
     window.addEventListener(LANG_EVENT, syncListener);
@@ -77,6 +87,8 @@ const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} 
       window.removeEventListener(LANG_EVENT, syncListener);
     };
   }, [lang]);
+
+  const shouldForceNavigation = typeof window !== "undefined" && window.location.pathname.startsWith("/analizar");
 
   return (
     <div className="language-switcher">
@@ -88,7 +100,20 @@ const LanguageSwitcher = ({ lang = DEFAULT_LANG, label = "Idioma", options = {} 
             type="button"
             className="language-switcher__button"
             data-active={value === current}
-            onClick={() => handleSelect(value)}
+            onClick={() => {
+              if (shouldForceNavigation && value !== current) {
+                const url = new URL(window.location.href);
+                if (value === DEFAULT_LANG) {
+                  url.searchParams.delete("lang");
+                } else {
+                  url.searchParams.set("lang", value);
+                }
+                persistLanguage(value);
+                window.location.assign(url.toString());
+              } else {
+                handleSelect(value);
+              }
+            }}
           >
             {text}
           </button>

@@ -1,0 +1,17 @@
+.spaceShipContainer{
+  position:absolute; inset:0; pointer-events:none; z-index:1;
+}
+.canvas{
+  width: 100%;
+  height: 100%;
+  border-radius: inherit; /* seguir el radio del contenedor rectangular */
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  display:block;
+}
+.backgroundImage{
+  position:absolute; inset:0;
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: inherit; opacity:.10; mix-blend-mode: screen;
+}

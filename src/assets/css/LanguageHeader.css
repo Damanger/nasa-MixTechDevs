@@ -1,0 +1,24 @@
+.route-indicator {
+    display: inline-block;
+    margin: 0.25rem 0 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    line-height: 1.2;
+    border: 1px solid currentColor;
+    opacity: 0.8;
+}
+
+nav a {
+    margin-right: 0.75rem;
+    text-decoration: none;
+    opacity: 0.8;
+}
+
+nav a.active,
+nav a[data-active="true"] {
+    font-weight: 600;
+    opacity: 1;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}

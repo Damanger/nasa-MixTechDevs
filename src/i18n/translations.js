@@ -6,15 +6,22 @@ export const LANG_EVENT = "exo:lang-change";
 const dictionaries = {
   es: {
     meta: {
-      title: "Exoplanetas | Landing",
-      description: "Landing moderna con glassmorphism sobre exoplanetas"
+      title: "MixTechDevs | Explorador de Exoplanetas",
+      description: "Analiza archivos CSV para confirmar y visualizar exoplanetas con MixTechDevs."
+    },
+    notFound: {
+      title: "404 – Página no encontrada",
+      heading: "Perdido en la galaxia",
+      description: "404 – La página que buscas no existe.",
+      ctaHome: "Volver al inicio",
+      ctaExplore: "Explorar datos"
     },
     layout: {
-      badge: "Exo•Lab",
+      badge: "MixTechDevs",
       nav: {
         home: "Inicio",
-        methods: "Métodos",
-        resources: "Recursos"
+        analyze: "Analizar CSV",
+        team: "Equipo"
       },
       languageSwitcher: {
         label: "Idioma",
@@ -24,42 +31,38 @@ const dictionaries = {
           de: "Alemán"
         }
       },
-      footer: "© {year} Exo•Lab"
+      footer: "© {year} MixTechDevs"
     },
     hero: {
-      badge: "Ciencia de exoplanetas",
-      title: "Explora mundos más allá del Sistema Solar",
+      badge: "MixTechDevs · Exoplanetas",
+      title: "Descubre exoplanetas a partir de tus CSV",
       subtitle: {
-        leading: "Un ",
-        highlight: "landing",
-        trailing: " veloz con UI tipo vidrio esmerilado para presentar métodos de detección, catálogos y visualizaciones interactivas."
+        leading: "Una suite de ",
+        highlight: "herramientas MixTechDevs",
+        trailing: " que analiza archivos CSV para detectar y comprender nuevos mundos."
       },
-      ctaPrimary: "Ver métodos",
-      ctaSecondary: "Recursos",
+      ctaPrimary: "Importar CSV",
+      ctaSecondary: "Ver guías",
       hints: [
-        "Tránsitos, RV, imagen directa…",
-        "Espectros y curvas de luz",
-        "Explora por tamaño y temperatura"
+        "Carga un CSV y valida exoplanetas al instante",
+        "Detecta patrones en catálogos observacionales",
+        "Clasifica por método, masa o habitabilidad"
       ],
-      placeholder: {
-        body: "Inserta aquí un componente animado de React Bits (por ejemplo, un fondo o un título animado).",
-        note: "Importa tu componente y úsalo aquí como <BitsComponent />."
-      }
     },
     sections: {
       methods: {
         cards: [
           {
             title: "Método de Tránsitos",
-            description: "Detección por disminuciones periódicas de brillo en la curva de luz de la estrella anfitriona."
+            description: "Detecta eclipses periódicos interpretando curvas de luz almacenadas en tus CSV."
           },
           {
             title: "Velocidad Radial",
-            description: "Desplazamientos Doppler en líneas espectrales por el bamboleo gravitacional estrella–planeta."
+            description: "Analiza series temporales en CSV para revelar desplazamientos Doppler y confirmar señales."
           },
           {
             title: "Imagen Directa",
-            description: "Separación angular y coronógrafos para aislar el flujo planetario de su estrella."
+            description: "Cruza metadatos espectrales y posiciones guardadas en CSV para aislar candidatos observacionales."
           }
         ]
       },
@@ -67,44 +70,44 @@ const dictionaries = {
         cards: [
           {
             title: "Catálogos",
-            description: "Integra más adelante APIs públicas, por ejemplo el NASA Exoplanet Archive, para listas y filtros."
+            description: "Integra CSV propios o APIs como el NASA Exoplanet Archive y sincroniza filtros personalizados."
           },
           {
             title: "Visualizaciones",
-            description: "Reserva espacio para gráficos: curvas de luz, diagramas masa-radio y más."
+            description: "Genera gráficos interactivos a partir de columnas CSV: curvas de luz, masa-radio y más."
           },
           {
             title: "Documentación",
-            description: "Planea rutas adicionales como /metodos, /visualizaciones y /sobre."
+            description: "Configura rutas adicionales con flujos paso a paso para importar, depurar y validar tus CSV."
           }
         ]
       }
     },
     summary: {
       ariaLabel: "Resumen de exoplanetas",
-      loading: "Cargando exoplanetas…",
-      errorPrefix: "Error cargando datos",
+      loading: "Procesando exoplanetas desde tu CSV…",
+      errorPrefix: "Error cargando datos del CSV",
       nullLabel: "Null",
       cards: {
         total: {
           title: "Total",
-          description: "Registros en el catálogo local."
+          description: "Registros detectados tras la importación del CSV."
         },
         timeRange: {
           title: "Rango temporal",
-          description: "Primer y último año de descubrimiento."
+          description: "Primer y último año reportado en el CSV."
         },
         topMethods: {
           title: "Métodos principales"
         },
         nearest: {
           title: "Más cercanos",
-          note: "Unidades según tu dataset."
+          note: "Valores normalizados desde las columnas de distancia del CSV."
         }
       }
     },
     search: {
-      title: "Búsqueda rápida",
+      title: "Explorador de CSV",
       filters: {
         queryPlaceholder: "Buscar por planeta u host…",
         methodAll: "Todos",
@@ -119,7 +122,41 @@ const dictionaries = {
         mass: "Masa",
         distance: "Distancia"
       },
-      summary: "Mostrando {shown} de {total} registros."
+      summary: "Mostrando {shown} de {total} filas procesadas."
+    },
+    analyze: {
+      title: "Analizar CSV",
+      message: "La ruta /analizar está lista. Carga tus archivos CSV cuando gustes."
+    },
+    analyzeUI: {
+      uploadHeading: "1) Cargar CSV",
+      dropHint: "Arrastra y suelta tu CSV aquí, o haz clic para elegir",
+      headersHint: "El CSV debe incluir encabezados en la primera fila.",
+      selectFile: "Elegir archivo",
+      fileInfo: {
+        name: "Archivo",
+        rows: "Filas",
+        cols: "Columnas"
+      },
+      mappingHeading: "2) Mapeo de columnas",
+      metricsHeading: "3) Métricas y visualizaciones",
+      previewHeading: "4) Vista previa del resultado del modelo (futuro)",
+      clear: "Reiniciar",
+      showMetrics: "Mostrar métricas",
+      showCharts: "Mostrar gráficos",
+      downloadExample: "Descargar ejemplo JSON"
+    },
+    team: {
+      title: "MixTechDevs · Equipo",
+      message: "Conoce a las personas detrás de MixTechDevs.",
+      roles: {
+        pm: "Gerente de proyecto",
+        ds: "Científico de Datos",
+        be: "Ingeniero BackEnd",
+        uiux: "Líder de Negocios",
+        content: "Creadora de contenido",
+        felead: "Líder FrontEnd"
+      }
     },
     compare: {
       heading: "Tierra vs Exoplaneta",
@@ -137,7 +174,13 @@ const dictionaries = {
         rotate: "Rotar"
       },
       earthLabel: "Tierra",
+      jupiterLabel: "Júpiter",
       nullLabel: "Null",
+      modes: {
+        earthExo: "Tierra + Seleccionado",
+        jupiterExo: "Júpiter + Seleccionado",
+        all: "Los tres"
+      },
       facts: {
         mass: "Masa",
         radius: "Radio (visual)",
@@ -154,53 +197,60 @@ const dictionaries = {
         temp: " K",
         distance: " pc"
       },
-      disclaimer: "Nota: visualización con supuestos de densidad similar; \"not to scale\". Para valores físicos de radio, usa el campo de radio cuando esté disponible o una relación masa–radio especializada.",
+      disclaimer: "Nota: visualización derivada de valores estimados en tus CSV; \"not to scale\". Para radios físicos, utiliza mediciones directas o relaciones masa–radio especializadas.",
       context: {
         title: "¿Por qué comparar?",
-        body: "Este módulo ayuda a contextualizar masa, temperatura de equilibrio y método de descubrimiento del exoplaneta frente al estándar terrestre."
+        body: "Este módulo contrasta los datos extraídos del CSV con parámetros terrestres para validar la detección."
       }
     },
     stats: {
-      ariaLabel: "Escala del descubrimiento",
-      heading: "La escala del descubrimiento",
-      intro: "Nuestro conocimiento de exoplanetas crece de forma sostenida; este bloque resume tu catálogo local.",
-      loading: "Calculando métricas…",
-      errorPrefix: "Error cargando métricas",
+      ariaLabel: "Escala MixTechDevs del descubrimiento",
+      heading: "Escala MixTechDevs del descubrimiento",
+      intro: "Resumimos los indicadores clave detectados automáticamente a partir de tus CSV de exoplanetas.",
+      loading: "Calculando métricas desde el CSV…",
+      errorPrefix: "Error al generar métricas",
       cards: {
         planets: {
           kicker: "🪐",
           title: "Exoplanetas confirmados",
-          description: "Planetas fuera del Sistema Solar (dataset local)."
+          description: "Planetas identificados tras las rutinas de validación de MixTechDevs."
         },
         systems: {
           kicker: "⭐️",
           title: "Sistemas planetarios",
-          description: "Estrellas anfitrionas con planetas confirmados."
+          description: "Estrellas anfitrionas agrupadas desde el CSV procesado."
         },
         multi: {
           kicker: "🖼️",
           title: "Sistemas multi-planeta",
-          description: "Estrellas con ≥ 2 planetas en el catálogo."
+          description: "Hosts con ≥ 2 señales después del análisis de filas."
         },
         tempered: {
           kicker: "🌍",
           title: "Candidatos “templados”",
-          description: "Filtro simplificado por T_eq/insolación†"
+          description: "Selección heurística basada en temperatura o insolación dentro del CSV."
         }
       }
     }
   },
   en: {
     meta: {
-      title: "Exoplanets | Landing",
-      description: "Modern glassmorphism landing page about exoplanets"
+      title: "MixTechDevs | Exoplanet Explorer",
+      description: "Analyze CSV files to confirm and visualize exoplanets with MixTechDevs."
+    },
+    notFound: {
+      title: "404 – Page not found",
+      heading: "Lost in the galaxy",
+      description: "404 – The page you’re looking for doesn’t exist.",
+      ctaHome: "Go home",
+      ctaExplore: "Explore data"
     },
     layout: {
-      badge: "Exo•Lab",
+      badge: "MixTechDevs",
       nav: {
         home: "Home",
-        methods: "Methods",
-        resources: "Resources"
+        analyze: "Analyze CSV",
+        team: "Team"
       },
       languageSwitcher: {
         label: "Language",
@@ -210,42 +260,38 @@ const dictionaries = {
           de: "German"
         }
       },
-      footer: "© {year} Exo•Lab"
+      footer: "© {year} MixTechDevs"
     },
     hero: {
-      badge: "Exoplanet Science",
-      title: "Explore worlds beyond the Solar System",
+      badge: "MixTechDevs · Exoplanets",
+      title: "Discover exoplanets from your CSVs",
       subtitle: {
-        leading: "A fast ",
-        highlight: "landing",
-        trailing: " page with frosted-glass UI to highlight detection methods, catalogues, and interactive visuals."
+        leading: "A suite of ",
+        highlight: "MixTechDevs tools",
+        trailing: " that parses CSV files to detect and understand new worlds."
       },
-      ctaPrimary: "See methods",
-      ctaSecondary: "Resources",
+      ctaPrimary: "Import CSV",
+      ctaSecondary: "View guides",
       hints: [
-        "Transits, RV, direct imaging…",
-        "Spectra and light curves",
-        "Filter by size and temperature"
+        "Upload a CSV and validate exoplanets instantly",
+        "Spot patterns in observational catalogues",
+        "Classify by method, mass, or habitability"
       ],
-      placeholder: {
-        body: "Drop an animated React Bits component here (for example, a background or animated heading).",
-        note: "Import your component and mount it here as <BitsComponent />."
-      }
     },
     sections: {
       methods: {
         cards: [
           {
             title: "Transit Method",
-            description: "Detect periodic dips in stellar brightness caused by a planet crossing in front."
+            description: "Detect periodic dips by interpreting light curves stored in your CSV files."
           },
           {
             title: "Radial Velocity",
-            description: "Track Doppler shifts in spectral lines from the star’s planet-induced wobble."
+            description: "Analyze time-series data in CSV format to uncover Doppler shifts and confirm signals."
           },
           {
             title: "Direct Imaging",
-            description: "Use angular separation and coronagraphs to isolate the planet’s light from its star."
+            description: "Cross-match spectral metadata and positions recorded in CSVs to isolate observational candidates."
           }
         ]
       },
@@ -253,44 +299,44 @@ const dictionaries = {
         cards: [
           {
             title: "Catalogues",
-            description: "Plug in public APIs such as the NASA Exoplanet Archive for lists and filters."
+            description: "Ingest your own CSVs or public APIs like NASA’s Exoplanet Archive and sync tailored filters."
           },
           {
             title: "Visualisations",
-            description: "Reserve space for plots like light curves and mass–radius diagrams."
+            description: "Generate interactive plots from CSV columns: light curves, mass–radius charts, and more."
           },
           {
             title: "Documentation",
-            description: "Plan extra routes: /methods, /visualisations, and /about."
+            description: "Create extra routes with step-by-step flows to import, clean, and validate your CSV data."
           }
         ]
       }
     },
     summary: {
       ariaLabel: "Exoplanet summary",
-      loading: "Loading exoplanets…",
-      errorPrefix: "Error loading data",
+      loading: "Processing exoplanets from your CSV…",
+      errorPrefix: "Error loading CSV data",
       nullLabel: "Null",
       cards: {
         total: {
           title: "Total",
-          description: "Records in the local catalogue."
+          description: "Records detected after importing the CSV."
         },
         timeRange: {
           title: "Time range",
-          description: "Earliest and latest discovery year."
+          description: "Earliest and latest discovery year reported in the CSV."
         },
         topMethods: {
           title: "Top methods"
         },
         nearest: {
           title: "Closest",
-          note: "Units follow your dataset."
+          note: "Values normalised from the CSV distance columns."
         }
       }
     },
     search: {
-      title: "Quick search",
+      title: "CSV explorer",
       filters: {
         queryPlaceholder: "Search by planet or host…",
         methodAll: "All",
@@ -305,7 +351,41 @@ const dictionaries = {
         mass: "Mass",
         distance: "Distance"
       },
-      summary: "Showing {shown} of {total} records."
+      summary: "Showing {shown} of {total} processed rows."
+    },
+    analyze: {
+      title: "Analyze CSV",
+      message: "Route /analizar is live. Drop your CSV files here when you're ready."
+    },
+    analyzeUI: {
+      uploadHeading: "1) Upload CSV",
+      dropHint: "Drag & drop your CSV here, or click to choose",
+      headersHint: "The CSV must include headers in the first row.",
+      selectFile: "Choose file",
+      fileInfo: {
+        name: "File",
+        rows: "Rows",
+        cols: "Columns"
+      },
+      mappingHeading: "2) Column mapping",
+      metricsHeading: "3) Metrics & visualizations",
+      previewHeading: "4) Model output preview (future)",
+      clear: "Reset",
+      showMetrics: "Show metrics",
+      showCharts: "Show charts",
+      downloadExample: "Download example JSON"
+    },
+    team: {
+      title: "MixTechDevs · Team",
+      message: "Meet the people behind MixTechDevs.",
+      roles: {
+        pm: "Project Manager",
+        ds: "Data Scientist",
+        be: "Backend Engineer",
+        uiux: "Business Lead",
+        content: "Content Creator",
+        felead: "FrontEnd Lead"
+      }
     },
     compare: {
       heading: "Earth vs Exoplanet",
@@ -323,7 +403,13 @@ const dictionaries = {
         rotate: "Rotate"
       },
       earthLabel: "Earth",
+      jupiterLabel: "Jupiter",
       nullLabel: "Null",
+      modes: {
+        earthExo: "Earth + Selected",
+        jupiterExo: "Jupiter + Selected",
+        all: "All three"
+      },
       facts: {
         mass: "Mass",
         radius: "Visual radius",
@@ -340,53 +426,60 @@ const dictionaries = {
         temp: " K",
         distance: " pc"
       },
-      disclaimer: "Note: visualization assumes similar density and is not to scale. For physical radii, rely on measured radius fields or a specialised mass–radius relation.",
+      disclaimer: "Note: visualization derives from estimates in your CSV and is not to scale. For physical radii, rely on measured values or specialised mass–radius relations.",
       context: {
         title: "Why compare?",
-        body: "This module helps contextualise mass, equilibrium temperature, and discovery method relative to Earth's baseline."
+        body: "The module contrasts CSV-derived data with Earth baselines to validate detections."
       }
     },
     stats: {
-      ariaLabel: "Scale of discovery",
-      heading: "The scale of discovery",
-      intro: "Our knowledge of exoplanets keeps growing; this block summarizes your local catalogue.",
-      loading: "Calculating metrics…",
-      errorPrefix: "Error loading metrics",
+      ariaLabel: "MixTechDevs discovery scale",
+      heading: "MixTechDevs discovery scale",
+      intro: "Key indicators automatically extracted from your exoplanet CSV.",
+      loading: "Calculating metrics from the CSV…",
+      errorPrefix: "Error generating metrics",
       cards: {
         planets: {
           kicker: "🪐",
           title: "Confirmed exoplanets",
-          description: "Planets beyond the Solar System (local dataset)."
+          description: "Planets identified after MixTechDevs validation routines."
         },
         systems: {
           kicker: "⭐️",
           title: "Planetary systems",
-          description: "Host stars with confirmed planets."
+          description: "Host stars grouped from the processed CSV."
         },
         multi: {
           kicker: "🖼️",
           title: "Multi-planet systems",
-          description: "Stars with ≥ 2 planets in the catalogue."
+          description: "Hosts with ≥ 2 signals after row analysis."
         },
         tempered: {
           kicker: "🌍",
           title: "Tempered candidates",
-          description: "Simple filter by T_eq/insolation†"
+          description: "Heuristic selection based on temperature or insolation columns in the CSV."
         }
       }
     }
   },
   de: {
     meta: {
-      title: "Exoplaneten | Landing",
-      description: "Moderne Glassmorphism-Landingpage über Exoplaneten"
+      title: "MixTechDevs | Exoplaneten-Explorer",
+      description: "Analysiere CSV-Dateien, um Exoplaneten mit MixTechDevs zu bestätigen und zu visualisieren."
+    },
+    notFound: {
+      title: "404 – Seite nicht gefunden",
+      heading: "Verloren in der Galaxie",
+      description: "404 – Die gesuchte Seite existiert nicht.",
+      ctaHome: "Zur Startseite",
+      ctaExplore: "Daten erkunden"
     },
     layout: {
-      badge: "Exo•Lab",
+      badge: "MixTechDevs",
       nav: {
         home: "Startseite",
-        methods: "Methoden",
-        resources: "Ressourcen"
+        analyze: "CSV analysieren",
+        team: "Team"
       },
       languageSwitcher: {
         label: "Sprache",
@@ -396,42 +489,38 @@ const dictionaries = {
           de: "Deutsch"
         }
       },
-      footer: "© {year} Exo•Lab"
+      footer: "© {year} MixTechDevs"
     },
     hero: {
-      badge: "Exoplanetenforschung",
-      title: "Entdecke Welten jenseits des Sonnensystems",
+      badge: "MixTechDevs · Exoplaneten",
+      title: "Entdecke Exoplaneten aus deinen CSV-Dateien",
       subtitle: {
-        leading: "Eine schnelle ",
-        highlight: "Landingpage",
-        trailing: " mit Glasoberflächen-Look, um Nachweismethoden, Kataloge und interaktive Visualisierungen zu präsentieren."
+        leading: "Ein Set von ",
+        highlight: "MixTechDevs-Werkzeugen",
+        trailing: " das CSV-Dateien auswertet, um neue Welten aufzuspüren und zu verstehen."
       },
-      ctaPrimary: "Methoden ansehen",
-      ctaSecondary: "Ressourcen",
+      ctaPrimary: "CSV importieren",
+      ctaSecondary: "Leitfäden ansehen",
       hints: [
-        "Transits, Radialgeschwindigkeit, Direktabbildung…",
-        "Spektren und Lichtkurven",
-        "Filtere nach Größe und Temperatur"
+        "Lade ein CSV hoch und prüfe Exoplaneten sofort",
+        "Erkenne Muster in Beobachtungskatalogen",
+        "Klassifiziere nach Methode, Masse oder Habitabilität"
       ],
-      placeholder: {
-        body: "Füge hier eine animierte React-Bits-Komponente ein, etwa einen Hintergrund oder einen animierten Titel.",
-        note: "Importiere deine Komponente und nutze sie hier als <BitsComponent />."
-      }
     },
     sections: {
       methods: {
         cards: [
           {
             title: "Transitmethode",
-            description: "Erkenne periodische Helligkeitseinbrüche, wenn ein Planet vor seinem Stern vorbeizieht."
+            description: "Erkenne periodische Abdunklungen, indem du Lichtkurven aus deinen CSV-Dateien interpretierst."
           },
           {
             title: "Radialgeschwindigkeit",
-            description: "Verfolge Dopplerverschiebungen in Spektrallinien durch das planeteninduzierte Wackeln des Sterns."
+            description: "Analysiere Zeitreihen im CSV-Format, um Dopplerverschiebungen aufzuspüren und Signale zu bestätigen."
           },
           {
             title: "Direktabbildung",
-            description: "Nutze Winkeltrennung und Koronagraphen, um das Planetenlicht vom Stern zu trennen."
+            description: "Vernetze spektrale Metadaten und Positionen aus CSVs, um Beobachtungskandidaten zu isolieren."
           }
         ]
       },
@@ -439,44 +528,44 @@ const dictionaries = {
         cards: [
           {
             title: "Kataloge",
-            description: "Binde öffentliche APIs wie das NASA Exoplanet Archive für Listen und Filter ein."
+            description: "Binde eigene CSVs oder APIs wie das NASA Exoplanet Archive ein und synchronisiere maßgeschneiderte Filter."
           },
           {
             title: "Visualisierungen",
-            description: "Reserviere Platz für Diagramme wie Lichtkurven und Masse-Radius-Diagramme."
+            description: "Erzeuge interaktive Diagramme aus CSV-Spalten: Lichtkurven, Masse-Radius-Plots und mehr."
           },
           {
             title: "Dokumentation",
-            description: "Plane zusätzliche Routen wie /methoden, /visualisierungen und /ueber."
+            description: "Plane zusätzliche Routen mit Schritt-für-Schritt-Abläufen zum Importieren, Bereinigen und Validieren deiner CSVs."
           }
         ]
       }
     },
     summary: {
       ariaLabel: "Exoplaneten-Übersicht",
-      loading: "Exoplaneten werden geladen…",
-      errorPrefix: "Fehler beim Laden der Daten",
+      loading: "Exoplaneten aus deinem CSV werden verarbeitet…",
+      errorPrefix: "Fehler beim Laden der CSV-Daten",
       nullLabel: "Null",
       cards: {
         total: {
           title: "Gesamt",
-          description: "Einträge im lokalen Katalog."
+          description: "Einträge, die nach dem CSV-Import erkannt wurden."
         },
         timeRange: {
           title: "Zeitspanne",
-          description: "Frühestes und spätestes Entdeckungsjahr."
+          description: "Frühestes und spätestes im CSV gemeldetes Entdeckungsjahr."
         },
         topMethods: {
           title: "Wichtigste Methoden"
         },
         nearest: {
           title: "Nächste",
-          note: "Einheiten entsprechen deinem Datensatz."
+          note: "Werte normalisiert aus den Distanzspalten des CSV."
         }
       }
     },
     search: {
-      title: "Schnellsuche",
+      title: "CSV-Explorer",
       filters: {
         queryPlaceholder: "Nach Planet oder Stern suchen…",
         methodAll: "Alle",
@@ -491,7 +580,41 @@ const dictionaries = {
         mass: "Masse",
         distance: "Distanz"
       },
-      summary: "Es werden {shown} von {total} Einträgen angezeigt."
+      summary: "Es werden {shown} von {total} verarbeiteten Zeilen angezeigt."
+    },
+    analyze: {
+      title: "CSV analysieren",
+      message: "Die Route /analizar ist aktiv. Lade deine CSV-Dateien hier, sobald du bereit bist."
+    },
+    analyzeUI: {
+      uploadHeading: "1) CSV hochladen",
+      dropHint: "Ziehe deine CSV hierher oder klicke zur Auswahl",
+      headersHint: "Die CSV-Datei muss Kopfzeilen in der ersten Zeile enthalten.",
+      selectFile: "Datei wählen",
+      fileInfo: {
+        name: "Datei",
+        rows: "Zeilen",
+        cols: "Spalten"
+      },
+      mappingHeading: "2) Spaltenzuordnung",
+      metricsHeading: "3) Metriken & Visualisierungen",
+      previewHeading: "4) Modellvorschau (zukünftig)",
+      clear: "Zurücksetzen",
+      showMetrics: "Metriken anzeigen",
+      showCharts: "Diagramme anzeigen",
+      downloadExample: "Beispiel-JSON herunterladen"
+    },
+    team: {
+      title: "MixTechDevs · Team",
+      message: "Lerne die Menschen hinter MixTechDevs kennen.",
+      roles: {
+        pm: "Projektmanager",
+        ds: "Data Scientist",
+        be: "Backend Engineer",
+        uiux: "Business Lead",
+        content: "Content Creator",
+        felead: "FrontEnd Lead"
+      }
     },
     compare: {
       heading: "Erde vs. Exoplanet",
@@ -509,7 +632,13 @@ const dictionaries = {
         rotate: "Rotieren"
       },
       earthLabel: "Erde",
+      jupiterLabel: "Jupiter",
       nullLabel: "Null",
+      modes: {
+        earthExo: "Erde + Auswahl",
+        jupiterExo: "Jupiter + Auswahl",
+        all: "Alle drei"
+      },
       facts: {
         mass: "Masse",
         radius: "Visueller Radius",
@@ -526,38 +655,38 @@ const dictionaries = {
         temp: " K",
         distance: " pc"
       },
-      disclaimer: "Hinweis: Visualisierung setzt ähnliche Dichte voraus und ist nicht maßstabsgetreu. Für reale Radien nutze gemessene Werte oder spezialisierte Masse-Radius-Relationen.",
+      disclaimer: "Hinweis: Visualisierung basiert auf Schätzungen aus deinem CSV und ist nicht maßstabsgetreu. Für reale Radien nutze Messwerte oder spezialisierte Masse-Radius-Relationen.",
       context: {
         title: "Warum vergleichen?",
-        body: "Dieses Modul hilft, Masse, Gleichgewichtstemperatur und Entdeckungsmethode im Vergleich zum irdischen Referenzwert einzuordnen."
+        body: "Das Modul stellt CSV-basierte Daten den Erdreferenzen gegenüber, um Entdeckungen zu validieren."
       }
     },
     stats: {
-      ariaLabel: "Skala der Entdeckung",
-      heading: "Die Skala der Entdeckung",
-      intro: "Unser Wissen über Exoplaneten wächst stetig; dieser Block fasst deinen lokalen Katalog zusammen.",
-      loading: "Metriken werden berechnet…",
-      errorPrefix: "Fehler beim Laden der Metriken",
+      ariaLabel: "MixTechDevs-Entdeckungsskala",
+      heading: "MixTechDevs-Entdeckungsskala",
+      intro: "Schlüsseleindikatoren, die automatisch aus deinem Exoplaneten-CSV extrahiert wurden.",
+      loading: "Metriken werden aus dem CSV berechnet…",
+      errorPrefix: "Fehler beim Erstellen der Metriken",
       cards: {
         planets: {
           kicker: "🪐",
           title: "Bestätigte Exoplaneten",
-          description: "Planeten außerhalb des Sonnensystems (lokaler Datensatz)."
+          description: "Planeten, die nach MixTechDevs-Validierung erkannt wurden."
         },
         systems: {
           kicker: "⭐️",
           title: "Planetensysteme",
-          description: "Zentralsterne mit bestätigten Planeten."
+          description: "Zentralsterne, gruppiert aus dem verarbeiteten CSV."
         },
         multi: {
           kicker: "🖼️",
           title: "Mehrplanetensysteme",
-          description: "Sterne mit ≥ 2 Planeten im Katalog."
+          description: "Sterne mit ≥ 2 Signalen nach der Zeilenanalyse."
         },
         tempered: {
           kicker: "🌍",
           title: "Gemäßigte Kandidaten",
-          description: "Vereinfachter Filter nach T_eq/Insolation†"
+          description: "Heuristische Auswahl basierend auf Temperatur- oder Insolationsspalten des CSV."
         }
       }
     }

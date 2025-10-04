@@ -15,11 +15,11 @@ const { meta, hero, summary, search, stats, compare } = translations;
 <Layout lang={lang} title={meta.title} description={meta.description} translations={translations}>
   <ExoplanetHero client:load lang={lang} messages={hero} />
 
-  <ExoStats client:load lang={lang} messages={stats} src="/exoplanets.json" />
+  <ExoStats client:load lang={lang} messages={stats} src="/exoplanets.csv" />
 
-  <ExoSummary client:load lang={lang} messages={summary} src="/exoplanets.json" />
+  <ExoSummary client:load lang={lang} messages={summary} src="/exoplanets.csv" />
 
-  <ExoCompare client:load lang={lang} messages={compare} src="/exoplanets.json" />
+  <ExoCompare client:load lang={lang} messages={compare} src="/exoplanets.csv" />
 
-  <ExoSearch client:visible lang={lang} messages={search} src="/exoplanets.json" />
+  <ExoSearch client:visible lang={lang} messages={search} src="/exoplanets.csv" />
 </Layout>

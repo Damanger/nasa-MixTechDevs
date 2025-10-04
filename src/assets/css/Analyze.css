@@ -1,0 +1,151 @@
+.analyze-root {
+    display: grid;
+    gap: 1rem;
+}
+
+.panel {
+    display: grid;
+    gap: .75rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, .03);
+    border-radius: 14px;
+    overflow: hidden; /* evita que el contenido se salga del cuadro */
+}
+
+.grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem;
+}
+
+label {
+    display: grid;
+    gap: .25rem;
+    font-size: .95rem;
+    text-align: left;
+}
+
+select[multiple] {
+    min-height: 7rem;
+}
+
+.row {
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    align-items: center;
+    gap: .5rem;
+}
+
+.seed {
+    margin-left: 1rem;
+    opacity: .8;
+}
+
+.hint {
+    opacity: .7;
+    font-size: .9rem;
+}
+
+.muted {
+    opacity: .7;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.card {
+    background: rgba(0, 0, 0, .25);
+    border-radius: 12px;
+    padding: .75rem;
+    text-align: center;
+}
+
+.kpi {
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.kpi-label {
+    opacity: .8;
+    font-size: .85rem;
+}
+
+.charts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+}
+
+.chart {
+    min-height: 260px;
+    background: rgba(0, 0, 0, .2);
+    border-radius: 12px;
+    padding: .5rem;
+}
+
+@media (max-width: 980px) {
+    .grid2 {
+        grid-template-columns: 1fr;
+    }
+
+    .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .charts {
+        grid-template-columns: 1fr;
+    }
+}
+.dropzone {
+    position: relative;
+    display: grid;
+    place-items: center;
+    border: 1px dashed var(--glass-brd);
+    border-radius: 14px;
+    padding: 1.25rem;
+    background: rgba(255,255,255,.03);
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color .2s ease, background .2s ease;
+}
+.dropzone[data-active="true"]{ border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.05); }
+.dropzone input[type="file"]{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.file-info{ display:flex; gap:.75rem; flex-wrap:wrap; font-size:.9rem; opacity:.9; }
+.file-info b{ opacity:1; }
+
+.toolbar { display:flex; gap:.5rem; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
+.toolbar .btn { padding:.5rem .75rem; border-radius:10px; border:1px solid var(--glass-brd); background: rgba(255,255,255,.06); }
+
+.preview {
+    overflow:auto; border-radius:12px; border:1px solid var(--glass-brd);
+    background: rgba(255,255,255,.03);
+}
+.table { width:100%; border-collapse: separate; border-spacing: 0; font-size:.92rem; }
+.table thead th { position: sticky; top:0; background: rgba(0,0,0,.25); border-bottom:1px solid var(--glass-brd); text-align:left; padding:.5rem .6rem; }
+.table tbody td { padding:.45rem .6rem; border-bottom:1px solid rgba(255,255,255,.06); white-space: nowrap; text-overflow: ellipsis; overflow:hidden; }
+.table tbody tr:nth-child(even){ background: rgba(255,255,255,.03); }
+
+/* Stepper */
+.stepper{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+.step{
+  display:flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:999px;
+  border:1px solid var(--glass-brd); background: rgba(255,255,255,.04); color:var(--text);
+  cursor:pointer; opacity:.85; transition: background .2s ease, border-color .2s ease, opacity .2s ease; white-space: nowrap;
+}
+.step[data-active="true"]{ opacity:1; border-color: rgba(255,255,255,.35); background: rgba(255,255,255,.08); }
+.step[data-disabled="true"]{ opacity:.45; cursor:not-allowed; }
+.step .bullet{ width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:.85rem; background: rgba(255,255,255,.08); border:1px solid var(--glass-brd); }
+.stepper-nav{ display:flex; gap:.5rem; margin-left:auto; }
+.stepper-nav .btn{ padding:.5rem .8rem; border-radius:10px; border:1px solid var(--glass-brd); background: rgba(255,255,255,.06); }
+
+/* Móvil: dos columnas de pasos, textos con wrap y controles abajo */
+@media (max-width: 680px){
+  .stepper{ align-items:flex-start; }
+  .step{ flex: 1 1 calc(50% - .5rem); min-width: 160px; white-space: normal; }
+  .step .bullet{ flex:0 0 auto; }
+  .stepper-nav{ width:100%; justify-content:flex-end; margin-top:.5rem; }
+}

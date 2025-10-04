@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "motion/react";
 import BlurText from "./BlurText.jsx";
 import {
   DEFAULT_LANG,
@@ -45,13 +46,20 @@ export default function ExoplanetHero({ lang = DEFAULT_LANG, messages }) {
 
   const currentHint = hints[hintIndex] ?? "";
 
-  const handleAnimationComplete = () => {
-    console.log("Animation completed!");
-  };
-
   return (
-    <div className="glass hero">
-      <div>
+    <motion.div
+      className="glass hero"
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-10% 0px" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-10% 0px" }}
+        transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+      >
         <span className="badge">{heroMessages.badge}</span>
         <BlurText
           as="h1"
@@ -60,7 +68,6 @@ export default function ExoplanetHero({ lang = DEFAULT_LANG, messages }) {
           delay={150}
           animateBy="words"
           direction="top"
-          onAnimationComplete={handleAnimationComplete}
         />
         <p className="subtitle">
           {heroMessages.subtitle.leading}
@@ -68,18 +75,48 @@ export default function ExoplanetHero({ lang = DEFAULT_LANG, messages }) {
           {heroMessages.subtitle.trailing}
         </p>
         <div className="cta">
-          <a className="btn" href="#metodos">{heroMessages.ctaPrimary}</a>
-          <a className="btn secondary" href="#recursos">{heroMessages.ctaSecondary}</a>
+          <a className="btn" href="/analizar">{heroMessages.ctaPrimary}</a>
         </div>
         <p className="subtitle" style={{ marginTop: ".75rem" }} aria-live="polite">{currentHint}</p>
-      </div>
+      </motion.div>
 
-      <div className="glass" style={{ padding: "1rem", minHeight: "260px", display: "grid", placeItems: "center" }}>
-        <div style={{ opacity: .85, textAlign: "center" }}>
-          <p style={{ margin: 0 }}>{heroMessages.placeholder.body}</p>
-          <small style={{ opacity: .75 }}>{heroMessages.placeholder.note}</small>
+      <motion.div
+        className="glass"
+        style={{
+          padding: "1rem",
+          minHeight: "320px",
+          display: "grid",
+          placeItems: "center",
+          overflow: "hidden"
+        }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-10% 0px" }}
+        transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div
+          style={{
+            width: "min(100%, 460px)",
+            aspectRatio: "1 / 1",
+            display: "grid",
+            placeItems: "center"
+          }}
+        >
+          <img
+            src="/exoplanet.webp"
+            alt="Exoplaneta"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center",
+              borderRadius: "14px",
+              display: "block",
+              boxShadow: "0 10px 30px rgba(0,0,0,.25)"
+            }}
+          />
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

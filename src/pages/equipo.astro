@@ -1,0 +1,19 @@
+---
+import Layout from "../layouts/Layout.astro";
+import ChromaGrid from "../components/ChromaGrid.jsx";
+import TeamHeader from "../components/TeamHeader.jsx";
+import TeamGrid from "../components/TeamGrid.jsx";
+import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
+
+const langParam = Astro.url.searchParams.get("lang");
+const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
+const translations = getTranslations(lang);
+const { team } = translations;
+---
+<Layout lang={lang} translations={translations} title={team.title}>
+  <TeamHeader client:load initialLang={lang} />
+
+  <section class="glass card" style="margin-top:1rem; padding:1rem;">
+    <TeamGrid client:load initialLang={lang} />
+  </section>
+</Layout>

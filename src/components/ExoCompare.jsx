@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "motion/react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import {
@@ -8,6 +9,7 @@ import {
     getLanguageSafe,
     getTranslations
 } from "../i18n/translations.js";
+import parseCSV from "../lib/csv.js";
 
 // --- Utilidades ---
 const toNum = (v, treatZeroAsNull = false) => {
@@ -16,18 +18,18 @@ const toNum = (v, treatZeroAsNull = false) => {
     if (treatZeroAsNull && n === 0) return null;
     return n;
 };
-const mapRow = (r) => ({
-    id: r["No."],
-    name: r["Planet Name"],
-    host: r["Planet Host"],
-    method: r["Discovery Method"] || "",
-    year: toNum(r["Discovery Year"]),
-    massE: toNum(r["Mass"]),                 // en masas terrestres (según dataset)
-    radiusE: toNum(r["Radius Earth Radii"]) || toNum(r["Radius"]), // si algún día lo traes
-    tempEq: toNum(r["Equilibrium Temperature"]),
-    flux: toNum(r["Insolation Flux"]),
-    distance: toNum(r["Distance"], true),
-    specType: r["Spectral Type"] || "",
+const mapRow = (r, idx) => ({
+    id: r.pl_name || `${r.pl_name}|${r.hostname}|${idx}`,
+    name: r.pl_name,
+    host: r.hostname,
+    method: r.discoverymethod || "",
+    year: toNum(r.disc_year),
+    massE: toNum(r.pl_bmasse),
+    radiusE: toNum(r.pl_rade),
+    tempEq: toNum(r.pl_eqt),
+    flux: toNum(r.pl_insol),
+    distance: toNum(r.sy_dist, true),
+    specType: r.st_spectype || "",
 });
 
 const clamp = (x, a, b) => Math.min(Math.max(x, a), b);
@@ -69,26 +71,35 @@ function RotSphere({ color = "#6ba3ff", radius = 1, label = "Earth" }) {
 }
 
 // --- Escena 3D comparativa ---
-function CompareScene({ earthLabel = "Earth", earthR = 1, exoName = "Kepler-452b", exoR = 1.6, autoRotate = true }) {
-    const maxRadius = Math.max(earthR, exoR);
+// bodies: [{ label, radius, color }]
+function CompareScene({ bodies = [], autoRotate = true }) {
+    const maxRadius = Math.max(1, ...bodies.map(b => b.radius || 1));
     const gap = Math.max(0.6, maxRadius * 0.25);
-    const separation = earthR + exoR + gap;
-    const earthPos = [-separation / 2, 0, 0];
-    const exoPos = [separation / 2, 0, 0];
-    const cameraZ = Math.max(10, separation * 1.25);
+    const sumR = bodies.reduce((s, b) => s + (b.radius || 1), 0);
+    const totalWidth = 2 * sumR + gap * Math.max(bodies.length - 1, 0);
+    const cameraZ = Math.max(10, totalWidth * 1.25);
     const cameraY = Math.max(3.5, maxRadius * 0.75 + 1.5);
+
+    // Centered x positions from left to right
+    const positions = [];
+    let x = -totalWidth / 2 + (bodies[0]?.radius || 1);
+    for (let i = 0; i < bodies.length; i++) {
+        positions.push([x, 0, 0]);
+        const r = bodies[i]?.radius || 1;
+        const nextR = bodies[i + 1]?.radius || 0;
+        x += r + nextR + gap;
+    }
 
     return (
         <Canvas shadows camera={{ position: [0, cameraY, cameraZ], fov: 45 }}>
             <ambientLight intensity={0.35} />
             <directionalLight position={[5, 8, 5]} intensity={1.1} castShadow />
             <group position={[0, 0, 0]}>
-                <group position={earthPos}>
-                    <RotSphere color="#4b84ff" radius={earthR} label={earthLabel} />
-                </group>
-                <group position={exoPos}>
-                    <RotSphere color="#6b3a2a" radius={exoR} label={exoName} />
-                </group>
+                {bodies.map((b, i) => (
+                    <group key={i} position={positions[i]}>
+                        <RotSphere color={b.color} radius={b.radius} label={b.label} />
+                    </group>
+                ))}
             </group>
             <OrbitControls
                 enablePan={false}
@@ -101,10 +112,11 @@ function CompareScene({ earthLabel = "Earth", earthR = 1, exoName = "Kepler-452b
     );
 }
 
-export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LANG, messages }) {
+export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LANG, messages }) {
     const [rows, setRows] = useState([]);
-    const [q, setQ] = useState("Kepler-452 b"); // valor por defecto habitual
+    const [q, setQ] = useState("Proxima Cen d");
     const [autoRotate, setAutoRotate] = useState(true);
+    const [mode, setMode] = useState("earth-exo"); // 'earth-exo' | 'jupiter-exo' | 'all'
     const safeLang = getLanguageSafe(lang);
     const [currentLang, setCurrentLang] = useState(safeLang);
     const compareMessages = useMemo(() => {
@@ -130,7 +142,8 @@ export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LA
         const ac = new AbortController();
         (async () => {
             const res = await fetch(src, { signal: ac.signal });
-            const data = await res.json();
+            const txt = await res.text();
+            const data = parseCSV(txt);
             setRows(Array.isArray(data) ? data.map(mapRow) : []);
         })().catch(() => { });
         return () => ac.abort();
@@ -148,6 +161,8 @@ export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LA
         if (!planet) return 1;
         return visualRadiusR(planet.massE, planet.radiusE);
     }, [planet]);
+
+    const JUPITER_R_EARTH = 11.21; // ~ Jupiter radius in Earth radii
 
     const facts = useMemo(() => {
         if (!planet) return null;
@@ -169,7 +184,13 @@ export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LA
     }, [planet, rExo, compareMessages, currentLang, nullLabel]);
 
     return (
-        <section style={{ marginTop: "1.25rem" }}>
+        <motion.section
+            style={{ marginTop: "1.25rem" }}
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-10% 0px" }}
+            transition={{ duration: 0.75, ease: [0.16, 1, 0.3, 1] }}
+        >
             <h2 style={{ textAlign: "center", margin: "0 0 .4rem" }}>{compareMessages.heading}</h2>
             <p className="subtitle" style={{ textAlign: "center", margin: "0 0 1rem" }}>
                 {compareMessages.description.intro}{' '}
@@ -180,19 +201,40 @@ export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LA
                 {compareMessages.description.outro}
             </p>
 
-            <div className="glass" style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: "1rem", padding: "1rem" }}>
-                <div className="glass" style={{ padding: "0", minHeight: "430px" }}>
-                    <CompareScene
-                        earthLabel={compareMessages.earthLabel}
-                        earthR={1}
-                        exoName={planet?.name || "Exoplanet"}
-                        exoR={rExo}
-                        autoRotate={autoRotate}
-                    />
-                </div>
+            <motion.div
+                className="glass compare-grid"
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-10% 0px" }}
+                transition={{ duration: 0.7, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+            >
+                <motion.div
+                    className="glass compare-canvas"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true, margin: "-10% 0px" }}
+                    transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                >
+                    {(() => {
+                        const bodies = [];
+                        const earth = { label: compareMessages.earthLabel, radius: 1, color: "#4b84ff" };
+                        const jupiter = { label: compareMessages.jupiterLabel || "Jupiter", radius: JUPITER_R_EARTH, color: "#d0a772" };
+                        const exo = { label: planet?.name || "Exoplanet", radius: rExo, color: "#6b3a2a" };
+                        if (mode === "earth-exo") bodies.push(earth, exo);
+                        else if (mode === "jupiter-exo") bodies.push(exo, jupiter);
+                        else bodies.push(earth, exo, jupiter);
+                        return <CompareScene bodies={bodies} autoRotate={autoRotate} />;
+                    })()}
+                </motion.div>
 
-                <div className="glass" style={{ padding: "1rem" }}>
-                    <div style={{ display: "flex", gap: ".5rem", marginBottom: ".75rem" }}>
+                <motion.div
+                    className="glass compare-details"
+                    initial={{ opacity: 0, x: 24 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-10% 0px" }}
+                    transition={{ duration: 0.7, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                >
+                    <div className="search-controls compare-controls">
                         <input
                             className="glass"
                             list="exo-list"
@@ -204,14 +246,19 @@ export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LA
                         <datalist id="exo-list">
                             {options.map((name) => <option key={name} value={name} />)}
                         </datalist>
-                        <button className="btn secondary" onClick={() => setAutoRotate(a => !a)} aria-pressed={autoRotate}>
+                        <select className="glass" value={mode} onChange={e => setMode(e.target.value)}>
+                            <option value="earth-exo">{compareMessages.modes?.earthExo || "Earth + Selected"}</option>
+                            <option value="jupiter-exo">{compareMessages.modes?.jupiterExo || "Jupiter + Selected"}</option>
+                            <option value="all">{compareMessages.modes?.all || "All three"}</option>
+                        </select>
+                        <button className="btn secondary compare-toggle" onClick={() => setAutoRotate(a => !a)} aria-pressed={autoRotate}>
                             {autoRotate ? compareMessages.toggle.stop : compareMessages.toggle.rotate}
                         </button>
                     </div>
 
                     <div className="glass card" style={{ padding: ".9rem" }}>
                         <h3 style={{ marginTop: 0 }}>{planet?.name || nullLabel}</h3>
-                        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".35rem .75rem" }}>
+                        <ul className="compare-facts" style={{ listStyle: "none", padding: 0, margin: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gap: ".35rem .75rem" }}>
                             {facts?.map(({ label, value }) => (
                                 <li key={label}><strong>{label}:</strong> <span style={{ opacity: .85 }}>{value}</span></li>
                             ))}
@@ -227,8 +274,8 @@ export default function ExoCompare({ src = "/exoplanets.json", lang = DEFAULT_LA
                             {compareMessages.context.body}
                         </p>
                     </div>
-                </div>
-            </div>
-        </section>
+                </motion.div>
+            </motion.div>
+        </motion.section>
     );
 }
