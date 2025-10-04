@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { auth, googleProvider } from "../lib/firebaseClient.js";
+import { createPortal } from "react-dom";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
+import { DEFAULT_LANG, getLanguageSafe } from "../i18n/translations.js";
+import { auth, googleProvider } from "../lib/firebaseClient.js";
 
 const GoogleIcon = ({ size = 18 }) => (
     <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
@@ -31,12 +33,16 @@ function normalizeGooglePhotoURL(url, size = 64) {
     }
 }
 
-export default function GoogleAuthButton() {
+export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
     const [user, setUser] = useState(null);
     const [busy, setBusy] = useState(false);
     const [open, setOpen] = useState(false);
     const menuRef = useRef(null);
     const [avatarSrc, setAvatarSrc] = useState("/MixTechDevs.webp");
+    const buttonRef = useRef(null);
+    const dropdownRef = useRef(null);
+    const [menuPosition, setMenuPosition] = useState(null);
+    const [portalNode, setPortalNode] = useState(null);
 
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, (u) => setUser(u));
@@ -57,7 +63,10 @@ export default function GoogleAuthButton() {
     useEffect(() => {
         const onClick = (e) => {
             if (!menuRef.current) return;
-            if (!menuRef.current.contains(e.target)) setOpen(false);
+            const dropdownEl = dropdownRef.current;
+            if (!menuRef.current.contains(e.target) && (!dropdownEl || !dropdownEl.contains(e.target))) {
+                setOpen(false);
+            }
         };
         const onKey = (e) => {
             if (e.key === "Escape") setOpen(false);
@@ -69,6 +78,60 @@ export default function GoogleAuthButton() {
             document.removeEventListener("keydown", onKey);
         };
     }, []);
+
+    useEffect(() => {
+        if (typeof document === "undefined") return;
+        const node = document.createElement("div");
+        node.setAttribute("data-google-menu", "");
+        document.body.appendChild(node);
+        setPortalNode(node);
+        return () => {
+            document.body.removeChild(node);
+            setPortalNode(null);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (!open) return;
+        if (typeof window === "undefined") return;
+
+        const updatePosition = () => {
+            if (!buttonRef.current) return;
+            const rect = buttonRef.current.getBoundingClientRect();
+            const menuWidth = dropdownRef.current?.offsetWidth ?? 220;
+            const maxLeft = window.innerWidth - menuWidth - 12;
+            const computedLeft = Math.min(Math.max(rect.right - menuWidth, 12), maxLeft < 12 ? 12 : maxLeft);
+            setMenuPosition({
+                top: rect.bottom + 8,
+                left: computedLeft,
+            });
+        };
+
+        const navEl = buttonRef.current.closest?.(".navbar");
+        let raf1 = 0;
+        let raf2 = 0;
+        const schedule = () => {
+            raf1 = requestAnimationFrame(() => {
+                updatePosition();
+                raf2 = requestAnimationFrame(updatePosition);
+            });
+        };
+        schedule();
+        window.addEventListener("resize", updatePosition);
+        window.addEventListener("scroll", updatePosition, true);
+        navEl?.addEventListener("scroll", updatePosition);
+        return () => {
+            cancelAnimationFrame(raf1);
+            cancelAnimationFrame(raf2);
+            window.removeEventListener("resize", updatePosition);
+            window.removeEventListener("scroll", updatePosition, true);
+            navEl?.removeEventListener("scroll", updatePosition);
+        };
+    }, [open, lang, user?.displayName, user?.email]);
+
+    useEffect(() => {
+        if (!open) setMenuPosition(null);
+    }, [open]);
 
     const signIn = async () => {
         try {
@@ -93,81 +156,105 @@ export default function GoogleAuthButton() {
         }
     };
 
+    const effectiveLang = getLanguageSafe(lang);
+    const settingsHref = effectiveLang === DEFAULT_LANG
+        ? "/ajustes"
+        : `/ajustes?lang=${effectiveLang}`;
+
     return (
-        <div className="google-auth" style={{ display: "flex", alignItems: "center" }} ref={menuRef}>
-            {user ? (
-                <div style={{ position: "relative" }}>
-                    <button
-                        onClick={() => setOpen((v) => !v)}
-                        aria-haspopup="menu"
-                        aria-expanded={open ? "true" : "false"}
-                        title={user.displayName || "Cuenta"}
-                        style={avatarButtonStyle}
-                    >
-                        <img
-                            src={avatarSrc}
-                            alt={user.displayName || "Usuario"}
-                            width={28}
-                            height={28}
-                            style={{ borderRadius: "50%", display: "block" }}
-                            loading="lazy"
-                            decoding="async"
-                            referrerPolicy="no-referrer"
-                            onError={(e) => {
-                                if (e.currentTarget.src.endsWith("MixTechDevs.webp")) return; // evita bucle
-                                setAvatarSrc("/MixTechDevs.webp");
-                            }}
-                        />
-                        <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" style={{ opacity: 0.8 }}>
-                            <path fill="currentColor" d="M7 10l5 5 5-5z" />
-                        </svg>
-                    </button>
-                    {open && (
-                        <div role="menu" aria-label="Menú de usuario" style={menuStyle}>
-                            <div style={menuHeaderStyle}>
-                                <img
-                                    src={avatarSrc}
-                                    alt="avatar"
-                                    width={28}
-                                    height={28}
-                                    style={{ borderRadius: "50%" }}
-                                    loading="lazy"
-                                    decoding="async"
-                                    referrerPolicy="no-referrer"
-                                />
-                                <div style={{ lineHeight: 1 }}>
-                                    <div style={{ fontWeight: 600, fontSize: 13 }}>{user.displayName || "Usuario"}</div>
-                                    <div style={{ opacity: 0.8, fontSize: 12 }}>{user.email}</div>
-                                </div>
-                            </div>
-                            <button
-                                role="menuitem"
-                                onClick={async (e) => {
-                                    e.stopPropagation();
-                                    setOpen(false);
-                                    await signOutUser();
+        <>
+            <div className="google-auth" style={{ display: "flex", alignItems: "center" }} ref={menuRef}>
+                {user ? (
+                    <div style={{ position: "relative" }}>
+                        <button
+                            onClick={() => setOpen((v) => !v)}
+                            aria-haspopup="menu"
+                            aria-expanded={open ? "true" : "false"}
+                            title={user.displayName || "Cuenta"}
+                            style={avatarButtonStyle}
+                            ref={buttonRef}
+                        >
+                            <img
+                                src={avatarSrc}
+                                alt={user.displayName || "Usuario"}
+                                width={28}
+                                height={28}
+                                style={{ borderRadius: "50%", display: "block" }}
+                                loading="lazy"
+                                decoding="async"
+                                referrerPolicy="no-referrer"
+                                onError={(e) => {
+                                    if (e.currentTarget.src.endsWith("MixTechDevs.webp")) return; // evita bucle
+                                    setAvatarSrc("/MixTechDevs.webp");
                                 }}
-                                style={menuItemStyle}
-                            >
-                                Cerrar sesión
-                            </button>
+                            />
+                            <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true" style={{ opacity: 0.8 }}>
+                                <path fill="currentColor" d="M7 10l5 5 5-5z" />
+                            </svg>
+                        </button>
+                    </div>
+                ) : (
+                    <button
+                        className="google-btn"
+                        onClick={signIn}
+                        disabled={busy}
+                        aria-label="Iniciar sesión con Google"
+                        title="Iniciar sesión con Google"
+                        style={buttonStyle}
+                    >
+                        <GoogleIcon />
+                        <span style={{ marginLeft: 6 }}>Google</span>
+                    </button>
+                )}
+            </div>
+            {open && portalNode && menuPosition
+                ? createPortal(
+                    <div
+                        role="menu"
+                        aria-label="Menú de usuario"
+                        ref={dropdownRef}
+                        style={{ ...menuStyle, top: menuPosition.top, left: menuPosition.left }}
+                    >
+                        <div style={menuHeaderStyle}>
+                            <img
+                                src={avatarSrc}
+                                alt="avatar"
+                                width={28}
+                                height={28}
+                                style={{ borderRadius: "50%" }}
+                                loading="lazy"
+                                decoding="async"
+                                referrerPolicy="no-referrer"
+                            />
+                            <div style={{ lineHeight: 1 }}>
+                                <div style={{ fontWeight: 600, fontSize: 13 }}>{user.displayName || "Usuario"}</div>
+                                <div style={{ opacity: 0.8, fontSize: 12 }}>{user.email}</div>
+                            </div>
                         </div>
-                    )}
-                </div>
-            ) : (
-                <button
-                    className="google-btn"
-                    onClick={signIn}
-                    disabled={busy}
-                    aria-label="Iniciar sesión con Google"
-                    title="Iniciar sesión con Google"
-                    style={buttonStyle}
-                >
-                    <GoogleIcon />
-                    <span style={{ marginLeft: 6 }}>Google</span>
-                </button>
-            )}
-        </div>
+                        <a
+                            role="menuitem"
+                            href={settingsHref}
+                            onClick={() => setOpen(false)}
+                            style={menuLinkStyle}
+                        >
+                            Ajustes
+                        </a>
+                        <button
+                            role="menuitem"
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                setOpen(false);
+                                await signOutUser();
+                            }}
+                            style={{ ...menuItemStyle, backgroundColor: "rgba(168, 56, 56, 0.75)" }}
+                        >
+                            Cerrar sesión
+                        </button>
+                    </div>,
+                    portalNode
+                )
+                : null}
+        </>
     );
 }
 
@@ -197,16 +284,14 @@ const avatarButtonStyle = {
 };
 
 const menuStyle = {
-    position: "absolute",
-    top: "calc(100% + 8px)",
-    right: 0,
+    position: "fixed",
     minWidth: 200,
     padding: 8,
     borderRadius: 12,
     border: "1px solid rgba(255,255,255,0.18)",
     background: "rgba(10,16,34,0.92)",
     boxShadow: "0 12px 28px rgba(0,0,0,0.28)",
-    zIndex: 1000,
+    zIndex: 2000,
     backdropFilter: "blur(10px) saturate(130%)",
     WebkitBackdropFilter: "blur(10px) saturate(130%)",
 };
@@ -222,11 +307,18 @@ const menuHeaderStyle = {
 
 const menuItemStyle = {
     width: "100%",
-    textAlign: "left",
+    textAlign: "center",
     padding: "8px 10px",
     borderRadius: 8,
     border: "1px solid rgba(255,255,255,0.08)",
     background: "transparent",
     color: "#e6eaff",
     cursor: "pointer",
+};
+
+const menuLinkStyle = {
+    ...menuItemStyle,
+    display: "block",
+    textDecoration: "none",
+    marginBottom: 6,
 };

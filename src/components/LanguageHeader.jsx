@@ -93,7 +93,7 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
             options={layoutMessages.languageSwitcher.options}
           />
           {/* Google Sign-In */}
-          <GoogleAuthButton />
+          <GoogleAuthButton lang={lang} />
         </div>
       </nav>
     </>

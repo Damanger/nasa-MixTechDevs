@@ -226,6 +226,25 @@ const dictionaries = {
         felead: "Líder FrontEnd",
       },
     },
+    settings: {
+      title: "Ajustes de cuenta",
+      message: "Personaliza tu perfil, preferencias y seguridad en MixTechDevs.",
+      comingSoon: "Próximamente",
+      cards: [
+        {
+          title: "Perfil",
+          description: "Edita tu nombre para mostrar y sincroniza tu foto de Google.",
+        },
+        {
+          title: "Preferencias",
+          description: "Configura idioma, notificaciones y comportamiento por defecto.",
+        },
+        {
+          title: "Seguridad",
+          description: "Revisa sesiones activas y cierra sesión en todos tus dispositivos.",
+        },
+      ],
+    },
     compare: {
       heading: "Tierra vs Exoplaneta",
       description: {
@@ -583,6 +602,25 @@ const dictionaries = {
         felead: "FrontEnd Lead",
       },
     },
+    settings: {
+      title: "Account settings",
+      message: "Customize your MixTechDevs profile, preferences, and security.",
+      comingSoon: "Coming soon",
+      cards: [
+        {
+          title: "Profile",
+          description: "Edit your display name and sync your Google photo.",
+        },
+        {
+          title: "Preferences",
+          description: "Choose language, notifications, and default behaviors.",
+        },
+        {
+          title: "Security",
+          description: "Review active sessions and sign out everywhere.",
+        },
+      ],
+    },
     compare: {
       heading: "Earth vs Exoplanet",
       description: {
@@ -829,6 +867,25 @@ const dictionaries = {
         content: "Content Creator",
         felead: "FrontEnd Lead",
       },
+    },
+    settings: {
+      title: "Kontoeinstellungen",
+      message: "Passe dein MixTechDevs-Profil, deine Präferenzen und Sicherheit an.",
+      comingSoon: "Demnächst verfügbar",
+      cards: [
+        {
+          title: "Profil",
+          description: "Bearbeite deinen Anzeigenamen und synchronisiere dein Google-Foto.",
+        },
+        {
+          title: "Präferenzen",
+          description: "Wähle Sprache, Benachrichtigungen und Standardaktionen.",
+        },
+        {
+          title: "Sicherheit",
+          description: "Überprüfe aktive Sitzungen und melde dich überall ab.",
+        },
+      ],
     },
     compare: {
       heading: "Erde vs. Exoplanet",

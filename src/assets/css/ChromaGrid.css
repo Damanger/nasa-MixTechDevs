@@ -80,31 +80,35 @@
 .chroma-img-wrapper {
     position: relative;
     z-index: 0;
-    /* Mantener la relación 1:1 sin que Flex estire el alto */
     flex: 0 0 auto;
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
-    background: #0b0f1a; /* fondo para letterboxing cuando la imagen usa contain */
-    transition: background 0.3s ease;
+}
+
+.chroma-img-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #0b0f1a;
     display: flex;
     align-items: center;
     justify-content: center;
-    aspect-ratio: 1 / 1; /* asegura imágenes cuadradas y del mismo tamaño */
 }
 
-.chroma-img-wrapper img {
+.chroma-img-frame img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* mostrar imagen completa */
+    object-fit: cover;
     object-position: center;
-    border-radius: 10px;
     display: block;
-    filter: grayscale(100%); /* blanco y negro por defecto */
+    filter: grayscale(100%);
     transition: transform .25s ease, filter .25s ease;
 }
-.chroma-card:hover .chroma-img-wrapper img { transform: scale(1.02); filter: grayscale(0%) saturate(115%); }
-.chroma-card[data-show-role="true"] .chroma-img-wrapper img { filter: grayscale(0%) saturate(115%); }
+.chroma-card:hover .chroma-img-frame img { transform: scale(1.02); filter: grayscale(0%) saturate(115%); }
+.chroma-card[data-show-role="true"] .chroma-img-frame img { filter: grayscale(0%) saturate(115%); }
 
 .chroma-info {
     position: absolute;

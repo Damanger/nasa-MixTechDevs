@@ -97,6 +97,19 @@ const metaDescription = description ?? messages.meta.description;
         border-radius: 14px;
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
         box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      .navbar::-webkit-scrollbar { height: 6px; }
+      .navbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.14);
+        border-radius: 6px;
       }
       /* ensure inner nav items align nicely inside glass */
       .site-header .navbar {

@@ -82,7 +82,9 @@ export default function ChromaGrid({
                 >
                     <div className="chroma-img-wrapper">
                         {it.image ? (
-                            <img src={it.image} alt={it.title} loading="lazy" />
+                            <div className="chroma-img-frame">
+                                <img src={it.image} alt={it.title} loading="lazy" />
+                            </div>
                         ) : null}
                     </div>
                     <div className="chroma-info">

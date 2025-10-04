@@ -5,7 +5,15 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
 }
+
+.navbar::-webkit-scrollbar { height: 6px; }
+.navbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.14); border-radius: 6px; }
 
 .navbar a {
     display: inline-flex;
@@ -20,6 +28,7 @@
     font-weight: 500;
     letter-spacing: 0.01em;
     transition: background .18s ease, border-color .18s ease, color .18s ease, transform .12s ease;
+    flex: 0 0 auto;
 }
 .navbar a:hover {
     background: rgba(255, 255, 255, 0.12);
@@ -41,19 +50,12 @@
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
+    flex: 0 0 auto;
 }
 
 /* Responsive */
 @media (max-width: 700px) {
-    .navbar {
-        flex-wrap: nowrap;
-        gap: 0.35rem;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-    }
-    .navbar::-webkit-scrollbar { height: 6px; }
-    .navbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 6px; }
+    .navbar { gap: 0.35rem; padding-bottom: 0.15rem; }
     .navbar a { padding: 0.38rem 0.6rem; font-size: 0.9rem; }
     .navbar-right { gap: 0.3rem; }
 }
