@@ -3,6 +3,7 @@
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
     apiKey: import.meta.env.PUBLIC_FIREBASE_API_KEY,
@@ -12,6 +13,7 @@ const firebaseConfig = {
     messagingSenderId: import.meta.env.PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
     appId: import.meta.env.PUBLIC_FIREBASE_APP_ID,
     measurementId: import.meta.env.PUBLIC_FIREBASE_MEASUREMENT_ID,
+    databaseURL: import.meta.env.PUBLIC_FIREBASE_DATABASE_URL,
 };
 
 // Ensure we only initialize once in the client runtime
@@ -20,6 +22,9 @@ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 // Auth + Google provider
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+
+// Realtime Database handle for client usage
+export const db = getDatabase(app);
 
 // Analytics is only supported in the browser and when measurementId exists
 export const analyticsPromise = (async () => {

@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
+import BackgroundColorSettings from "../components/BackgroundColorSettings.jsx";
 
 const langParam = Astro.url.searchParams.get("lang");
 const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
@@ -15,7 +16,8 @@ const settings = translations.settings;
   </section>
 
   <section class="settings-grid">
-    {settings.cards.map((card) => (
+    <BackgroundColorSettings client:load strings={settings.background} />
+    {settings.cards.map((card:any) => (
       <article class="glass settings-card">
         <h2>{card.title}</h2>
         <p>{card.description}</p>

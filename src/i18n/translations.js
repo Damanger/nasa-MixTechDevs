@@ -230,6 +230,26 @@ const dictionaries = {
       title: "Ajustes de cuenta",
       message: "Personaliza tu perfil, preferencias y seguridad en MixTechDevs.",
       comingSoon: "Próximamente",
+      background: {
+        title: "Fondos personalizados",
+        description: "Elige un ambiente visual diferente para MixTechDevs.",
+        loading: "Cargando preferencia…",
+        signedOut: "Inicia sesión con Google para elegir tu fondo.",
+        statusSaving: "Guardando…",
+        statusSaved: "Preferencia guardada",
+        statusError: "No se pudo guardar la preferencia.",
+        saveError: "Intenta de nuevo más tarde.",
+        options: {
+          default: {
+            label: "Gradiente MixTechDevs",
+            description: "Mantiene el degradado espacial clásico.",
+          },
+          matrix: {
+            label: "Lluvia digital",
+            description: "Texto verde cayendo al estilo Matrix sobre fondo negro.",
+          },
+        },
+      },
       cards: [
         {
           title: "Perfil",
@@ -606,6 +626,26 @@ const dictionaries = {
       title: "Account settings",
       message: "Customize your MixTechDevs profile, preferences, and security.",
       comingSoon: "Coming soon",
+      background: {
+        title: "Custom backgrounds",
+        description: "Pick a different visual mood for MixTechDevs.",
+        loading: "Loading preference…",
+        signedOut: "Sign in with Google to choose your background.",
+        statusSaving: "Saving…",
+        statusSaved: "Preference saved",
+        statusError: "Could not save the preference.",
+        saveError: "Please try again later.",
+        options: {
+          default: {
+            label: "MixTechDevs gradient",
+            description: "Keep the signature space gradient.",
+          },
+          matrix: {
+            label: "Digital rain",
+            description: "Neon-green glyphs cascading over a black canvas.",
+          },
+        },
+      },
       cards: [
         {
           title: "Profile",
@@ -872,6 +912,26 @@ const dictionaries = {
       title: "Kontoeinstellungen",
       message: "Passe dein MixTechDevs-Profil, deine Präferenzen und Sicherheit an.",
       comingSoon: "Demnächst verfügbar",
+      background: {
+        title: "Individuelle Hintergründe",
+        description: "Wähle eine andere visuelle Stimmung für MixTechDevs.",
+        loading: "Lade Einstellung…",
+        signedOut: "Melde dich mit Google an, um deinen Hintergrund zu wählen.",
+        statusSaving: "Speichern…",
+        statusSaved: "Präferenz gespeichert",
+        statusError: "Präferenz konnte nicht gespeichert werden.",
+        saveError: "Versuche es später noch einmal.",
+        options: {
+          default: {
+            label: "MixTechDevs-Gradient",
+            description: "Behält den klassischen Weltraumverlauf bei.",
+          },
+          matrix: {
+            label: "Digitaler Regen",
+            description: "Neongrüne Zeichen fallen vor schwarzem Hintergrund.",
+          },
+        },
+      },
       cards: [
         {
           title: "Profil",

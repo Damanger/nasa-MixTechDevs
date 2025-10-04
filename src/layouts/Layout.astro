@@ -2,6 +2,8 @@
 import LanguageHeader from "../components/LanguageHeader.jsx";
 import LanguageFooter from "../components/LanguageFooter.jsx";
 import ScrollToTopButton from "../components/ScrollToTopButton.jsx";
+import BackgroundPreferenceListener from "../components/BackgroundPreferenceListener.jsx";
+import MatrixBackground from "../components/MatrixBackground.jsx";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const {
@@ -37,6 +39,10 @@ const metaDescription = description ?? messages.meta.description;
         --muted: #b7c0e6;
         --glass-bg: rgba(255, 255, 255, 0.06);
         --glass-brd: rgba(255, 255, 255, 0.18);
+        --layout-background:
+          radial-gradient(1200px 800px at 10% 10%, #19254a 0%, transparent 50%),
+          radial-gradient(900px 600px at 90% 30%, #0f1f47 0%, transparent 50%),
+          linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
       }
       * {
         box-sizing: border-box;
@@ -48,13 +54,7 @@ const metaDescription = description ?? messages.meta.description;
       body {
         margin: 0;
         color: var(--text);
-        background: radial-gradient(
-            1200px 800px at 10% 10%,
-            #19254a 0%,
-            transparent 50%
-          ),
-          radial-gradient(900px 600px at 90% 30%, #0f1f47 0%, transparent 50%),
-          linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+        background: var(--layout-background);
         background-attachment: fixed;
         font-family:
           ui-sans-serif,
@@ -67,6 +67,9 @@ const metaDescription = description ?? messages.meta.description;
           "Noto Sans",
           "Apple Color Emoji",
           "Segoe UI Emoji";
+      }
+      body[data-background="matrix"] {
+        background: #000;
       }
       a {
         color: var(--accent);
@@ -587,7 +590,9 @@ const metaDescription = description ?? messages.meta.description;
       /* Very wide screens: APOD layout governed by page CSS */
     </style>
   </head>
-  <body>
+  <body data-background="default">
+    <BackgroundPreferenceListener client:load />
+    <MatrixBackground client:load />
     <header class="site-header">
       <div class="container">
   <LanguageHeader client:idle initialLang={lang} />
