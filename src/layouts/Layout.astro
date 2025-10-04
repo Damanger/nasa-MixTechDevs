@@ -38,6 +38,15 @@ const metaDescription = description ?? messages.meta.description;
     <link rel="icon" type="image/webp" href="/MixTechDevs.webp" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link
+      rel="preload"
+      as="image"
+      href="/exoplanet-512.webp"
+      imagesrcset="/exoplanet-512.webp 512w, /exoplanet.webp 1024w"
+      imagesizes="(max-width: 768px) 80vw, 460px"
+      type="image/webp"
+      fetchpriority="high"
+    />
     <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
     <style is:global>

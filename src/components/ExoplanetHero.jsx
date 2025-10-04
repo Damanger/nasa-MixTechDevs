@@ -111,6 +111,7 @@ export default function ExoplanetHero({ lang = DEFAULT_LANG, messages }) {
             height={512}
             fetchpriority="high"
             decoding="async"
+            loading="eager"
             style={{
               width: "100%",
               height: "100%",
