@@ -28,7 +28,15 @@ const LanguageFooter = ({ initialLang = DEFAULT_LANG }) => {
     return layoutMessages.footer.replace("{year}", new Date().getFullYear().toString());
   }, [lang]);
 
-  return <footer className="container">{footerText}</footer>;
+  return (
+    <footer>
+      <div className="container">
+        <div className="navbar footerbar" role="contentinfo" aria-label="Site footer">
+          {footerText}
+        </div>
+      </div>
+    </footer>
+  );
 };
 
 export default LanguageFooter;

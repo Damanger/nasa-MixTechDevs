@@ -1,24 +1,46 @@
-.route-indicator {
-    display: inline-block;
-    margin: 0.25rem 0 0.75rem;
-    padding: 0.15rem 0.5rem;
+/* (route-indicator removed) */
+
+/* Navbar mejorado: enlaces tipo pill y switcher a la derecha */
+.navbar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.5rem 0.85rem;
     border-radius: 999px;
-    font-size: 0.85rem;
-    line-height: 1.2;
-    border: 1px solid currentColor;
-    opacity: 0.8;
-}
-
-nav a {
-    margin-right: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(226, 234, 255, 0.9);
+    background: rgba(0, 0, 0, 0.15);
     text-decoration: none;
-    opacity: 0.8;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    transition: background .18s ease, border-color .18s ease, color .18s ease, transform .12s ease;
+}
+.navbar a:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.22);
+}
+.navbar a:active { transform: translateY(1px); }
+
+.navbar a.active,
+.navbar a[data-active="true"] {
+    background: linear-gradient(135deg, rgba(137,180,255,0.28), rgba(51,75,133,0.32));
+    border-color: rgba(137, 180, 255, 0.45);
+    color: #eaf0ff;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-nav a.active,
-nav a[data-active="true"] {
-    font-weight: 600;
-    opacity: 1;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+/* Empujar el selector de idioma al extremo derecho */
+.navbar .language-switcher { margin-left: auto; }
+
+/* Responsive */
+@media (max-width: 700px) {
+    .navbar { flex-wrap: wrap; gap: 0.4rem; }
+    .navbar a { padding: 0.45rem 0.7rem; font-size: 0.95rem; }
+    .navbar .language-switcher { width: 100%; justify-content: flex-start; margin-top: 0.25rem; }
 }

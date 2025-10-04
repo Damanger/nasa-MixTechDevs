@@ -13,13 +13,13 @@ const translations = getTranslations(lang);
 const { meta, hero, summary, search, stats, compare } = translations;
 ---
 <Layout lang={lang} title={meta.title} description={meta.description} translations={translations}>
-  <ExoplanetHero client:load lang={lang} messages={hero} />
+  <ExoplanetHero client:visible lang={lang} messages={hero} />
 
-  <ExoStats client:load lang={lang} messages={stats} src="/exoplanets.csv" />
+  <ExoStats client:visible lang={lang} messages={stats} src="/exoplanets.csv" />
 
-  <ExoSummary client:load lang={lang} messages={summary} src="/exoplanets.csv" />
+  <ExoSummary client:visible lang={lang} messages={summary} src="/exoplanets.csv" />
 
-  <ExoCompare client:load lang={lang} messages={compare} src="/exoplanets.csv" />
+  <ExoCompare client:visible lang={lang} messages={compare} src="/exoplanets.csv" />
 
   <ExoSearch client:visible lang={lang} messages={search} src="/exoplanets.csv" />
 </Layout>
