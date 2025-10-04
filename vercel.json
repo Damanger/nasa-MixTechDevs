@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/",          "destination": "/index.html" },
     { "source": "/analizar",  "destination": "/analizar/index.html" },
-    { "source": "/equipo",    "destination": "/equipo/index.html" }
+    { "source": "/equipo",    "destination": "/equipo/index.html" },
+    { "source": "/apod",      "destination": "/apod/index.html" }
   ]
 }
