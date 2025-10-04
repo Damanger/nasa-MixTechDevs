@@ -7,7 +7,7 @@ import {
     getLanguageSafe,
     getTranslations
 } from "../i18n/translations.js";
-import parseCSV from "../lib/csv.js";
+import fetchCSV from "../lib/fetchCSV.js";
 import "../assets/css/SearchTable.css";
 
 const toNum = (v) => {
@@ -41,11 +41,13 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
     useEffect(() => {
         const ac = new AbortController();
         (async () => {
-            const res = await fetch(src, { signal: ac.signal });
-            const txt = await res.text();
-            const data = parseCSV(txt);
-            setRows(Array.isArray(data) ? data.map(mapRow) : []);
-        })().catch(() => { });
+            try {
+                const data = await fetchCSV(src, { signal: ac.signal });
+                setRows(Array.isArray(data) ? data.map(mapRow) : []);
+            } catch {
+                // swallow for now
+            }
+        })();
         return () => ac.abort();
     }, [src]);
 
@@ -87,6 +89,24 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
 
     const fmt = (n, opts={}) => (n == null ? "—" : Number(n).toLocaleString(currentLang, { maximumFractionDigits: 2, ...opts }));
 
+    const labels = useMemo(() => {
+        const map = {
+            es: { search: "Buscar por planeta u host", method: "Filtrar por método" },
+            en: { search: "Search by planet or host", method: "Filter by method" },
+            de: { search: "Nach Planet oder Stern suchen", method: "Nach Methode filtern" },
+        };
+        return map[currentLang] || map.en;
+    }, [currentLang]);
+
+    const emptyState = useMemo(() => {
+        const map = {
+            es: "Sin resultados. Ajusta los filtros o la búsqueda.",
+            en: "No results. Adjust filters or search.",
+            de: "Keine Ergebnisse. Filter oder Suche anpassen.",
+        };
+        return map[currentLang] || map.en;
+    }, [currentLang]);
+
     return (
         <motion.section
             className="glass card"
@@ -98,60 +118,130 @@ export default function ExoSearch({ src = "/exoplanets.csv", lang = DEFAULT_LANG
         >
             <h3 style={{ marginTop: 0 }}>{searchMessages.title}</h3>
             <div className="search-controls">
-                <input className="glass" placeholder={filters.queryPlaceholder} value={q} onChange={e => setQ(e.target.value)} style={{ padding: ".6rem .8rem" }} />
-                <select className="glass" value={method} onChange={e => setMethod(e.target.value)} style={{ padding: ".6rem .8rem" }}>
+                <input
+                    className="glass"
+                    placeholder={filters.queryPlaceholder}
+                    aria-label={labels.search}
+                    value={q}
+                    onChange={e => setQ(e.target.value)}
+                    style={{ padding: ".6rem .8rem" }}
+                />
+                <select
+                    className="glass"
+                    value={method}
+                    onChange={e => setMethod(e.target.value)}
+                    style={{ padding: ".6rem .8rem" }}
+                    aria-label={labels.method}
+                >
                     {methods.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
-                <input className="glass" type="number" placeholder={filters.yearMin} value={yearMin} onChange={e => setYearMin(e.target.value)} style={{ padding: ".6rem .8rem" }} />
-                <input className="glass" type="number" placeholder={filters.yearMax} value={yearMax} onChange={e => setYearMax(e.target.value)} style={{ padding: ".6rem .8rem" }} />
+                <input
+                    className="glass"
+                    type="number"
+                    placeholder={filters.yearMin}
+                    aria-label={filters.yearMin}
+                    value={yearMin}
+                    onChange={e => setYearMin(e.target.value)}
+                    style={{ padding: ".6rem .8rem" }}
+                />
+                <input
+                    className="glass"
+                    type="number"
+                    placeholder={filters.yearMax}
+                    aria-label={filters.yearMax}
+                    value={yearMax}
+                    onChange={e => setYearMax(e.target.value)}
+                    style={{ padding: ".6rem .8rem" }}
+                />
             </div>
 
             <div className="exo-info">
-                <span className="exo-chip" title="Nombre oficial o designación del planeta detectado.">Planeta: nombre/designación del exoplaneta.</span>
-                <span className="exo-chip" title="Estrella alrededor de la que orbita el planeta.">Host: estrella anfitriona.</span>
-                <span className="exo-chip" title="Técnica observacional que permitió la detección (p. ej., Tránsitos, Velocidad Radial, Imagen Directa).">Método: técnica de detección.</span>
-                <span className="exo-chip" title="Año de anuncio/confirmación reportado en el catálogo.">Año: descubrimiento reportado.</span>
-                <span className="exo-chip" title="Masa aproximada del planeta en masas terrestres (M⊕).">Masa: en M⊕ (Tierras).</span>
-                <span className="exo-chip" title="Distancia al sistema en pársecs (pc). 1 pc ≈ 3,26 años luz.">Distancia: en pc (1 pc ≈ 3,26 al).</span>
+                <span className="exo-chip" title={searchMessages.legend.planetHint}>{searchMessages.legend.planet}</span>
+                <span className="exo-chip" title={searchMessages.legend.hostHint}>{searchMessages.legend.host}</span>
+                <span className="exo-chip" title={searchMessages.legend.methodHint}>{searchMessages.legend.method}</span>
+                <span className="exo-chip" title={searchMessages.legend.yearHint}>{searchMessages.legend.year}</span>
+                <span className="exo-chip" title={searchMessages.legend.massHint}>{searchMessages.legend.mass}</span>
+                <span className="exo-chip" title={searchMessages.legend.distanceHint}>{searchMessages.legend.distance}</span>
             </div>
 
             <div className="exo-table-wrap">
-                <table className="exo-table">
-                    <thead>
-                        <tr>
-                            <th className="left" title="Nombre o designación del exoplaneta">{tableHeaders.planet}</th>
-                            <th className="left" title="Estrella anfitriona (host)">{tableHeaders.host}</th>
-                            <th title="Técnica de detección (Tránsitos, Velocidad Radial, etc.)">{tableHeaders.method}</th>
-                            <th title="Año de descubrimiento/confirmación">{tableHeaders.year}</th>
-                            <th title="Masa aproximada del planeta en masas terrestres (M⊕)">{tableHeaders.mass}</th>
-                            <th title="Distancia al sistema en pársecs (pc). 1 pc ≈ 3,26 años luz">{tableHeaders.distance}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filtered.map((r, idx) => (
-                            <motion.tr
-                                key={r.id}
-                                className="exo-row glass"
-                                initial={{ opacity: 0, y: 12 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true, margin: "-25% 0px" }}
-                                transition={{ duration: 0.45, delay: idx * 0.03, ease: [0.16, 1, 0.3, 1] }}
-                            >
-                                <td className="pad left">{r.name}</td>
-                                <td className="pad left">{r.host}</td>
-                                <td className="num">{r.method || "—"}</td>
-                                <td className="num">{r.year ?? "—"}</td>
-                                <td className="num">{r.mass == null ? "—" : `${fmt(r.mass)} M⊕`}</td>
-                                <td className="num">{r.distance == null ? "—" : `${fmt(r.distance)} pc`}</td>
-                            </motion.tr>
-                        ))}
-                    </tbody>
-                </table>
-                <p style={{ opacity: .7, marginTop: ".5rem" }}>
-                    {searchMessages.summary
-                        .replace("{shown}", filtered.length.toLocaleString(currentLang))
-                        .replace("{total}", rows.length.toLocaleString(currentLang))}
-                </p>
+                <div className="exo-table-glow" aria-hidden />
+                {filtered.length > 0 ? (
+                    <table className="exo-table">
+                        <caption className="sr-only">{searchMessages.title}</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" className="left" title={tableHeaders.planetHint}>{tableHeaders.planet}</th>
+                                <th scope="col" className="left" title={tableHeaders.hostHint}>{tableHeaders.host}</th>
+                                <th scope="col" title={tableHeaders.methodHint}>{tableHeaders.method}</th>
+                                <th scope="col" title={tableHeaders.yearHint}>{tableHeaders.year}</th>
+                                <th scope="col" title={tableHeaders.massHint}>{tableHeaders.mass}</th>
+                                <th scope="col" title={tableHeaders.distanceHint}>{tableHeaders.distance}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filtered.map((r, idx) => (
+                                <motion.tr
+                                    key={r.id}
+                                    className="exo-row"
+                                    initial={{ opacity: 0, y: 18 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true, margin: "-25% 0px" }}
+                                    transition={{ duration: 0.45, delay: idx * 0.035, ease: [0.16, 1, 0.3, 1] }}
+                                >
+                                    <td className="pad left">
+                                        <span className="cell-heading">{tableHeaders.planet}</span>
+                                        <span className="cell-value">{r.name}</span>
+                                    </td>
+                                    <td className="pad left">
+                                        <span className="cell-heading">{tableHeaders.host}</span>
+                                        <span className="cell-value">{r.host}</span>
+                                    </td>
+                                    <td className="num">
+                                        <span className="cell-heading">{tableHeaders.method}</span>
+                                        <span className="cell-value">{r.method || searchMessages.emptyValue}</span>
+                                    </td>
+                                    <td className="num">
+                                        <span className="cell-heading">{tableHeaders.year}</span>
+                                        <span className="cell-value">{r.year ?? searchMessages.emptyValue}</span>
+                                    </td>
+                                    <td className="num">
+                                        <span className="cell-heading">{tableHeaders.mass}</span>
+                                        <span className="cell-value">{r.mass == null ? searchMessages.emptyValue : `${fmt(r.mass)} M⊕`}</span>
+                                    </td>
+                                    <td className="num">
+                                        <span className="cell-heading">{tableHeaders.distance}</span>
+                                        <span className="cell-value">{r.distance == null ? searchMessages.emptyValue : `${fmt(r.distance)} pc`}</span>
+                                    </td>
+                                </motion.tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <div className="glass card" role="status" aria-live="polite" style={{ padding: ".9rem", marginTop: ".5rem" }}>
+                        {emptyState}
+                    </div>
+                )}
+                <footer className="exo-table-footer">
+                    <div className="exo-table-footer__meta">
+                        <span className="exo-stats-chip">
+                            <span className="dot" aria-hidden />
+                            {searchMessages.summary
+                                .replace("{shown}", filtered.length.toLocaleString(currentLang))
+                                .replace("{total}", rows.length.toLocaleString(currentLang))}
+                        </span>
+                        <span className="exo-stats-chip ghost">{searchMessages.footerHint}</span>
+                    </div>
+                    <button
+                        type="button"
+                        className="exo-scroll-top"
+                        onClick={() => {
+                            if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                    >
+                        {searchMessages.backTop}
+                    </button>
+                </footer>
             </div>
         </motion.section>
     );

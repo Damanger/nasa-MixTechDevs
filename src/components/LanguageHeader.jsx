@@ -62,23 +62,11 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
     [homeBase, analyzeBase, teamBase, layoutMessages]
   );
 
-  // Texto del indicador según la ruta
-  const currentSection = useMemo(() => {
-    if (normalizedPath.startsWith("/analizar")) return layoutMessages.nav.analyze;
-    if (normalizedPath.startsWith("/equipo")) return layoutMessages.nav.team;
-    return layoutMessages.nav.home;
-  }, [normalizedPath, layoutMessages]);
-
   return (
     <>
       <div className="badge">{layoutMessages.badge}</div>
 
-      {/* Indicador accesible del lugar actual */}
-      <div className="route-indicator" role="status" aria-live="polite">
-        {currentSection}
-      </div>
-
-      <nav>
+      <nav className="navbar">
         {navLinks.map((link) => {
           const isActive = hrefToPath(link.href) === normalizedPath;
           return (

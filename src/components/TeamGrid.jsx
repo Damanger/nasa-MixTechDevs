@@ -4,9 +4,9 @@ import { DEFAULT_LANG, LANG_EVENT, detectClientLanguage, getLanguageSafe, getTra
 import ChromaGrid from './ChromaGrid.jsx';
 
 const BASE_MEMBERS = [
-  { image: '', title: 'Juan Velasco', handle: '@juanramon-vr2406', borderColor: '#3B82F6', gradient: 'linear-gradient(145deg, #3B82F6, #000)', url: 'https://www.linkedin.com/in/juanramon-vr2406/', roleKey: 'pm' },
-  { image: '', title: 'Jovani Gallegos', handle: '@', borderColor: '#EF4444', gradient: 'linear-gradient(180deg, #EF4444, #000)', url: '', roleKey: 'ds' },
-  { image: '', title: 'Axel García', handle: '@aisaac-gargon', borderColor: '#F59E0B', gradient: 'linear-gradient(145deg, #F59E0B, #000)', url: 'https://www.linkedin.com/in/aisaac-gargon/', roleKey: 'be' },
+  { image: '/juan.webp', title: 'Juan Velasco', handle: '@juanramon-vr2406', borderColor: '#3B82F6', gradient: 'linear-gradient(145deg, #3B82F6, #000)', url: 'https://www.linkedin.com/in/juanramon-vr2406/', roleKey: 'pm' },
+  { image: '/jovani.webp', title: 'Jovani Gallegos', handle: '@', borderColor: '#EF4444', gradient: 'linear-gradient(180deg, #EF4444, #000)', url: '', roleKey: 'ds' },
+  { image: '/axel.webp', title: 'Axel García', handle: '@aisaac-gargon', borderColor: '#F59E0B', gradient: 'linear-gradient(145deg, #F59E0B, #000)', url: 'https://www.linkedin.com/in/aisaac-gargon/', roleKey: 'be' },
   { image: '/emanuel.webp', title: 'Emanuel Rosales', handle: '@emanuelazucarado', borderColor: '#8B5CF6', gradient: 'linear-gradient(180deg, #8B5CF6, #000)', url: 'https://www.instagram.com/emanuelazucarado?igsh=ZmFzZGdvZ2ozMW5n', roleKey: 'uiux' },
   { image: '/denisse.webp', title: 'Denisse García', handle: '@karen-denisse-garcía-lópez-50607235b', borderColor: '#EC4899', gradient: 'linear-gradient(145deg, #EC4899, #000)', url: 'https://www.linkedin.com/in/karen-denisse-garcía-lópez-50607235b/', roleKey: 'content' },
   { image: '/omar.webp', title: 'Omar Cruz', handle: '@omar-cruzr97', borderColor: '#10B981', gradient: 'linear-gradient(180deg, #10B981, #000)', url: 'https://www.linkedin.com/in/omar-cruzr97/', roleKey: 'felead' }

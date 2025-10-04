@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "motion/react";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Html } from "@react-three/drei";
+// Heavy 3D renderer is split out and lazy-loaded
+import { lazy, Suspense } from "react";
 import {
     DEFAULT_LANG,
     LANG_EVENT,
@@ -9,7 +9,9 @@ import {
     getLanguageSafe,
     getTranslations
 } from "../i18n/translations.js";
-import parseCSV from "../lib/csv.js";
+import fetchCSV from "../lib/fetchCSV.js";
+
+const ThreeCompare = lazy(() => import("./ThreeCompare.jsx"));
 
 // --- Utilidades ---
 const toNum = (v, treatZeroAsNull = false) => {
@@ -42,75 +44,6 @@ function visualRadiusR(massE, radiusE) {
     return clamp(r, 0.4, 15);
 }
 
-// --- Esfera giratoria simple ---
-function RotSphere({ color = "#6ba3ff", radius = 1, label = "Earth" }) {
-    const ref = useRef();
-    useFrame((_, dt) => {
-        if (!ref.current) return;
-        ref.current.rotation.y += dt * 0.25;
-    });
-    return (
-        <group>
-            <mesh ref={ref} castShadow receiveShadow>
-                <sphereGeometry args={[radius, 64, 64]} />
-                <meshStandardMaterial color={color} roughness={0.8} metalness={0.05} />
-            </mesh>
-            <Html position={[0, radius + 0.4, 0]} center>
-                <div style={{
-                    padding: ".25rem .6rem",
-                    borderRadius: "999px",
-                    fontWeight: 700,
-                    background: "rgba(255,255,255,.08)",
-                    border: "1px solid rgba(255,255,255,.2)",
-                    backdropFilter: "blur(8px)",
-                    WebkitBackdropFilter: "blur(8px)",
-                }}>{label}</div>
-            </Html>
-        </group>
-    );
-}
-
-// --- Escena 3D comparativa ---
-// bodies: [{ label, radius, color }]
-function CompareScene({ bodies = [], autoRotate = true }) {
-    const maxRadius = Math.max(1, ...bodies.map(b => b.radius || 1));
-    const gap = Math.max(0.6, maxRadius * 0.25);
-    const sumR = bodies.reduce((s, b) => s + (b.radius || 1), 0);
-    const totalWidth = 2 * sumR + gap * Math.max(bodies.length - 1, 0);
-    const cameraZ = Math.max(10, totalWidth * 1.25);
-    const cameraY = Math.max(3.5, maxRadius * 0.75 + 1.5);
-
-    // Centered x positions from left to right
-    const positions = [];
-    let x = -totalWidth / 2 + (bodies[0]?.radius || 1);
-    for (let i = 0; i < bodies.length; i++) {
-        positions.push([x, 0, 0]);
-        const r = bodies[i]?.radius || 1;
-        const nextR = bodies[i + 1]?.radius || 0;
-        x += r + nextR + gap;
-    }
-
-    return (
-        <Canvas shadows camera={{ position: [0, cameraY, cameraZ], fov: 45 }}>
-            <ambientLight intensity={0.35} />
-            <directionalLight position={[5, 8, 5]} intensity={1.1} castShadow />
-            <group position={[0, 0, 0]}>
-                {bodies.map((b, i) => (
-                    <group key={i} position={positions[i]}>
-                        <RotSphere color={b.color} radius={b.radius} label={b.label} />
-                    </group>
-                ))}
-            </group>
-            <OrbitControls
-                enablePan={false}
-                enableDamping
-                dampingFactor={0.08}
-                autoRotate={autoRotate}
-                autoRotateSpeed={0.5}
-            />
-        </Canvas>
-    );
-}
 
 export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LANG, messages }) {
     const [rows, setRows] = useState([]);
@@ -124,6 +57,11 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
         return getTranslations(currentLang).compare;
     }, [messages, currentLang, safeLang]);
     const nullLabel = compareMessages.nullLabel ?? "Null";
+
+    const modeAriaLabel = useMemo(() => {
+        const map = { es: "Modo de comparación", en: "Comparison mode", de: "Vergleichsmodus" };
+        return map[currentLang] || map.en;
+    }, [currentLang]);
 
     useEffect(() => {
         const preferred = detectClientLanguage(safeLang);
@@ -141,11 +79,13 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
     useEffect(() => {
         const ac = new AbortController();
         (async () => {
-            const res = await fetch(src, { signal: ac.signal });
-            const txt = await res.text();
-            const data = parseCSV(txt);
-            setRows(Array.isArray(data) ? data.map(mapRow) : []);
-        })().catch(() => { });
+            try {
+                const data = await fetchCSV(src, { signal: ac.signal });
+                setRows(Array.isArray(data) ? data.map(mapRow) : []);
+            } catch {
+                // swallow for now
+            }
+        })();
         return () => ac.abort();
     }, [src]);
 
@@ -223,7 +163,11 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
                         if (mode === "earth-exo") bodies.push(earth, exo);
                         else if (mode === "jupiter-exo") bodies.push(exo, jupiter);
                         else bodies.push(earth, exo, jupiter);
-                        return <CompareScene bodies={bodies} autoRotate={autoRotate} />;
+                        return (
+                            <Suspense fallback={<div style={{textAlign:"center", opacity:.8}}>{compareMessages.loading3D || "Cargando visualización 3D…"}</div>}>
+                                <ThreeCompare bodies={bodies} autoRotate={autoRotate} />
+                            </Suspense>
+                        );
                     })()}
                 </motion.div>
 
@@ -239,6 +183,7 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
                             className="glass"
                             list="exo-list"
                             placeholder={compareMessages.inputPlaceholder}
+                            aria-label={compareMessages.inputPlaceholder}
                             value={q}
                             onChange={(e) => setQ(e.target.value)}
                             style={{ flex: 1, padding: ".6rem .8rem" }}
@@ -246,7 +191,12 @@ export default function ExoCompare({ src = "/exoplanets.csv", lang = DEFAULT_LAN
                         <datalist id="exo-list">
                             {options.map((name) => <option key={name} value={name} />)}
                         </datalist>
-                        <select className="glass" value={mode} onChange={e => setMode(e.target.value)}>
+                        <select
+                            className="glass"
+                            value={mode}
+                            onChange={e => setMode(e.target.value)}
+                            aria-label={modeAriaLabel}
+                        >
                             <option value="earth-exo">{compareMessages.modes?.earthExo || "Earth + Selected"}</option>
                             <option value="jupiter-exo">{compareMessages.modes?.jupiterExo || "Jupiter + Selected"}</option>
                             <option value="all">{compareMessages.modes?.all || "All three"}</option>

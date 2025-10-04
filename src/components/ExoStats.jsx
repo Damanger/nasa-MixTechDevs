@@ -7,7 +7,7 @@ import {
     getLanguageSafe,
     getTranslations
 } from "../i18n/translations.js";
-import parseCSV from "../lib/csv.js";
+import fetchCSV from "../lib/fetchCSV.js";
 import CountUp from "./CountUp.jsx";
 
 // Utilidades de normalización
@@ -55,10 +55,7 @@ export default function ExoStats({ src = "/exoplanets.csv", lang = DEFAULT_LANG,
         const ac = new AbortController();
         (async () => {
             try {
-                const res = await fetch(src, { signal: ac.signal });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const txt = await res.text();
-                const data = parseCSV(txt);
+                const data = await fetchCSV(src, { signal: ac.signal });
                 setRows(Array.isArray(data) ? data : []);
             } catch (e) {
                 if (e.name !== "AbortError") setErr(e);
