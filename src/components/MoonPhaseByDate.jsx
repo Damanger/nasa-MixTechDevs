@@ -88,32 +88,51 @@ export default function MoonPhaseByDate({ messages }) {
   const [imgSize, setImgSize] = useState(140);
 
   useEffect(() => {
-    const update = () => {
-      const w = rootRef.current?.offsetWidth || window.innerWidth || 360;
-      // tamaños aproximados por breakpoint para que quepa bien en landscape móvil
-      const next = w < 420 ? 110 : w < 560 ? 130 : w < 820 ? 140 : 160;
+    const node = rootRef.current;
+    if (!node) return undefined;
+
+    const computeSize = (width) => {
+      const basis = width || window.innerWidth || 360;
+      const next = basis < 420 ? 110 : basis < 560 ? 130 : basis < 820 ? 140 : 160;
       setImgSize(next);
     };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+
+    let cleanup = () => {};
+
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        computeSize(entry.contentRect.width);
+      });
+      observer.observe(node);
+      cleanup = () => observer.disconnect();
+    } else {
+      const handle = () => computeSize(node.offsetWidth);
+      window.addEventListener("resize", handle);
+      cleanup = () => window.removeEventListener("resize", handle);
+    }
+
+    computeSize(node.offsetWidth);
+
+    return cleanup;
   }, []);
 
   const percent = Math.round(100 * fraction);
 
   return (
     <div ref={rootRef} className="mpb" style={{ display: "grid", placeContent: "center" }}>
-      <label className="mpb-field" style={{ fontWeight: 600 }}>
+      <label className="mpb-field">
         {messages?.dateLabel || "Fecha"}
         <input
           type="date"
           value={dateStr}
           onChange={(e) => setDateStr(e.target.value)}
-          style={{ marginLeft: 8 }}
+          className="mpb-field__input"
         />
       </label>
 
-      <div className="mpb-row" style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+      <div className="mpb-row" style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
         <img
           src={PHASE_IMAGES[idx]}
           width={imgSize}
@@ -132,7 +151,30 @@ export default function MoonPhaseByDate({ messages }) {
       <small style={{ opacity: 0.8 }}>
         {messages?.note || "Nota: aproximación visual; puede variar ±1 día según efemérides y zona horaria."}
       </small>
-      
+
+      <style>{`
+        .mpb-field {
+          display: grid;
+          gap: 0.35rem;
+          margin-bottom: 0.75rem;
+          max-width: min(420px, 100%);
+          font-weight: 600;
+        }
+        .mpb-field__input {
+          width: 100%;
+          padding: 0.45rem 0.65rem;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          background: rgba(255, 255, 255, 0.08);
+          color: inherit;
+          font-size: 1rem;
+          font-variant-numeric: tabular-nums;
+        }
+        .mpb-field__input:focus {
+          outline: 2px solid rgba(137, 180, 255, 0.6);
+          outline-offset: 2px;
+        }
+      `}</style>
     </div>
   );
 }

@@ -112,13 +112,23 @@ export default function MoonCouple({ messages }) {
   return (
     <div className="mooncouple">
       <div className="mooncouple__controls">
-        <label>
+        <label className="mooncouple__label">
           {(messages?.dateA || 'Persona 1')}
-          <input type="date" value={a} onChange={(e)=>setA(e.target.value)} />
+          <input
+            type="date"
+            value={a}
+            onChange={(e)=>setA(e.target.value)}
+            className="mooncouple__input"
+          />
         </label>
-        <label>
+        <label className="mooncouple__label">
           {(messages?.dateB || 'Persona 2')}
-          <input type="date" value={b} onChange={(e)=>setB(e.target.value)} />
+          <input
+            type="date"
+            value={b}
+            onChange={(e)=>setB(e.target.value)}
+            className="mooncouple__input"
+          />
         </label>
       </div>
 
@@ -153,7 +163,21 @@ export default function MoonCouple({ messages }) {
       <style jsx>{`
         .mooncouple{ display:grid; gap:.75rem; }
         .mooncouple__controls{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; align-items:end; }
-        .mooncouple__controls label{ display:grid; gap:.25rem; font-weight:600; }
+        .mooncouple__label{ display:grid; gap:.35rem; font-weight:600; }
+        .mooncouple__input{
+          width: 100%;
+          padding: 0.45rem 0.65rem;
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          background: rgba(255, 255, 255, 0.08);
+          color: inherit;
+          font-size: 1rem;
+          font-variant-numeric: tabular-nums;
+        }
+        .mooncouple__input:focus{
+          outline: 2px solid rgba(137, 180, 255, 0.6);
+          outline-offset: 2px;
+        }
         .mooncouple__grid{ display:grid; grid-template-columns: 1fr 1fr; gap: .75rem; align-items:center; justify-items:center; }
         .mooncard{ display:flex; align-items:center; justify-content:center; padding:.25rem; }
         .mooncouple__match{ text-align:center; margin-top:.25rem; }

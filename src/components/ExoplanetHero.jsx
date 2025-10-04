@@ -103,8 +103,14 @@ export default function ExoplanetHero({ lang = DEFAULT_LANG, messages }) {
           }}
         >
           <img
-            src="/exoplanet.webp"
+            src="/exoplanet-512.webp"
+            srcSet="/exoplanet-512.webp 512w, /exoplanet.webp 1024w"
+            sizes="(max-width: 768px) 80vw, 460px"
             alt="Exoplaneta"
+            width={512}
+            height={512}
+            fetchpriority="high"
+            decoding="async"
             style={{
               width: "100%",
               height: "100%",

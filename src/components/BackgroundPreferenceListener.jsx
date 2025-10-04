@@ -4,7 +4,9 @@ import { onValue, ref } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
 import {
     applyBackgroundToDocument,
+    cacheBackgroundPreference,
     DEFAULT_BACKGROUND_KEY,
+    readCachedBackground,
     sanitizeBackgroundValue
 } from "../lib/backgroundPreferences.js";
 
@@ -13,6 +15,12 @@ export default function BackgroundPreferenceListener() {
 
     useEffect(() => {
         if (typeof window === "undefined") return undefined;
+
+        const cached = readCachedBackground();
+        if (cached && cached !== listeners.current.lastValue) {
+            listeners.current.lastValue = cached;
+            applyBackgroundToDocument(cached);
+        }
 
         const cleanupDb = () => {
             listeners.current.unsubscribeDb?.();
@@ -24,6 +32,7 @@ export default function BackgroundPreferenceListener() {
                 cleanupDb();
                 listeners.current.lastValue = DEFAULT_BACKGROUND_KEY;
                 applyBackgroundToDocument(DEFAULT_BACKGROUND_KEY);
+                cacheBackgroundPreference(DEFAULT_BACKGROUND_KEY);
                 return;
             }
 
@@ -38,6 +47,7 @@ export default function BackgroundPreferenceListener() {
                     if (value === listeners.current.lastValue) return;
                     listeners.current.lastValue = value;
                     applyBackgroundToDocument(value);
+                    cacheBackgroundPreference(value);
                 },
                 (error) => {
                     console.error("Failed to read background preference", error);
@@ -50,6 +60,7 @@ export default function BackgroundPreferenceListener() {
             if (!user) {
                 listeners.current.lastValue = fallback;
                 applyBackgroundToDocument(fallback);
+                cacheBackgroundPreference(fallback);
             }
             handleUser(user);
         }, (error) => {

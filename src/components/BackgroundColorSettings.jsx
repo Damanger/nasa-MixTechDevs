@@ -4,6 +4,7 @@ import { onValue, ref, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
 import {
     applyBackgroundToDocument,
+    cacheBackgroundPreference,
     DEFAULT_BACKGROUND_KEY,
     MATRIX_BACKGROUND_KEY,
     GRID_BACKGROUND_KEY,
@@ -117,6 +118,7 @@ export default function BackgroundColorSettings({ strings }) {
             setStoredChoice(DEFAULT_BACKGROUND_KEY);
             setDraftChoice(DEFAULT_BACKGROUND_KEY);
             applyBackgroundToDocument(DEFAULT_BACKGROUND_KEY);
+            cacheBackgroundPreference(DEFAULT_BACKGROUND_KEY);
             return undefined;
         }
 
@@ -132,6 +134,7 @@ export default function BackgroundColorSettings({ strings }) {
                 setStoredChoice(value);
                 setDraftChoice(value);
                 applyBackgroundToDocument(value);
+                cacheBackgroundPreference(value);
                 setLoading(false);
                 setStatus("idle");
                 setErrorDetail(null);
@@ -177,6 +180,7 @@ export default function BackgroundColorSettings({ strings }) {
         const normalized = sanitizeBackgroundValue(choice) ?? DEFAULT_BACKGROUND_KEY;
         setDraftChoice(normalized);
         applyBackgroundToDocument(normalized);
+        cacheBackgroundPreference(normalized);
         persistChoice(normalized);
     };
 
