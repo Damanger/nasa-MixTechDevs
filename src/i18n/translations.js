@@ -1,3 +1,5 @@
+import { sub } from "motion/react-client";
+
 export const SUPPORTED_LANGUAGES = ["es", "en", "de"];
 export const DEFAULT_LANG = "es";
 export const LANG_COOKIE = "exo_lang";
@@ -18,7 +20,7 @@ const dictionaries = {
       ctaExplore: "Explorar datos",
     },
     layout: {
-      badge: "MixTechDevs",
+      badge: "ExoLens",
       nav: { home: "Inicio", analyze: "Analizar CSV", team: "Equipo", apod: "Imagen del día", moon: "Fase lunar" },
       languageSwitcher: {
         label: "Idioma",
@@ -46,7 +48,7 @@ const dictionaries = {
     },
     moon: {
       title: "Fase lunar",
-      subtitle: "Calcula la fase lunar e imagen aproximada para una fecha.",
+      subtitle: "Descubre tu fase lunar colocando tu fecha de nacimiento y/o la de tu persona especial 🚀",
       modeLabel: "Personas",
       modeOne: "1 persona",
       modeTwo: "2 personas",
@@ -228,8 +230,7 @@ const dictionaries = {
     },
     settings: {
       title: "Ajustes de cuenta",
-      message: "Personaliza tu perfil, preferencias y seguridad en MixTechDevs.",
-      comingSoon: "Próximamente",
+      subtitle: "Seguridad y confidencialidad en cada paso. Tu información está protegida.",
       background: {
         title: "Fondos personalizados",
         description: "Elige un ambiente visual diferente para MixTechDevs.",
@@ -248,22 +249,48 @@ const dictionaries = {
             label: "Lluvia digital",
             description: "Texto verde cayendo al estilo Matrix sobre fondo negro.",
           },
+          grid: {
+            label: "Cuadros negros",
+            description: "Retícula isométrica sobre un fondo grafito.",
+          },
+          city: {
+            label: "Ciudad nocturna",
+            description: "Silhuetas urbanas con linterna animada.",
+          },
+          spectrum: {
+            label: "Spectrum",
+            description: "Ondas cromáticas animadas estilo synthwave.",
+          },
+          terrain: {
+            label: "Terreno fractal",
+            description: "Ruido procedural con iluminación tenue.",
+          },
+          shards: {
+            label: "Fragmentos neón",
+            description: "Destellos diagonales animados sobre un entramado oscuro.",
+          },
+          aurora: {
+            label: "Aurora vectorial",
+            description: "Radiales multicolor con animación suave.",
+          },
+          futuristic: {
+            label: "Textura futurista",
+            description: "Metal iridiscente con iluminación especular.",
+          },
+          rain: {
+            label: "Lluvia azul",
+            description: "Cortinas de lluvia neón sobre un difuminado tecnológico.",
+          },
+          constellation: {
+            label: "Constelaciones",
+            description: "Cielo nocturno con destellos brillantes.",
+          },
+          neon: {
+            label: "Geometría neón",
+            description: "Patrón vectorial vibrante con acentos magenta.",
+          },
         },
       },
-      cards: [
-        {
-          title: "Perfil",
-          description: "Edita tu nombre para mostrar y sincroniza tu foto de Google.",
-        },
-        {
-          title: "Preferencias",
-          description: "Configura idioma, notificaciones y comportamiento por defecto.",
-        },
-        {
-          title: "Seguridad",
-          description: "Revisa sesiones activas y cierra sesión en todos tus dispositivos.",
-        },
-      ],
     },
     compare: {
       heading: "Tierra vs Exoplaneta",
@@ -350,7 +377,7 @@ const dictionaries = {
       ctaExplore: "Explore data",
     },
     layout: {
-      badge: "MixTechDevs",
+      badge: "ExoLens",
       nav: { home: "Home", analyze: "Analyze CSV", team: "Team", apod: "Image of the Day", moon: "Moon Phase" },
       languageSwitcher: {
         label: "Language",
@@ -378,7 +405,7 @@ const dictionaries = {
     },
     moon: {
       title: "Moon Phase",
-      subtitle: "Compute the lunar phase and a generated image for a date.",
+      subtitle: "Discover your moon phase by entering your birthday and/or that of your special someone 🚀",
       modeLabel: "People",
       modeOne: "1 person",
       modeTwo: "2 people",
@@ -402,74 +429,6 @@ const dictionaries = {
         "Waning Crescent"
       ]
     },
-  
-  de: {
-    meta: {
-      title: "MixTechDevs | Exoplaneten-Explorer",
-      description:
-        "Analysiere CSV-Dateien, um Exoplaneten zu bestätigen und zu visualisieren.",
-    },
-    notFound: {
-      title: "404 – Seite nicht gefunden",
-      heading: "In der Galaxie verirrt",
-      description: "404 – Die gesuchte Seite existiert nicht.",
-      ctaHome: "Zur Startseite",
-      ctaExplore: "Daten erkunden",
-    },
-    layout: {
-      badge: "MixTechDevs",
-      nav: { home: "Start", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase" },
-      languageSwitcher: {
-        label: "Sprache",
-        options: { es: "Spanisch", en: "Englisch", de: "Deutsch" },
-      },
-      footer: "© {year} MixTechDevs",
-    },
-    apod: {
-      title: "Astronomy Picture of the Day (NASA)",
-      subtitle: "Tägliche Bilder und Videos der NASA.",
-      error: "Das heutige Bild konnte nicht geladen werden.",
-      mediaFallback: "Dieser Inhalt kann nicht angezeigt werden.",
-      noImageForDate: "Für diesen Tag wurde kein Foto gefunden.",
-      dateLabel: "Datum",
-      go: "Anzeigen",
-      minDateHint: "Keine Bilder vor 1995-06-16.",
-      prev: "Zurück",
-      next: "Weiter",
-      today: "Heute",
-      videoBadge: "Video",
-      openOriginalAria: "Originalbild öffnen",
-      monthPrevAria: "Vorheriger Monat",
-      monthNextAria: "Nächster Monat",
-      altFallback: "APOD‑Bild",
-    },
-    moon: {
-      title: "Mondphase",
-      subtitle: "Berechne die Mondphase und ein generiertes Bild für ein Datum.",
-      modeLabel: "Personen",
-      modeOne: "1 Person",
-      modeTwo: "2 Personen",
-      dateLabel: "Datum",
-      illumination: "Beleuchtung",
-      compareTitle: "Zwei Daten vergleichen",
-      dateA: "Person 1",
-      dateB: "Person 2",
-      match: "Übereinstimmung",
-      compareCta: "Vergleichen",
-      combined: "Kombiniert",
-      note: "Visuelle Annäherung; kann je nach Ephemeriden und Zeitzone um ±1 Tag abweichen.",
-      phaseNames: [
-        "Neumond",
-        "Zunehmende Sichel",
-        "Erstes Viertel",
-        "Zunehmender Dreiviertelmond",
-        "Vollmond",
-        "Abnehmender Dreiviertelmond",
-        "Letztes Viertel",
-        "Abnehmende Sichel"
-      ]
-    },
-  },
     hero: {
       badge: "MixTechDevs · Exoplanets",
       title: "Discover exoplanets from your CSVs",
@@ -624,8 +583,7 @@ const dictionaries = {
     },
     settings: {
       title: "Account settings",
-      message: "Customize your MixTechDevs profile, preferences, and security.",
-      comingSoon: "Coming soon",
+      subtitle: "Security and privacy at every step. Your information is protected.",
       background: {
         title: "Custom backgrounds",
         description: "Pick a different visual mood for MixTechDevs.",
@@ -644,22 +602,48 @@ const dictionaries = {
             label: "Digital rain",
             description: "Neon-green glyphs cascading over a black canvas.",
           },
+          grid: {
+            label: "Black grid",
+            description: "Graphite isometric grid with subtle glow.",
+          },
+          city: {
+            label: "Nocturnal city",
+            description: "Skyline silhouettes with a roaming spotlight.",
+          },
+          spectrum: {
+            label: "Spectrum",
+            description: "Animated chromatic waves for a synthwave vibe.",
+          },
+          terrain: {
+            label: "Fractal terrain",
+            description: "Procedural noise with subtle lighting relief.",
+          },
+          shards: {
+            label: "Neon shards",
+            description: "Animated diagonal accents over a dark weave.",
+          },
+          aurora: {
+            label: "Vector aurora",
+            description: "Multi-color radial glow with gentle motion.",
+          },
+          futuristic: {
+            label: "Futuristic texture",
+            description: "Iridescent metal wash with specular highlights.",
+          },
+          rain: {
+            label: "Blue rain",
+            description: "Neon rainfall cascading across a dark blur.",
+          },
+          constellation: {
+            label: "Constellations",
+            description: "Night sky with shimmering starbursts.",
+          },
+          neon: {
+            label: "Neon geometry",
+            description: "Vibrant vector pattern with magenta accents.",
+          },
         },
       },
-      cards: [
-        {
-          title: "Profile",
-          description: "Edit your display name and sync your Google photo.",
-        },
-        {
-          title: "Preferences",
-          description: "Choose language, notifications, and default behaviors.",
-        },
-        {
-          title: "Security",
-          description: "Review active sessions and sign out everywhere.",
-        },
-      ],
     },
     compare: {
       heading: "Earth vs Exoplanet",
@@ -746,13 +730,57 @@ const dictionaries = {
       ctaExplore: "Daten erkunden",
     },
     layout: {
-      badge: "MixTechDevs",
-      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages" },
+      badge: "ExoLens",
+      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase" },
       languageSwitcher: {
         label: "Sprache",
         options: { es: "Spanisch", en: "Englisch", de: "Deutsch" },
       },
       footer: "© {year} MixTechDevs",
+    },
+    apod: {
+      title: "NASA Astronomiebild des Tages",
+      subtitle: "Tägliche Bilder und Videos, kuratiert von der NASA.",
+      error: "Das heutige Bild konnte nicht geladen werden. Bitte versuche es später erneut.",
+      mediaFallback: "Dieser Inhalt kann nicht angezeigt werden.",
+      noImageForDate: "Für dieses Datum wurde kein Foto gefunden.",
+      dateLabel: "Datum",
+      go: "Ansehen",
+      minDateHint: "Keine Bilder vor dem 16.06.1995.",
+      prev: "Vorheriges",
+      next: "Nächstes",
+      today: "Heute",
+      videoBadge: "Video",
+      openOriginalAria: "Originalbild öffnen",
+      monthPrevAria: "Vorheriger Monat",
+      monthNextAria: "Nächster Monat",
+      altFallback: "APOD-Bild",
+    },
+    moon: {
+      title: "Mondphase",
+      subtitle: "Entdecke deine Mondphase, indem du deinen Geburtstag und/oder den deiner besonderen Person eingibst 🚀",
+      modeLabel: "Personen",
+      modeOne: "1 Person",
+      modeTwo: "2 Personen",
+      dateLabel: "Datum",
+      illumination: "Beleuchtung",
+      compareTitle: "Zwei Daten vergleichen",
+      dateA: "Person 1",
+      dateB: "Person 2",
+      match: "Übereinstimmung",
+      compareCta: "Vergleichen",
+      combined: "Kombiniert",
+      note: "Visuelle Annäherung; kann je nach Ephemeriden und Zeitzone um ±1 Tag variieren.",
+      phaseNames: [
+        "Neumond",
+        "Zunehmende Sichel",
+        "Erstes Viertel",
+        "Zunehmender Halbmond",
+        "Vollmond",
+        "Abnehmender Halbmond",
+        "Letztes Viertel",
+        "Abnehmende Sichel"
+      ]
     },
     hero: {
       badge: "MixTechDevs · Exoplaneten",
@@ -910,8 +938,7 @@ const dictionaries = {
     },
     settings: {
       title: "Kontoeinstellungen",
-      message: "Passe dein MixTechDevs-Profil, deine Präferenzen und Sicherheit an.",
-      comingSoon: "Demnächst verfügbar",
+      subtitle: "Sicherheit und Datenschutz bei jedem Schritt. Deine Informationen sind geschützt.",
       background: {
         title: "Individuelle Hintergründe",
         description: "Wähle eine andere visuelle Stimmung für MixTechDevs.",
@@ -930,22 +957,48 @@ const dictionaries = {
             label: "Digitaler Regen",
             description: "Neongrüne Zeichen fallen vor schwarzem Hintergrund.",
           },
+          grid: {
+            label: "Schwarzes Raster",
+            description: "Isometrisches Raster auf einem grafitfarbenen Hintergrund.",
+          },
+          city: {
+            label: "Nächtliche Stadt",
+            description: "Stadtsilhouetten mit wanderndem Suchscheinwerfer.",
+          },
+          spectrum: {
+            label: "Spectrum",
+            description: "Animierte Farbwellen mit Synthwave-Flair.",
+          },
+          terrain: {
+            label: "Fraktales Terrain",
+            description: "Prozedurales Rauschen mit sanfter Beleuchtung.",
+          },
+          shards: {
+            label: "Neon-Scherben",
+            description: "Animierte diagonale Akzente auf dunklem Geflecht.",
+          },
+          aurora: {
+            label: "Vektor-Aurora",
+            description: "Mehrfarbige Lichtschleier mit sanfter Bewegung.",
+          },
+          futuristic: {
+            label: "Futuristische Textur",
+            description: "Irideszente Metallfläche mit Lichtreflexen.",
+          },
+          rain: {
+            label: "Blaue Regenfälle",
+            description: "Neonregen, der über einen dunklen Schleier fließt.",
+          },
+          constellation: {
+            label: "Sternbilder",
+            description: "Nachthimmel mit schimmernden Lichtpunkten.",
+          },
+          neon: {
+            label: "Neon-Geometrie",
+            description: "Lebhaftes Vektormuster mit Magenta-Akzenten.",
+          },
         },
       },
-      cards: [
-        {
-          title: "Profil",
-          description: "Bearbeite deinen Anzeigenamen und synchronisiere dein Google-Foto.",
-        },
-        {
-          title: "Präferenzen",
-          description: "Wähle Sprache, Benachrichtigungen und Standardaktionen.",
-        },
-        {
-          title: "Sicherheit",
-          description: "Überprüfe aktive Sitzungen und melde dich überall ab.",
-        },
-      ],
     },
     compare: {
       heading: "Erde vs. Exoplanet",

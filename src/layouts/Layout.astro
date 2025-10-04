@@ -4,6 +4,16 @@ import LanguageFooter from "../components/LanguageFooter.jsx";
 import ScrollToTopButton from "../components/ScrollToTopButton.jsx";
 import BackgroundPreferenceListener from "../components/BackgroundPreferenceListener.jsx";
 import MatrixBackground from "../components/MatrixBackground.jsx";
+import GridBackground from "../components/GridBackground.jsx";
+import CityLightsBackground from "../components/CityLightsBackground.jsx";
+import SpectrumBackground from "../components/SpectrumBackground.jsx";
+import TerrainBackground from "../components/TerrainBackground.jsx";
+import ShardsBackground from "../components/ShardsBackground.jsx";
+import AuroraBackground from "../components/AuroraBackground.jsx";
+import FuturisticBackground from "../components/FuturisticBackground.jsx";
+import RainBackground from "../components/RainBackground.jsx";
+import ConstellationBackground from "../components/ConstellationBackground.jsx";
+import NeonBackground from "../components/NeonBackground.jsx";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const {
@@ -68,9 +78,17 @@ const metaDescription = description ?? messages.meta.description;
           "Apple Color Emoji",
           "Segoe UI Emoji";
       }
-      body[data-background="matrix"] {
-        background: #000;
-      }
+      body[data-background="matrix"] { background: #000; }
+      body[data-background="grid"] { background: #191a1a; }
+      body[data-background="city"] { background: #111; }
+      body[data-background="spectrum"] { background: #000; }
+      body[data-background="terrain"] { background: #343a40; }
+      body[data-background="shards"] { background: #161616; }
+      body[data-background="aurora"] { background: #050314; }
+      body[data-background="futuristic"] { background: #1f1727; }
+      body[data-background="rain"] { background: #000; }
+      body[data-background="constellation"] { background: #101018; }
+      body[data-background="neon"] { background: #0a0005; }
       a {
         color: var(--accent);
         text-decoration: none;
@@ -593,6 +611,16 @@ const metaDescription = description ?? messages.meta.description;
   <body data-background="default">
     <BackgroundPreferenceListener client:load />
     <MatrixBackground client:load />
+    <GridBackground client:load />
+    <CityLightsBackground client:load />
+    <SpectrumBackground client:load />
+    <TerrainBackground client:load />
+    <ShardsBackground client:load />
+    <AuroraBackground client:load />
+    <FuturisticBackground client:load />
+    <RainBackground client:load />
+    <ConstellationBackground client:load />
+    <NeonBackground client:load />
     <header class="site-header">
       <div class="container">
   <LanguageHeader client:idle initialLang={lang} />

@@ -6,6 +6,16 @@ import {
     applyBackgroundToDocument,
     DEFAULT_BACKGROUND_KEY,
     MATRIX_BACKGROUND_KEY,
+    GRID_BACKGROUND_KEY,
+    CITY_BACKGROUND_KEY,
+    SPECTRUM_BACKGROUND_KEY,
+    TERRAIN_BACKGROUND_KEY,
+    SHARDS_BACKGROUND_KEY,
+    AURORA_BACKGROUND_KEY,
+    FUTURISTIC_BACKGROUND_KEY,
+    RAIN_BACKGROUND_KEY,
+    CONSTELLATION_BACKGROUND_KEY,
+    NEON_BACKGROUND_KEY,
     sanitizeBackgroundValue
 } from "../lib/backgroundPreferences.js";
 
@@ -31,6 +41,56 @@ export default function BackgroundColorSettings({ strings }) {
                     label: strings?.options?.matrix?.label ?? "Matrix digital",
                     description:
                         strings?.options?.matrix?.description ?? "Códigos verdes descendiendo en la pantalla.",
+                },
+                grid: {
+                    label: strings?.options?.grid?.label ?? "Cuadros negros",
+                    description:
+                        strings?.options?.grid?.description ?? "Retícula gris sobre fondo grafito.",
+                },
+                city: {
+                    label: strings?.options?.city?.label ?? "Ciudad nocturna",
+                    description:
+                        strings?.options?.city?.description ?? "Paisaje urbano con haz de luz animado.",
+                },
+                spectrum: {
+                    label: strings?.options?.spectrum?.label ?? "Spectrum",
+                    description:
+                        strings?.options?.spectrum?.description ?? "Patrón cromático animado retro.",
+                },
+                terrain: {
+                    label: strings?.options?.terrain?.label ?? "Terreno fractal",
+                    description:
+                        strings?.options?.terrain?.description ?? "Ruido procedural con iluminación tenue.",
+                },
+                shards: {
+                    label: strings?.options?.shards?.label ?? "Fragmentos neón",
+                    description:
+                        strings?.options?.shards?.description ?? "Destellos diagonales animados sobre un entramado oscuro.",
+                },
+                aurora: {
+                    label: strings?.options?.aurora?.label ?? "Aurora vectorial",
+                    description:
+                        strings?.options?.aurora?.description ?? "Radiales multicolor con animación suave.",
+                },
+                futuristic: {
+                    label: strings?.options?.futuristic?.label ?? "Textura futurista",
+                    description:
+                        strings?.options?.futuristic?.description ?? "Metal iridiscente con relieve especular.",
+                },
+                rain: {
+                    label: strings?.options?.rain?.label ?? "Lluvia azul",
+                    description:
+                        strings?.options?.rain?.description ?? "Cortinas de lluvia neón sobre blur futurista.",
+                },
+                constellation: {
+                    label: strings?.options?.constellation?.label ?? "Constelaciones",
+                    description:
+                        strings?.options?.constellation?.description ?? "Cielo nocturno con destellos brillantes.",
+                },
+                neon: {
+                    label: strings?.options?.neon?.label ?? "Geometría neón",
+                    description:
+                        strings?.options?.neon?.description ?? "Patrón vectorial vibrante con acentos magenta.",
                 },
             },
             loading: strings?.loading ?? "Cargando preferencia…",
@@ -151,6 +211,56 @@ export default function BackgroundColorSettings({ strings }) {
                                 label: labels.options.matrix.label,
                                 description: labels.options.matrix.description,
                             },
+                            {
+                                id: GRID_BACKGROUND_KEY,
+                                label: labels.options.grid.label,
+                                description: labels.options.grid.description,
+                            },
+                            {
+                                id: CITY_BACKGROUND_KEY,
+                                label: labels.options.city.label,
+                                description: labels.options.city.description,
+                            },
+                            {
+                                id: SPECTRUM_BACKGROUND_KEY,
+                                label: labels.options.spectrum.label,
+                                description: labels.options.spectrum.description,
+                            },
+                            {
+                                id: TERRAIN_BACKGROUND_KEY,
+                                label: labels.options.terrain.label,
+                                description: labels.options.terrain.description,
+                            },
+                            {
+                                id: SHARDS_BACKGROUND_KEY,
+                                label: labels.options.shards.label,
+                                description: labels.options.shards.description,
+                            },
+                            {
+                                id: AURORA_BACKGROUND_KEY,
+                                label: labels.options.aurora.label,
+                                description: labels.options.aurora.description,
+                            },
+                            {
+                                id: FUTURISTIC_BACKGROUND_KEY,
+                                label: labels.options.futuristic.label,
+                                description: labels.options.futuristic.description,
+                            },
+                            {
+                                id: RAIN_BACKGROUND_KEY,
+                                label: labels.options.rain.label,
+                                description: labels.options.rain.description,
+                            },
+                            {
+                                id: CONSTELLATION_BACKGROUND_KEY,
+                                label: labels.options.constellation.label,
+                                description: labels.options.constellation.description,
+                            },
+                            {
+                                id: NEON_BACKGROUND_KEY,
+                                label: labels.options.neon.label,
+                                description: labels.options.neon.description,
+                            },
                         ].map((option) => {
                             const selected = draftChoice === option.id;
                             const isSaving = status === "saving";
@@ -187,13 +297,13 @@ export default function BackgroundColorSettings({ strings }) {
           .background-options {
             display: grid;
             gap: 0.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
           }
           .background-option {
-            display: grid;
-            grid-template-columns: 80px 1fr;
-            align-items: center;
+            display: flex;
+            flex-direction: column;
             gap: 0.75rem;
-            padding: 0.75rem;
+            padding: 1rem;
             border-radius: 12px;
             border: 1px solid rgba(255, 255, 255, 0.18);
             background: rgba(255, 255, 255, 0.03);
@@ -212,9 +322,9 @@ export default function BackgroundColorSettings({ strings }) {
             background: rgba(137, 180, 255, 0.08);
           }
           .background-option__preview {
-            width: 80px;
-            height: 72px;
-            border-radius: 10px;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 12px;
             overflow: hidden;
             position: relative;
           }
@@ -223,6 +333,11 @@ export default function BackgroundColorSettings({ strings }) {
             position: absolute;
             inset: 0;
             border-radius: inherit;
+          }
+          .background-option__details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
           }
           .background-option__preview[data-kind="${DEFAULT_BACKGROUND_KEY}"]::after {
             background:
@@ -242,9 +357,78 @@ export default function BackgroundColorSettings({ strings }) {
               );
             animation: background-option-matrix 1.8s linear infinite;
           }
+          .background-option__preview[data-kind="${GRID_BACKGROUND_KEY}"]::after {
+            --preview-color: rgba(114, 114, 114, 0.3);
+            background-color: #191a1a;
+            background-image:
+              linear-gradient(0deg, transparent 24%, var(--preview-color) 25%, var(--preview-color) 26%, transparent 27%, transparent 74%, var(--preview-color) 75%, var(--preview-color) 76%, transparent 77%, transparent),
+              linear-gradient(90deg, transparent 24%, var(--preview-color) 25%, var(--preview-color) 26%, transparent 27%, transparent 74%, var(--preview-color) 75%, var(--preview-color) 76%, transparent 77%, transparent);
+            background-size: 26px 26px;
+          }
+          .background-option__preview[data-kind="${CITY_BACKGROUND_KEY}"]::after {
+            background:
+              linear-gradient(180deg, rgba(17,17,17,0.9) 0%, rgba(10,10,10,0.95) 100%),
+              linear-gradient(90deg, rgba(255,96,64,0.35) 0%, rgba(64,96,255,0.25) 100%);
+            background-blend-mode: screen;
+          }
+          .background-option__preview[data-kind="${SPECTRUM_BACKGROUND_KEY}"]::after {
+            background:
+              conic-gradient(from 0deg, #ff4d4d, #ffd24d, #4dff88, #4dc6ff, #be4dff, #ff4d4d);
+            animation: background-option-spectrum 4s linear infinite;
+          }
+          .background-option__preview[data-kind="${TERRAIN_BACKGROUND_KEY}"]::after {
+            background: radial-gradient(circle at 30% 35%, rgba(255,255,255,0.25), transparent 55%), rgba(52, 65, 73, 1);
+          }
+          .background-option__preview[data-kind="${SHARDS_BACKGROUND_KEY}"]::after {
+            background:
+              radial-gradient(circle at 100% 50%, #ff00cc 0% 12%, transparent 70%),
+              radial-gradient(circle at 0% 50%, #00ffcc 0% 12%, transparent 70%),
+              radial-gradient(ellipse at 50% 0%, rgba(51, 0, 255, 0.8) 0% 30%, transparent 60%),
+              repeating-linear-gradient(45deg, #1a1a1a, #1a1a1a 6px, #242424 6px, #242424 12px);
+            animation: background-option-shards 10s linear infinite;
+          }
+          .background-option__preview[data-kind="${AURORA_BACKGROUND_KEY}"]::after {
+            background:
+              radial-gradient(ellipse at 20% 30%, rgba(138, 43, 226, 0.7) 0%, rgba(138, 43, 226, 0) 60%),
+              radial-gradient(ellipse at 80% 50%, rgba(0, 191, 255, 0.6) 0%, rgba(0, 191, 255, 0) 70%),
+              radial-gradient(ellipse at 50% 80%, rgba(50, 205, 50, 0.5) 0%, rgba(50, 205, 50, 0) 65%),
+              linear-gradient(135deg, #000000 0%, #0a0520 100%);
+            animation: background-option-aurora 12s ease-in-out infinite;
+          }
+          .background-option__preview[data-kind="${FUTURISTIC_BACKGROUND_KEY}"]::after {
+            background: linear-gradient(145deg, rgba(169, 140, 76, 0.95), rgba(108, 149, 214, 0.95), rgba(124, 43, 117, 0.95));
+          }
+          .background-option__preview[data-kind="${RAIN_BACKGROUND_KEY}"]::after {
+            background:
+              radial-gradient(ellipse at 50% 20%, rgba(0, 153, 255, 0.6) 0%, transparent 55%),
+              radial-gradient(ellipse at 20% 80%, rgba(0, 204, 255, 0.4) 0%, transparent 60%),
+              #02050a;
+          }
+          .background-option__preview[data-kind="${CONSTELLATION_BACKGROUND_KEY}"]::after {
+            background:
+              linear-gradient(135deg, #050512 0%, #1d2333 100%);
+          }
+          .background-option__preview[data-kind="${NEON_BACKGROUND_KEY}"]::after {
+            background:
+              linear-gradient(135deg, #11000d, #2c0015);
+          }
           @keyframes background-option-matrix {
             from { background-position: 0 0, 0 0; }
             to { background-position: 0 20px, 0 24px; }
+          }
+          @keyframes background-option-spectrum {
+            0% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(180deg); }
+            100% { filter: hue-rotate(360deg); }
+          }
+          @keyframes background-option-shards {
+            0% { background-position: 0 0, 0 0, 10px 10px, 20px 20px; }
+            100% { background-position: 40px 40px, -40px -40px, 50px 50px, 60px 60px; }
+          }
+          @keyframes background-option-aurora {
+            0% { background-position: 0% 0%, 0% 0%, 0% 0%; filter: hue-rotate(0deg); }
+            50% { background-position: -10% -5%, 5% 10%, 0% 15%; filter: hue-rotate(40deg); }
+            100% { background-position: 5% 10%, -10% -5%, 15% 0%; filter: hue-rotate(80deg); }
           }
           .background-option__details {
             display: flex;
@@ -259,13 +443,20 @@ export default function BackgroundColorSettings({ strings }) {
             color: var(--muted);
             font-size: 0.9rem;
           }
-          @media (max-width: 520px) {
+          @media (max-width: 720px) {
             .background-option {
-              grid-template-columns: 1fr;
+              padding: 0.85rem;
             }
             .background-option__preview {
-              width: 100%;
-              height: 120px;
+              aspect-ratio: 4 / 3;
+            }
+          }
+          @media (max-width: 520px) {
+            .background-option {
+              padding: 0.75rem;
+            }
+            .background-option__preview {
+              aspect-ratio: 1 / 1;
             }
           }
         `}</style>

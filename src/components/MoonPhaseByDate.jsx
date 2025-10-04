@@ -102,7 +102,7 @@ export default function MoonPhaseByDate({ messages }) {
   const percent = Math.round(100 * fraction);
 
   return (
-    <div ref={rootRef} className="mpb" style={{ display: "grid", gap: 12 }}>
+    <div ref={rootRef} className="mpb" style={{ display: "grid", placeContent: "center" }}>
       <label className="mpb-field" style={{ fontWeight: 600 }}>
         {messages?.dateLabel || "Fecha"}
         <input
@@ -122,7 +122,7 @@ export default function MoonPhaseByDate({ messages }) {
           style={{ borderRadius: "50%", boxShadow: "0 8px 24px rgba(0,0,0,.35), inset 0 2px 8px rgba(255,255,255,.08)", background: "#0b1020" }}
           onError={(e) => { if (e.currentTarget.src.endsWith('moon-texture.svg')) return; e.currentTarget.src = '/moon-texture.svg'; }}
         />
-        <div className="mpb-info" style={{ minWidth: 220, flex: "1 1 240px" }}>
+        <div className="mpb-info" style={{ minWidth: 220, flex: "1 1 240px", display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", textAlign: "center" }}>
           <div style={{ fontSize: 18, fontWeight: 700 }}>{label}</div>
           <div>{(messages?.illumination || "Iluminación")} : {percent}%</div>
           <div>phase 0–1: {phaseVal.toFixed(3)}</div>
