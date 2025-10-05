@@ -3,6 +3,9 @@
     gap: 1rem;
 }
 
+/* Espacio extra alrededor de todo el layout para que no quede pegado a la ventana */
+.analyze-root { padding: 1rem 2rem; }
+
 .panel {
     display: grid;
     gap: .75rem;
@@ -124,6 +127,10 @@ select[multiple] {
     overflow:auto; border-radius:12px; border:1px solid var(--glass-brd);
     background: rgba(255,255,255,.03);
 }
+
+/* Padding interno para separar la tabla de los bordes del contenedor */
+.preview { padding: .8rem; }
+.preview .table thead th, .preview .table tbody td { padding-left: .9rem; padding-right: .9rem; }
 .table { width:100%; border-collapse: separate; border-spacing: 0; font-size:.92rem; }
 .table thead th { position: sticky; top:0; background: rgba(0,0,0,.25); border-bottom:1px solid var(--glass-brd); text-align:left; padding:.5rem .6rem; }
 .table tbody td { padding:.45rem .6rem; border-bottom:1px solid rgba(255,255,255,.06); white-space: nowrap; text-overflow: ellipsis; overflow:hidden; }

@@ -114,6 +114,16 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const stepLabels = useMemo(() => [ui.uploadHeading, ui.previewHeading].map(s => String(s).replace(/^\d+\)\s*/, '')), [ui]);
 	const canGo = (idx) => idx === 0 || rows.length > 0;
 
+	// Paginación para la tabla de preview
+	const [page, setPage] = useState(0);
+	const PAGE_SIZE = 50;
+	const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+
+	useEffect(() => {
+		// resetear página cuando cambian las filas
+		setPage(0);
+	}, [rows]);
+
 	// Llamada a la API (intenta varias rutas conocidas; envía los campos de la fila como top-level JSON)
 	const API_BASE = 'https://mixtechdevs-nasa-exoplanet-detection.hf.space';
 
@@ -131,7 +141,6 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 				});
 
 				if (!res.ok) {
-					// leer body para diagnóstico
 					let bodyText = '';
 					try {
 						bodyText = await res.text();
@@ -229,7 +238,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 		const p_confirmed = Math.min(0.995, Math.max(0.001, (Math.abs(Math.sin(base)) || Math.random())));
 		return {
 			status: 'Predicción completada',
-			prediction: p_confirmed > 0.5 ? 'Confirmado' : 'Falso postivo',
+			prediction: p_confirmed > 0.5 ? 'Confirmado' : 'Falso positivo',
 			probability_confirmed: Number(p_confirmed.toFixed(6)),
 			probability_false_positive: Number((1 - p_confirmed).toFixed(6)),
 			model_used: 'XGBoom + SMOTE'
@@ -254,11 +263,11 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const prettyKey = (k) => {
 		const map = {
-			status: 'Estado de predicción',
-			prediction: 'Predicción del modelo',
-			probability_confirmed: 'Probabilidad de confirmado',
-			probability_false_positive: 'Probabilidad de que sea un falso positivo',
-			model_used: 'Modelo utilizado'
+			//status: 'Estado de predicción',
+			prediction: ui.prediction,
+			probability_confirmed: ui.probability_confirmed,
+			probability_false_positive: ui.probability_false_positive,
+			//model_used: 'Modelo utilizado'
 		};
 
 		const lk = String(k).toLowerCase();
@@ -268,6 +277,8 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const formatValue = (k, v) => {
 		if (v === null || v === undefined) return '';
+		if (v === 'FALSE POSITIVE') return ui.falsePositiveResult;
+		if (v === 'CONFIRMED') return ui.exoplanetCandidateResult;
 		const lk = String(k).toLowerCase();
 		if (/probability|proba|p_?/i.test(lk) && typeof v === 'number') return `${(v * 100).toFixed(2)} %`;
 		return String(v);
@@ -316,13 +327,13 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 				<div style={{ marginTop: '.6rem', textAlign: 'center' }}>
 					<button
 						className="btn"
-						onClick={() => loadExampleCSV()}
-						style={{ backgroundColor: 'var(--accent)', color: 'white' }}
-					>
-						📊 Usar CSV de ejemplo
-					</button>
+								onClick={() => loadExampleCSV()}
+								style={{ backgroundColor: 'var(--accent)', color: 'white' }}
+							>
+								📊 {ui.exampleDataset}
+							</button>
 					<p className="hint" style={{ marginTop: '.3rem', fontSize: '0.85em' }}>
-						O carga tu propio archivo CSV abajo
+								{ui.orUploadHint || 'O carga tu propio archivo CSV abajo'}
 					</p>
 				</div>
 				<div
@@ -355,59 +366,76 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 				transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
 			>
 				<h3>{ui.previewHeading}</h3>
-				{!rows.length ? <p className="muted">Carga un CSV para previsualizar resultados.</p> : (
+				{!rows.length ? <p className="muted">{ui.noRowsHint || 'Carga un archivo CSV para ver los resultados.'}</p> : (
 					<>
 						<p className="muted">
-							Este módulo muestra cómo se visualizarán etiquetas y probabilidades por fila cuando conectes tu modelo
-							(p. ej., a un endpoint <code>/api/predict</code>). Por ahora, puedes usar “Simular salida de modelo”.
-							Haz click en un elemento para visualizar su predicción y probabilidad.
+							{ui.predictionsDesc}
 						</p>
-						<div className="preview" style={{ marginTop: '.6rem' }}>
+							<div className="preview" style={{ marginTop: '.6rem' }}>
 							<table className="table">
 								<thead><tr>{headers.map(h => <th key={h}>{h}</th>)}</tr></thead>
 								<tbody>
-									{rows.slice(0, 10).map((r, i) => (
-										<tr
-											key={i}
-											className="clickable-row"
-											onClick={() => handleRowClick(i)}
-											style={{ cursor: 'pointer' }}
-										>
-											{headers.map(h => <td key={h}>{String(r[h] ?? '')}</td>)}
-										</tr>
-									))}
+									{rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((r, idx) => {
+										const globalIndex = page * PAGE_SIZE + idx;
+										return (
+											<tr
+												key={globalIndex}
+												className="clickable-row"
+												onClick={() => handleRowClick(globalIndex)}
+												style={{ cursor: 'pointer' }}
+											>
+												{headers.map(h => <td key={h}>{String(r[h] ?? '')}</td>)}
+											</tr>
+										);
+									})}
 								</tbody>
 							</table>
+
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '.5rem' }}>
+								<div>
+									{(() => {
+										const start = Math.min(rows.length, page * PAGE_SIZE + 1);
+										const end = Math.min(rows.length, (page + 1) * PAGE_SIZE);
+										if (ui.pageInfo) return ui.pageInfo.replace('{start}', String(start)).replace('{end}', String(end)).replace('{total}', String(rows.length));
+										return `Mostrando ${start} - ${end} de ${rows.length}`;
+									})()}
+								</div>
+								<div style={{ display: 'flex', gap: '.5rem' }}>
+									<button className="btn" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>{ui.prevButton || 'Anterior'}</button>
+									<button className="btn" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>{ui.nextButton || 'Siguiente'}</button>
+								</div>
+							</div>
 						</div>
 						{}
 						{expandedIndex !== null && (
 							<div className="panel prediction-panel" ref={expandedRef} style={{ marginTop: '.6rem' }}>
 								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-									<h4 style={{ margin: 0 }}>Detalle de predicción - fila {expandedIndex + 1}</h4>
-									<button className="btn btn-close" onClick={() => setExpandedIndex(null)}>Cerrar</button>
+									<h4 style={{ margin: 0 }}>{ui.prediction || 'Detalle de predicción'} - fila {expandedIndex + 1}</h4>
+									<button className="btn btn-close" onClick={() => setExpandedIndex(null)}>{ui.closeButton || 'Cerrar'}</button>
 								</div>
 								<div style={{ marginTop: '.5rem' }}>
-									{predictions[expandedIndex]?.status === 'loading' && <div className="muted">Cargando predicción...</div>}
-									{predictions[expandedIndex]?.status === 'error' && <div className="error">Error: {predictions[expandedIndex].error}</div>}
+									{predictions[expandedIndex]?.status === 'loading' && <div className="muted">{ui.loadingPrediction || 'Cargando predicción...'}</div>}
+									{predictions[expandedIndex]?.status === 'error' && <div className="error">{(ui.errorLabel || 'Error:')} {predictions[expandedIndex].error}</div>}
 									{predictions[expandedIndex]?.status === 'success' && predictions[expandedIndex].data && (
 										<>
 											<div style={{ display: 'flex', gap: '.5rem', justifyContent: 'flex-end', marginBottom: '.5rem' }}>
-												<button className="btn" onClick={() => retryPrediction(expandedIndex)}>Reintentar</button>
-												<button className="btn" onClick={() => copyPayload(expandedIndex)}>{copyStatus[expandedIndex] === 'copied' ? 'Copiado' : 'Copiar payload'}</button>
+												<button className="btn" onClick={() => retryPrediction(expandedIndex)}>{ui.retryButton || 'Reintentar'}</button>
+												<button className="btn" onClick={() => copyPayload(expandedIndex)}>{copyStatus[expandedIndex] === 'copied' ? (ui.payloadCopied || 'Copiado') : (ui.payloadCopy || 'Copiar payload')}</button>
 											</div>
 											<table className="table slim">
 												<tbody>
 													{/* Mostrar campos en orden fijo */}
 													{(() => {
 														const data = predictions[expandedIndex].data;
-														const ordered = ['status', 'prediction', 'probability_confirmed', 'probability_false_positive', 'model_used'];
-														const rowsToRender = [];
-														ordered.forEach(k => { if (data[k] !== undefined) rowsToRender.push([k, data[k]]); });
-														// añadir resto de campos como metadatos
-														Object.entries(data).forEach(([k, v]) => { if (!ordered.includes(k)) rowsToRender.push([k, v]); });
-														return rowsToRender.map(([k, v]) => (
-															<tr key={k}><th style={{ textAlign: 'left', width: '45%' }}>{prettyKey(k)}</th><td>{(/probability|proba|p_?/i.test(String(k).toLowerCase()) ? <ProbRow k={k} v={v} /> : formatValue(k, v))}</td></tr>
-														));
+														// Solo mostrar prediction y las dos probabilidades
+														const keys = ['prediction', 'probability_confirmed', 'probability_false_positive'];
+														return keys.map(k => {
+															if (data[k] === undefined) return null;
+															const v = data[k];
+															return (
+																<tr key={k}><th style={{ textAlign: 'left', width: '45%' }}>{prettyKey(k)}</th><td>{(/probability|proba|p_?/i.test(String(k).toLowerCase()) ? <ProbRow k={k} v={v} /> : formatValue(k, v))}</td></tr>
+															);
+														});
 													})()}
 												</tbody>
 											</table>
