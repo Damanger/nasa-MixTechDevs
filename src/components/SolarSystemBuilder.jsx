@@ -576,7 +576,7 @@ export default function SolarSystemBuilder() {
           .solar-controls{ height: 420px; max-height: 420px; position: static; }
           .planets-grid{ max-height: 220px; }
         }
-        .solar-canvas{ min-height: 360px; height: 60vh; border:1px solid var(--glass-brd); border-radius: 14px; background: rgba(0,0,0,0.18); overflow: hidden; cursor: grab; overscroll-behavior: contain; touch-action: none; }
+        .solar-canvas{ min-height: 360px; height: 60vh; border:1px solid var(--glass-brd); border-radius: 14px; background: rgba(0,0,0,0.75); overflow: hidden; cursor: grab; overscroll-behavior: contain; touch-action: none; }
         .solar-canvas:active{ cursor: grabbing; }
         .solar-canvas canvas{ width: 100%; height: 100%; display: block; }
       `}</style>
