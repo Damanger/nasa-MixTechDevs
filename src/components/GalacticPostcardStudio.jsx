@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState, useId } from "react";
+// Firebase (optional): used to upload images so they don't need to be embedded in the share URL.
+// Requires setting PUBLIC_FIREBASE_CONFIG in your environment as a JSON string with at least apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId.
+import { initializeApp, getApps } from "firebase/app";
+import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../assets/css/GalacticPostcardStudio.css";
+import { DEFAULT_LANG } from "../i18n/translations.js";
 
 const FALLBACK_STRINGS = {
   designHeading: "Pick a sketch",
@@ -20,6 +25,7 @@ const FALLBACK_STRINGS = {
   shareHeading: "Share your postcard",
   shareDescription: "Generate a temporary link so others can see this design.",
   shareButton: "Create link",
+  createButton: "Create your postcard",
   shareGenerating: "Generating…",
   shareCopy: "Copy link",
   shareCopied: "Link copied!",
@@ -62,7 +68,7 @@ const FALLBACK_STRINGS = {
   ],
 };
 
-const DESIGN_CLASS_MAP = {
+export const DESIGN_CLASS_MAP = {
   aurora: "design-aurora",
   supernova: "design-supernova",
   orbit: "design-orbit",
@@ -71,35 +77,325 @@ const DESIGN_CLASS_MAP = {
   station: "design-station",
 };
 
-const SHARE_PARAM = "share";
+export const SHARE_PARAM = "share";
 const PHOTO_DATA_LIMIT = 350000; // ~350 KB in base64 to keep URLs reasonable
 const DEFAULT_SHARE_BASE = "https://nasa-mixtechdevs.vercel.app";
 const SHARE_BASE_ENV = import.meta.env.PUBLIC_SHARE_BASE_URL;
 
-function encodePayload(payload) {
+export function encodePayload(payload) {
   try {
     const json = JSON.stringify(payload);
-    const utf8 = new TextEncoder().encode(json);
+    // If payload includes a photo, always try compressing (keeps links short).
+    const threshold = 1500; // characters — tuneable for non-photo payloads
+    let final = json;
+    let compressed = false;
+    const hasPhoto = payload && typeof payload.p === "string" && payload.p.length > 0;
+    const shouldCompress = hasPhoto || json.length > threshold;
+
+    if (shouldCompress) {
+      try {
+        // compress to a URL-safe encoded string
+        final = compressToEncodedURIComponent(json);
+        compressed = true;
+      } catch (err) {
+        // fall back to raw JSON
+        final = json;
+        compressed = false;
+      }
+    }
+
+    const utf8 = new TextEncoder().encode(final);
     let binary = "";
     utf8.forEach((byte) => {
       binary += String.fromCharCode(byte);
     });
-    return btoa(binary);
+    // If we compressed, return the URL-safe compressed token directly (shortest).
+    if (compressed) {
+      return `c1:${final}`;
+    }
+
+    // Legacy: base64-encoded payload with CMP: prefix
+    const base = btoa(binary);
+    return `CMP:${base}`;
   } catch (error) {
     console.error("Failed to encode postcard payload", error);
     return null;
   }
 }
 
-function decodePayload(value) {
+export function decodePayload(value) {
   try {
-    const binary = atob(value);
+    // New short URL-safe compressed token format: c1:<compressed>
+    if (typeof value === "string" && value.startsWith("c1:")) {
+      try {
+        const compressedPart = value.slice(3);
+        const json = decompressFromEncodedURIComponent(compressedPart);
+        return JSON.parse(json);
+      } catch (err) {
+        console.error("Failed to decode c1 compressed payload", err);
+        return null;
+      }
+    }
+
+    // Legacy path: CMP: + base64-encoded (or raw base64)
+    let compressed = false;
+    let token = value;
+    if (typeof token === "string" && token.startsWith("CMP:")) {
+      compressed = true;
+      token = token.slice(4);
+    }
+
+    const binary = atob(token);
     const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
-    const json = new TextDecoder().decode(bytes);
+    const raw = new TextDecoder().decode(bytes);
+    const json = compressed ? decompressFromEncodedURIComponent(raw) : raw;
     return JSON.parse(json);
   } catch (error) {
     console.error("Failed to decode postcard payload", error);
     return null;
+  }
+}
+
+// --- Minimal LZ-based helpers (compressToEncodedURIComponent / decompressFromEncodedURIComponent)
+// Small, self-contained implementation inspired by LZ-String (MIT). Only the encodedURIComponent helpers are implemented.
+function compressToEncodedURIComponent(input) {
+  if (input == null) return "";
+  return _compress(input, 6, (a) => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$".charAt(a));
+}
+
+function decompressFromEncodedURIComponent(input) {
+  if (input == null) return "";
+  return _decompress(input.length, 32, (index) => {
+    return "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$".indexOf(input.charAt(index));
+  });
+}
+
+function _compress(uncompressed, bitsPerChar, getCharFromInt) {
+  if (uncompressed == null) return "";
+  let i, value,
+    context_dictionary = {},
+    context_dictionaryToCreate = {},
+    context_c = "",
+    context_wc = "",
+    context_w = "",
+    context_enlargeIn = 2,
+    context_dictSize = 3,
+    context_numBits = 2,
+    context_data = [],
+    context_data_val = 0,
+    context_data_position = 0;
+
+  for (i = 0; i < uncompressed.length; i += 1) {
+    context_c = uncompressed.charAt(i);
+    if (!Object.prototype.hasOwnProperty.call(context_dictionary, context_c)) {
+      context_dictionary[context_c] = context_dictSize++;
+      context_dictionaryToCreate[context_c] = true;
+    }
+
+    context_wc = context_w + context_c;
+    if (Object.prototype.hasOwnProperty.call(context_dictionary, context_wc)) {
+      context_w = context_wc;
+    } else {
+      if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate, context_w)) {
+        value = context_w.charCodeAt(0);
+        for (let j = 0; j < context_numBits; j++) {
+          context_data_val = (context_data_val << 1);
+          if (context_data_position++ == bitsPerChar - 1) {
+            context_data_position = 0;
+            context_data.push(getCharFromInt(context_data_val));
+            context_data_val = 0;
+          }
+        }
+        for (let j = 0; j < 8; j++) {
+          context_data_val = (context_data_val << 1) | (value & 1);
+          if (context_data_position++ == bitsPerChar - 1) {
+            context_data_position = 0;
+            context_data.push(getCharFromInt(context_data_val));
+            context_data_val = 0;
+          }
+          value = value >> 1;
+        }
+        context_enlargeIn--;
+        if (context_enlargeIn == 0) {
+          context_enlargeIn = Math.pow(2, context_numBits);
+          context_numBits++;
+        }
+        delete context_dictionaryToCreate[context_w];
+      } else {
+        value = context_dictionary[context_w];
+        for (let j = 0; j < context_numBits; j++) {
+          context_data_val = (context_data_val << 1) | (value & 1);
+          if (context_data_position++ == bitsPerChar - 1) {
+            context_data_position = 0;
+            context_data.push(getCharFromInt(context_data_val));
+            context_data_val = 0;
+          }
+          value = value >> 1;
+        }
+      }
+      context_enlargeIn--;
+      if (context_enlargeIn == 0) {
+        context_enlargeIn = Math.pow(2, context_numBits);
+        context_numBits++;
+      }
+      context_dictionary[context_wc] = context_dictSize++;
+      context_w = String(context_c);
+    }
+  }
+
+  if (context_w !== "") {
+    if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate, context_w)) {
+      value = context_w.charCodeAt(0);
+      for (let j = 0; j < context_numBits; j++) {
+        context_data_val = (context_data_val << 1);
+        if (context_data_position++ == bitsPerChar - 1) {
+          context_data_position = 0;
+          context_data.push(getCharFromInt(context_data_val));
+          context_data_val = 0;
+        }
+      }
+      for (let j = 0; j < 8; j++) {
+        context_data_val = (context_data_val << 1) | (value & 1);
+        if (context_data_position++ == bitsPerChar - 1) {
+          context_data_position = 0;
+          context_data.push(getCharFromInt(context_data_val));
+          context_data_val = 0;
+        }
+        value = value >> 1;
+      }
+      context_enlargeIn--;
+      if (context_enlargeIn == 0) {
+        context_enlargeIn = Math.pow(2, context_numBits);
+        context_numBits++;
+      }
+      delete context_dictionaryToCreate[context_w];
+    } else {
+      value = context_dictionary[context_w];
+      for (let j = 0; j < context_numBits; j++) {
+        context_data_val = (context_data_val << 1) | (value & 1);
+        if (context_data_position++ == bitsPerChar - 1) {
+          context_data_position = 0;
+          context_data.push(getCharFromInt(context_data_val));
+          context_data_val = 0;
+        }
+        value = value >> 1;
+      }
+    }
+    context_enlargeIn--;
+    if (context_enlargeIn == 0) {
+      context_enlargeIn = Math.pow(2, context_numBits);
+      context_numBits++;
+    }
+  }
+
+  // Mark the end of the stream
+  value = 2;
+  for (let j = 0; j < context_numBits; j++) {
+    context_data_val = (context_data_val << 1) | (value & 1);
+    if (context_data_position++ == bitsPerChar - 1) {
+      context_data_position = 0;
+      context_data.push(getCharFromInt(context_data_val));
+      context_data_val = 0;
+    }
+    value = value >> 1;
+  }
+
+  // Flush
+  while (true) {
+    context_data_val = (context_data_val << 1);
+    if (context_data_position++ == bitsPerChar - 1) {
+      context_data.push(getCharFromInt(context_data_val));
+      break;
+    }
+  }
+  return context_data.join("");
+}
+
+function _decompress(length, resetValue, getNextValue) {
+  let dictionary = [0,1,2],
+    enlargeIn = 4,
+    dictSize = 4,
+    numBits = 3,
+    entry = "",
+    result = [],
+    i, w, bits, resb, maxpower, power,
+    data = { val: getNextValue(0), position: resetValue, index: 1 };
+
+  const readBits = (n) => {
+    let bits = 0, maxpower = Math.pow(2, n), power = 1;
+    while (power != maxpower) {
+      const resb = data.val & data.position;
+      data.position >>= 1;
+      if (data.position == 0) {
+        data.val = getNextValue(data.index++);
+        data.position = resetValue;
+      }
+      bits |= (resb > 0 ? 1 : 0) * power;
+      power <<= 1;
+    }
+    return bits;
+  };
+
+  let bitsVal = readBits(2);
+  switch (bitsVal) {
+    case 0:
+      bits = readBits(8);
+      w = String.fromCharCode(bits);
+      break;
+    case 1:
+      bits = readBits(16);
+      w = String.fromCharCode(bits);
+      break;
+    case 2:
+      return "";
+  }
+  dictionary[3] = w;
+  result.push(w);
+  while (true) {
+  if (data.index > length) return "";
+  let cc = readBits(numBits);
+    switch (cc) {
+      case 0:
+        bits = readBits(8);
+        dictionary[dictSize++] = String.fromCharCode(bits);
+        cc = dictSize - 1;
+        enlargeIn--;
+        break;
+      case 1:
+        bits = readBits(16);
+        dictionary[dictSize++] = String.fromCharCode(bits);
+        cc = dictSize - 1;
+        enlargeIn--;
+        break;
+      case 2:
+        return result.join("");
+    }
+
+    if (enlargeIn == 0) {
+      enlargeIn = Math.pow(2, numBits);
+      numBits++;
+    }
+
+    if (dictionary[cc]) {
+      entry = dictionary[cc];
+    } else {
+      if (cc === dictSize) {
+        entry = w + w.charAt(0);
+      } else {
+        return null;
+      }
+    }
+    result.push(entry);
+
+    // Add w+entry[0] to the dictionary.
+    dictionary[dictSize++] = w + entry.charAt(0);
+    enlargeIn--;
+
+    w = entry;
+    if (enlargeIn == 0) {
+      enlargeIn = Math.pow(2, numBits);
+      numBits++;
+    }
   }
 }
 
@@ -155,7 +451,7 @@ async function maybeOptimizeDataUrl(dataUrl) {
   }
 }
 
-function getShareBase() {
+export function getShareBase() {
   const normalizedEnv = typeof SHARE_BASE_ENV === "string"
     ? SHARE_BASE_ENV.trim().replace(/\/+$/, "")
     : "";
@@ -171,7 +467,7 @@ function getShareBase() {
   return DEFAULT_SHARE_BASE;
 }
 
-function readShareTokenFromLocation() {
+export function readShareTokenFromLocation() {
   if (typeof window === "undefined") return null;
   const params = new URLSearchParams(window.location.search);
   let encoded = params.get(SHARE_PARAM);
@@ -208,7 +504,7 @@ function normalizeStrings(input) {
   return result;
 }
 
-function GalacticPostcardStudio({ strings: rawStrings }) {
+function GalacticPostcardStudio({ strings: rawStrings, langCode = DEFAULT_LANG }) {
   const strings = useMemo(() => normalizeStrings(rawStrings), [rawStrings]);
   const designs = useMemo(
     () =>
@@ -302,10 +598,12 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
       setPhoto({ file: null, url: payload.p, name: "shared-image", dataUrl: payload.p });
     }
     setIsShareView(true);
-    const renderedUrl = new URL(window.location.href);
-    renderedUrl.searchParams.delete(SHARE_PARAM);
-    const encodedToken = encodeURIComponent(encoded);
-    renderedUrl.hash = `${SHARE_PARAM}=${encodedToken}`;
+    const shareBase = getShareBase();
+    const viewPath = langCode === DEFAULT_LANG ? "/verpostal" : `/verpostal?lang=${langCode}`;
+    const renderedUrl = new URL(viewPath, `${shareBase}/`);
+  // Avoid percent-encoding URL-safe compressed tokens (they use a safe alphabet).
+  const encodedToken = typeof encoded === "string" && encoded.startsWith("c1:") ? encoded : encodeURIComponent(encoded);
+  renderedUrl.hash = `${SHARE_PARAM}=${encodedToken}`;
     if (window.history && window.history.replaceState) {
       const title = typeof document !== "undefined" ? document.title : "";
       window.history.replaceState({}, title, renderedUrl.toString());
@@ -347,6 +645,7 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
     setCopyFeedback(null);
 
     try {
+      // Determine photo data (data URL) if present
       let photoData = null;
       if (photo) {
         if (photo.dataUrl && isDataUrl(photo.dataUrl)) {
@@ -358,10 +657,51 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
         }
       }
 
-      if (photoData && photoData.length > PHOTO_DATA_LIMIT) {
-        const error = new Error("PHOTO_TOO_LARGE");
-        error.code = "PHOTO_TOO_LARGE";
-        throw error;
+      // If PUBLIC_FIREBASE_DATABASE_URL or PUBLIC_FIREBASE_PROJECT_ID exists, try storing the base64 in Realtime DB
+      let uploadedPhotoUrl = null;
+      const env = typeof import.meta !== "undefined" ? import.meta.env : {};
+      const firebaseDatabaseUrlEnv = env.PUBLIC_FIREBASE_DATABASE_URL;
+      const firebaseProjectId = env.PUBLIC_FIREBASE_PROJECT_ID;
+      const databaseURL = firebaseDatabaseUrlEnv
+        ? String(firebaseDatabaseUrlEnv)
+        : firebaseProjectId
+          ? `https://${String(firebaseProjectId)}-default-rtdb.firebaseio.com`
+          : null;
+
+      if (photoData && databaseURL) {
+        try {
+          // Try writing the base64 into Realtime Database under /postalesTemp and set TTL for 2 days
+          const expiresAt = Date.now() + 2 * 24 * 60 * 60 * 1000; // 2 days
+          const endpoint = `${databaseURL.replace(/\/+$/, "")}/postalesTemp.json`;
+          try {
+            console.debug("Posting postcard to Realtime DB", endpoint);
+            const res = await fetch(endpoint, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ p: photoData, expiresAt }),
+            });
+            const bodyText = await res.text();
+            try {
+              const jsonBody = JSON.parse(bodyText);
+              console.debug("Realtime DB post response JSON:", jsonBody);
+              if (jsonBody && jsonBody.name) {
+                uploadedPhotoUrl = `db:${jsonBody.name}`;
+              } else {
+                console.warn("Realtime DB post returned no name key", jsonBody);
+              }
+            } catch (parseErr) {
+              console.warn("Realtime DB response not JSON", bodyText);
+            }
+            if (!res.ok) {
+              console.warn("Realtime DB returned non-ok status", res.status, res.statusText);
+            }
+          } catch (err) {
+            console.warn("Realtime DB write failed", err);
+          }
+        } catch (err) {
+          console.warn("Realtime DB write failed, falling back to inlined image", err);
+          uploadedPhotoUrl = null;
+        }
       }
 
       const payload = {
@@ -369,8 +709,22 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
         m: message.trim() || sampleMessage,
         s: sender.trim() || sampleSender,
       };
-      if (photoData) {
+      if (uploadedPhotoUrl) {
+        // store the public URL instead of the full data URL
+        payload.p = uploadedPhotoUrl;
+      } else if (photoData) {
+        // No upload performed — keep the data URL (will be compressed if large)
+        if (photoData.length > PHOTO_DATA_LIMIT) {
+          const error = new Error("PHOTO_TOO_LARGE");
+          error.code = "PHOTO_TOO_LARGE";
+          throw error;
+        }
         payload.p = photoData;
+      }
+
+      // If we tried to use Realtime DB but didn't get an uploadedPhotoUrl, show a helpful error
+      if (!uploadedPhotoUrl && databaseURL && photoData) {
+        setShareError("Failed to store image in Realtime DB. Check PUBLIC_FIREBASE_CONFIG and database rules (write allowed). Falling back to inlined image.");
       }
 
       const encoded = encodePayload(payload);
@@ -379,14 +733,11 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
       }
 
       const shareBase = getShareBase();
-      const currentPath = typeof window !== "undefined" ? window.location.pathname || "/postal" : "/postal";
-      const currentSearch = typeof window !== "undefined" ? window.location.search : "";
-      const url = new URL(currentPath, `${shareBase}/`);
-      const params = new URLSearchParams(currentSearch);
-      params.delete(SHARE_PARAM);
-      url.search = params.size ? `?${params.toString()}` : "";
-      const encodedToken = encodeURIComponent(encoded);
-      url.hash = `${SHARE_PARAM}=${encodedToken}`;
+      const viewPath = langCode === DEFAULT_LANG ? "/verpostal" : `/verpostal?lang=${langCode}`;
+      const url = new URL(viewPath, `${shareBase}/`);
+  // Avoid percent-encoding URL-safe compressed tokens (they use a safe alphabet).
+  const encodedToken = typeof encoded === "string" && encoded.startsWith("c1:") ? encoded : encodeURIComponent(encoded);
+  url.hash = `${SHARE_PARAM}=${encodedToken}`;
       const shareLink = url.toString();
       setShareUrl(shareLink);
       setShareState("success");
@@ -430,6 +781,41 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
   const canCopyLink = Boolean(
     shareUrl && (shareState === "success" || shareState === "stale")
   );
+
+  if (isShareView) {
+    // Minimal read-only view for recipients. Show only the postcard preview and a CTA to create their own.
+    return (
+      <section className="postcard-studio shared-view">
+        <div className="shared-header">
+          <h2>{strings.previewHeading}</h2>
+          <p className="helper-text">{strings.sharePreview}</p>
+        </div>
+        <div className="shared-preview-wrapper">
+          <div className={["postcard-preview", designClassName].join(" ")}
+            role="img"
+            aria-label={message || sampleMessage}
+          >
+            {photo ? (
+              <img src={photo.url} alt="" className="postcard-photo" />
+            ) : (
+              <div className="photo-placeholder" aria-hidden="true">
+                <span>★</span>
+              </div>
+            )}
+            <div className="message-block">
+              <p className="message-text">{message || sampleMessage}</p>
+              <span className="sender-text">{sender || sampleSender}</span>
+            </div>
+          </div>
+          <div className="shared-actions">
+            <a href="/postal" className="upload-button">
+              {strings.createButton ?? "Create your postcard"}
+            </a>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="postcard-studio">

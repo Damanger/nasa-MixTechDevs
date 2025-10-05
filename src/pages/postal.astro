@@ -19,7 +19,7 @@ const pageDescription = pageStrings.subtitle ?? translations.meta.description;
       <p>{pageStrings.subtitle}</p>
     </section>
 
-    <GalacticPostcardStudio client:load strings={pageStrings} />
+    <GalacticPostcardStudio client:load strings={pageStrings} langCode={lang} />
   </main>
 
   <style>

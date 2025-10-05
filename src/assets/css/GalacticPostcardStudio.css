@@ -347,6 +347,24 @@
   color: #ff9fa9;
 }
 
+.viewer-card {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.viewer-card .postcard-preview {
+  max-width: min(620px, 100%);
+  width: 100%;
+}
+
+.viewer-status {
+  font-size: 0.95rem;
+  color: rgba(230, 234, 255, 0.82);
+  text-align: center;
+  padding: 2.4rem 1rem;
+}
+
 .postcard-preview {
   position: relative;
   border-radius: clamp(22px, 4vw, 30px);

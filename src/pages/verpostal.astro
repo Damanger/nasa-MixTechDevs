@@ -1,0 +1,118 @@
+---
+import Layout from "../layouts/Layout.astro";
+import GalacticPostcardViewer from "../components/GalacticPostcardViewer.jsx";
+import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
+
+const queryLang = Astro.url.searchParams.get("lang");
+const incomingLang = Astro.props.lang;
+const lang = getLanguageSafe(incomingLang ?? queryLang ?? DEFAULT_LANG);
+const translations = getTranslations(lang);
+const postcardStrings = translations.postcard ?? {};
+// Guard: some translation bundles may not include a dedicated "postcardViewer" section.
+// Fall back to sensible values from the `postcard` bundle to avoid runtime errors.
+const viewerStrings = translations.postcardViewer ?? {
+  title: postcardStrings.title ?? "Postcard",
+  subtitle: postcardStrings.subtitle ?? "",
+  cta: postcardStrings.createButton ?? "Create your postcard",
+  loading: "Loading postcard…",
+  missing: "We couldn't load the shared postcard.",
+};
+
+const pageTitle = `${viewerStrings.title} · MixTechDevs`;
+const pageDescription = viewerStrings.subtitle ?? translations.meta?.description ?? "";
+const createHref = lang === DEFAULT_LANG ? "/postal" : `/postal?lang=${lang}`;
+---
+
+<Layout title={pageTitle} description={pageDescription} lang={lang} translations={translations}>
+  <main class="container viewer-page">
+    <section class="page-header">
+      <div class="viewer-header-text">
+        <h1>{viewerStrings.title}</h1>
+        <p>{viewerStrings.subtitle}</p>
+      </div>
+      <a class="btn viewer-cta" href={createHref}>{viewerStrings.cta}</a>
+    </section>
+
+    <GalacticPostcardViewer client:load strings={viewerStrings} postcardStrings={postcardStrings} />
+  </main>
+
+  <style>
+    .viewer-page {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(2.5rem, 6vw, 3.5rem);
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: clamp(1rem, 3vw, 1.5rem);
+      padding: clamp(1.6rem, 4vw, 2.4rem);
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(12, 20, 38, 0.52);
+      backdrop-filter: blur(18px) saturate(140%);
+      -webkit-backdrop-filter: blur(18px) saturate(140%);
+      box-shadow: 0 22px 48px rgba(6, 12, 28, 0.4);
+    }
+
+    .viewer-header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .page-header h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 2.9rem);
+      letter-spacing: -0.01em;
+    }
+
+    .page-header p {
+      margin: 0;
+      font-size: clamp(1rem, 2.2vw, 1.2rem);
+      color: rgba(230, 234, 255, 0.78);
+      line-height: 1.6;
+    }
+
+    .viewer-cta {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.4rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(12, 22, 46, 0.7);
+      color: inherit;
+      font-weight: 600;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .viewer-cta:hover,
+    .viewer-cta:focus-visible {
+      border-color: rgba(137, 180, 255, 0.6);
+      box-shadow: 0 12px 30px rgba(12, 36, 80, 0.35);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    @media (max-width: 900px) {
+      .page-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .viewer-cta {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .viewer-page {
+        margin-top: -1rem;
+      }
+    }
+  </style>
+</Layout>
