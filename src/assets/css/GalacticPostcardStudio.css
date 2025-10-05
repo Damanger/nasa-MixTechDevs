@@ -400,6 +400,29 @@
   z-index: 0;
 }
 
+/* animated canvas sits above the background but behind content */
+.postcard-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0.5; /* fractional but treated as 0; content (.message-block, .postcard-photo) have z-index:1 */
+  pointer-events: none;
+}
+
+/* ensure pseudo-elements stay below the canvas for subtle backgrounds */
+.postcard-preview::before,
+.postcard-preview::after {
+  z-index: -1;
+}
+
+.postcard-preview .message-block,
+.postcard-preview .postcard-photo,
+.postcard-preview .photo-placeholder,
+.postcard-preview .stamp {
+  z-index: 1;
+}
+
 .postcard-preview .postcard-photo,
 .postcard-preview .photo-placeholder {
   position: relative;
@@ -524,6 +547,139 @@
 .postcard-preview.design-generic::before {
   background: linear-gradient(140deg, #081427 0%, #13263c 48%, #091224 100%);
 }
+
+/* New designs that match DESIGNS className values from the component */
+.design-option.design-nebula-aurora .sketch,
+.postcard-preview.design-nebula-aurora::before {
+  --card-accent: #ffd0f3;
+  background: radial-gradient(circle at 22% 32%, rgba(255,208,243,0.55), transparent 38%),
+    radial-gradient(circle at 78% 68%, rgba(150,200,255,0.45), transparent 44%),
+    linear-gradient(135deg, #061129 0%, #0f2f57 45%, #4a2b67 100%);
+}
+.design-option.design-orbital-crossing .sketch,
+.postcard-preview.design-orbital-crossing::before {
+  --card-accent: #9fe6ff;
+  background: radial-gradient(circle at 48% 54%, rgba(255,255,255,0.06), transparent 50%),
+    linear-gradient(160deg, #061223 0%, #0d2b4a 45%, #0f3956 100%);
+}
+.design-option.design-ion-trail .sketch,
+.postcard-preview.design-ion-trail::before {
+  --card-accent: #a7ffdb;
+  background: radial-gradient(circle at 20% 70%, rgba(120,255,200,0.32), transparent 40%),
+    radial-gradient(circle at 82% 30%, rgba(160,220,255,0.22), transparent 42%),
+    linear-gradient(120deg, #081424 0%, #083044 48%, #06202a 100%);
+}
+.design-option.design-ring-halo .sketch,
+.postcard-preview.design-ring-halo::before {
+  --card-accent: #ffd9a6;
+  background: radial-gradient(circle at 50% 22%, rgba(255,230,180,0.42), transparent 44%),
+    linear-gradient(140deg, #10091a 0%, #331a36 55%, #1b0b22 100%);
+}
+.design-option.design-solar-panel .sketch,
+.postcard-preview.design-solar-panel::before {
+  --card-accent: #ffe28a;
+  background: linear-gradient(170deg, #07151e 0%, #0f2a2f 48%, #12221b 100%);
+}
+.design-option.design-starlit-grid .sketch,
+.postcard-preview.design-starlit-grid::before {
+  --card-accent: #c8e6ff;
+  background: radial-gradient(circle at 12% 20%, rgba(255,255,255,0.06), transparent 36%),
+    radial-gradient(circle at 88% 78%, rgba(255,255,255,0.04), transparent 44%),
+    linear-gradient(140deg, #071227 0%, #0f2b44 48%, #071428 100%);
+}
+
+/* Decorative overlays and enhancements for new designs */
+.postcard-preview.design-nebula-aurora::after,
+.postcard-preview.design-orbital-crossing::after,
+.postcard-preview.design-ion-trail::after,
+.postcard-preview.design-ring-halo::after,
+.postcard-preview.design-solar-panel::after,
+.postcard-preview.design-starlit-grid::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* subtle starfield texture */
+.postcard-preview.design-nebula-aurora::after {
+  background-image: radial-gradient(circle at 10% 14%, rgba(255,255,255,0.06) 0.5px, transparent 1px),
+    radial-gradient(circle at 80% 76%, rgba(255,255,255,0.04) 0.5px, transparent 1px);
+  background-size: 38px 38px, 46px 46px;
+  opacity: 0.6;
+}
+.postcard-preview.design-orbital-crossing::after {
+  background-image: radial-gradient(circle at 60% 34%, rgba(255,255,255,0.06) 0.6px, transparent 1px);
+  background-size: 42px 42px;
+  opacity: 0.48;
+}
+.postcard-preview.design-ion-trail::after {
+  background-image: linear-gradient(90deg, rgba(160,255,220,0.04) 1px, transparent 1px), linear-gradient(0deg, rgba(180,230,255,0.03) 1px, transparent 1px);
+  background-size: 32px 32px, 28px 28px;
+  opacity: 0.55;
+}
+.postcard-preview.design-ring-halo::after {
+  background-image: radial-gradient(circle at 50% 18%, rgba(255,210,160,0.06), transparent 20%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.03), transparent 24%);
+  opacity: 0.6;
+}
+.postcard-preview.design-solar-panel::after {
+  background-image: linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.35;
+}
+.postcard-preview.design-starlit-grid::after {
+  background-image: radial-gradient(circle at 22% 28%, rgba(255,255,255,0.06) 0.6px, transparent 1px), radial-gradient(circle at 76% 72%, rgba(255,255,255,0.05) 0.6px, transparent 1px);
+  background-size: 36px 36px;
+  opacity: 0.55;
+}
+
+/* Mini preview sketch decorations */
+.design-option .sketch {
+  transition: transform 0.28s ease, box-shadow 0.28s ease;
+}
+.design-option:hover .sketch,
+.design-option:focus-visible .sketch {
+  transform: translateY(-6px) scale(1.02) rotate(-0.4deg);
+}
+
+/* Add subtle stamp in top-right of postcard preview */
+.postcard-preview .stamp {
+  position: absolute;
+  top: clamp(14px, 2.6vw, 18px);
+  right: clamp(14px, 2.6vw, 18px);
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(240,240,240,0.85));
+  color: #111;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.08);
+  opacity: 0.95;
+  transform: rotate(-6deg);
+}
+.postcard-preview .stamp {
+  position: absolute;
+  top: clamp(14px, 2.6vw, 18px);
+  right: clamp(14px, 2.6vw, 18px);
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(240,240,240,0.85));
+  color: #111;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  border: 1px solid rgba(0,0,0,0.08);
+  opacity: 0.95;
+  transform: rotate(-6deg);
+}
+
 
 @media (max-width: 600px) {
   .design-grid {
