@@ -162,10 +162,10 @@ export default function MoonCouple({ messages }) {
 
       <style jsx>{`
         .mooncouple{ display:grid; gap:.75rem; }
-        .mooncouple__controls{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; align-items:end; }
+        .mooncouple__controls{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; align-items:end; place-items:center; text-align:center; }
         .mooncouple__label{ display:grid; gap:.35rem; font-weight:600; }
         .mooncouple__input{
-          width: 100%;
+          width: 90%;
           padding: 0.45rem 0.65rem;
           border-radius: 12px;
           border: 1px solid rgba(255, 255, 255, 0.22);

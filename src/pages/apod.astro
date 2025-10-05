@@ -86,9 +86,6 @@ const showImage = Boolean(imageUrl);
         {apodData?.date && <p class="date" id="apod-date-text">{apodData.date}</p>}
         {apodData?.explanation && <p class="desc" id="apod-desc">{apodData.explanation}</p>}
         <div class="actions">
-          {apodData?.url && (
-            <a class="btn" id="apod-btn-view" href={apodData.url} target="_blank" rel="noopener noreferrer">{apod.go}</a>
-          )}
           {isImage && apodData?.hdurl && (
             <a class="btn secondary" id="apod-btn-hd" href={apodData.hdurl} target="_blank" rel="noopener noreferrer">HD</a>
           )}
@@ -168,10 +165,10 @@ const showImage = Boolean(imageUrl);
       .content h2 { margin: 0 0 0.25rem 0; font-size: 1.25rem; letter-spacing: 0.3px; }
       .date { margin: 0.25rem 0 0.75rem 0; color: rgba(255,255,255,0.7); font-size: 0.9rem; }
       .desc { margin: 0.25rem 0 1rem 0; color: rgba(255,255,255,0.9); line-height: 1.5; font-size: 0.95rem; }
-      .actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
-      .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 0.85rem; border-radius: 10px; color: #fff; text-decoration: none; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.28); box-shadow: 0 6px 18px rgba(0,0,0,0.25); transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+      .actions { display: flex; gap: 0.6rem; flex-wrap: wrap;}
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.55rem 0.85rem; border-radius: 10px; color: #fff; text-decoration: none; background: linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05)); border: 1px solid rgba(255,255,255,0.28); box-shadow: 0 6px 18px rgba(0,0,0,0.25); transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
       .btn:hover { transform: translateY(-1px); background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08)); box-shadow: 0 10px 24px rgba(0,0,0,0.3); }
-      .btn.secondary { background: rgba(255,255,255,0.08); }
+      .btn.secondary { background: rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center;}
     </style>
   </section>
 

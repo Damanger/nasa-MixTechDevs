@@ -16,6 +16,12 @@ import RainBackground from "../components/RainBackground.jsx";
 import ConstellationBackground from "../components/ConstellationBackground.jsx";
 import NeonBackground from "../components/NeonBackground.jsx";
 import ConstellationShell from "../components/ConstellationShell.jsx";
+import {
+  DEFAULT_BACKGROUND_KEY,
+  BACKGROUND_STORAGE_KEY,
+  THEME_COLOR_MAP,
+  ALLOWED_KEYS
+} from "../lib/backgroundPreferences.js";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const {
@@ -31,12 +37,17 @@ const lang = getLanguageSafe(langSource ?? DEFAULT_LANG);
 const messages = providedTranslations ?? getTranslations(lang);
 const metaTitle = title ?? messages.meta.title;
 const metaDescription = description ?? messages.meta.description;
+const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
 ---
 
-<html lang={lang}>
+<html lang={lang} data-background="default">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- theme-color inicial (se actualiza en runtime si hay preferencia) -->
+    <meta name="theme-color" content={defaultThemeColor} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" type="image/webp" href="/MixTechDevs.webp" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -51,6 +62,26 @@ const metaDescription = description ?? messages.meta.description;
     />
     <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
+    <!-- Aplicar preferencia de fondo lo antes posible (antes de hidratar) -->
+    <script is:inline>
+      (function () {
+        try {
+          var KEY = "{BACKGROUND_STORAGE_KEY}";
+          var raw = localStorage.getItem(KEY);
+          if (!raw) return;
+          var val = (raw + "").trim().toLowerCase();
+          var allowed = new Set({JSON.stringify(Array.from(ALLOWED_KEYS))});
+          if (!allowed.has(val)) return;
+          var map = {JSON.stringify(THEME_COLOR_MAP)};
+          var html = document.documentElement;
+          html.dataset.background = val;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', map[val] || map['default']);
+        } catch (e) {
+          /* ignore */
+        }
+      })();
+    </script>
     <style is:global>
       :root {
         --bg-1: #0b1020;
@@ -72,11 +103,27 @@ const metaDescription = description ?? messages.meta.description;
       body {
         height: 100%;
       }
+      /* Paint the overscroll/safe-area background on iOS */
+      html { background: var(--layout-background); color-scheme: dark; }
+      /* Si el usuario elige un fondo, html debe reflejarlo también */
+      html[data-background="matrix"] { background: #000; }
+      html[data-background="grid"] { background: #191a1a; }
+      html[data-background="city"] { background: #111; }
+      html[data-background="spectrum"] { background: #000; }
+      html[data-background="terrain"] { background: #343a40; }
+      html[data-background="shards"] { background: #161616; }
+      html[data-background="aurora"] { background: #050314; }
+      html[data-background="futuristic"] { background: #1f1727; }
+      html[data-background="rain"] { background: #000; }
+      html[data-background="constellation"] { background: #101018; }
+      html[data-background="neon"] { background: #0a0005; }
       body {
         margin: 0;
         color: var(--text);
         background: var(--layout-background);
+        /* Avoid white gutters on small screens (iOS Safari) */
         background-attachment: fixed;
+        min-height: 100dvh; /* fill dynamic viewport incl. safe areas */
         font-family:
           ui-sans-serif,
           system-ui,
@@ -88,6 +135,15 @@ const metaDescription = description ?? messages.meta.description;
           "Noto Sans",
           "Apple Color Emoji",
           "Segoe UI Emoji";
+      }
+      /* iOS Safari has issues painting fixed backgrounds; use scroll on narrow viewports */
+      @media (max-width: 820px) {
+        body { background-attachment: scroll; }
+      }
+      /* Estado de bloqueo al abrir modales */
+      html.modal-open, body.modal-open {
+        overflow: hidden !important;
+        overscroll-behavior: contain;
       }
       body[data-background="matrix"] { background: #000; }
       body[data-background="grid"] { background: #191a1a; }
@@ -491,7 +547,7 @@ const metaDescription = description ?? messages.meta.description;
       @media (max-width: 840px) {
         body { padding-top: 82px; }
         .hero{
-          margin-top: -1rem;
+          margin-top: 0rem;
         }
         .site-header .container {
           display: flex;

@@ -15,7 +15,7 @@ export const BACKGROUND_STORAGE_KEY = "mixtechdevs:bg-preference";
 
 const LEGACY_ALIASES = new Map([["island", GRID_BACKGROUND_KEY]]);
 
-const OVERLAY_KEYS = new Set([
+export const OVERLAY_KEYS = new Set([
     MATRIX_BACKGROUND_KEY,
     GRID_BACKGROUND_KEY,
     CITY_BACKGROUND_KEY,
@@ -29,7 +29,22 @@ const OVERLAY_KEYS = new Set([
     NEON_BACKGROUND_KEY,
 ]);
 
-const ALLOWED_KEYS = new Set([DEFAULT_BACKGROUND_KEY, ...OVERLAY_KEYS]);
+export const ALLOWED_KEYS = new Set([DEFAULT_BACKGROUND_KEY, ...OVERLAY_KEYS]);
+
+export const THEME_COLOR_MAP = {
+    [DEFAULT_BACKGROUND_KEY]: "#0b1020",
+    [MATRIX_BACKGROUND_KEY]: "#000000",
+    [GRID_BACKGROUND_KEY]: "#191a1a",
+    [CITY_BACKGROUND_KEY]: "#111111",
+    [SPECTRUM_BACKGROUND_KEY]: "#000000",
+    [TERRAIN_BACKGROUND_KEY]: "#343a40",
+    [SHARDS_BACKGROUND_KEY]: "#161616",
+    [AURORA_BACKGROUND_KEY]: "#050314",
+    [FUTURISTIC_BACKGROUND_KEY]: "#1f1727",
+    [RAIN_BACKGROUND_KEY]: "#000000",
+    [CONSTELLATION_BACKGROUND_KEY]: "#101018",
+    [NEON_BACKGROUND_KEY]: "#0a0005",
+};
 
 export const sanitizeBackgroundValue = (value) => {
     if (typeof value !== "string") return null;
@@ -96,6 +111,14 @@ export const applyBackgroundToDocument = (key) => {
 
     const normalized = sanitizeBackgroundValue(key) ?? DEFAULT_BACKGROUND_KEY;
     body.dataset.background = normalized;
+    // Mantener html y body sincronizados para que el overscroll/safe-area
+    // tome el mismo color que el usuario eligió.
+    root.dataset.background = normalized;
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+        const color = THEME_COLOR_MAP[normalized] ?? THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
+        meta.setAttribute("content", color);
+    }
 
     if (normalized === DEFAULT_BACKGROUND_KEY || OVERLAY_KEYS.has(normalized)) {
         root.style.removeProperty(CSS_VARIABLE);

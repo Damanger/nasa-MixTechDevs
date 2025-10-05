@@ -105,7 +105,7 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
             }}
             aria-label="Buscar constelaciones"
           >
-            ✦
+            🌠
           </button>
         </div>
       </nav>

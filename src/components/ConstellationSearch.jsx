@@ -36,18 +36,47 @@ export default function ConstellationSearch({ visible = true, onClose } = {}) {
       });
   }, []);
 
-  // Bloqueo de scroll y ESC
+  // Bloqueo de scroll y ESC (robusto para iOS)
   useEffect(() => {
     if (!visible) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const html = document.documentElement;
+    const body = document.body;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const prev = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    // Evita el scroll y el "bounce" en iOS
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+    body.style.overscrollBehavior = "contain";
+    html.classList.add("modal-open");
+    body.classList.add("modal-open");
+
     const onKey = (e) => {
       if (e.key === "Escape" || e.key === "Esc") onClose?.();
     };
     window.addEventListener("keydown", onKey);
+
     return () => {
-      document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      html.style.overflow = prev.htmlOverflow;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.position = prev.position;
+      const y = Math.abs(parseInt(body.style.top || "0", 10)) || 0;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      body.style.overscrollBehavior = "";
+      html.classList.remove("modal-open");
+      body.classList.remove("modal-open");
+      // restaurar la posición original
+      window.scrollTo(0, y);
     };
   }, [visible, onClose]);
 
@@ -420,7 +449,10 @@ const overlayStyle = {
   alignItems: "center",
   justifyContent: "center",
   zIndex: 2000,
-  background: "rgba(3,6,12,0.5)",
+  // Cubrir completamente zonas seguras en iOS y dar oscurecimiento uniforme
+  background: "rgba(3, 6, 12, 0.62)",
+  WebkitTapHighlightColor: "transparent",
+  touchAction: "none",
 };
 
 const modalStyle = {

@@ -60,7 +60,7 @@ export default function MoonSwitcher({ messages }) {
 
       <style>{`
         .moonswitcher{ display:grid; gap:.75rem; }
-        .moonswitcher__bar{ display:inline-flex; gap:.35rem; background: rgba(255,255,255,.06); padding:.25rem; border-radius:999px; border:1px solid rgba(255,255,255,.18); width:max-content; }
+        .moonswitcher__bar{ display:inline-flex; margin: 0 auto; gap:.35rem; background: rgba(255,255,255,.06); padding:.25rem; border-radius:999px; border:1px solid rgba(255,255,255,.18); width:max-content; }
         .moonswitcher__btn{ border:0; background:transparent; color:inherit; padding:.4rem .8rem; border-radius:999px; cursor:pointer; }
         .moonswitcher__btn[data-active="true"]{ background: var(--accent, #89b4ff); color:#0b1020; font-weight:700; }
       `}</style>
