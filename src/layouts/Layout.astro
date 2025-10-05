@@ -16,12 +16,7 @@ import RainBackground from "../components/RainBackground.jsx";
 import ConstellationBackground from "../components/ConstellationBackground.jsx";
 import NeonBackground from "../components/NeonBackground.jsx";
 import ConstellationShell from "../components/ConstellationShell.jsx";
-import {
-  DEFAULT_BACKGROUND_KEY,
-  BACKGROUND_STORAGE_KEY,
-  THEME_COLOR_MAP,
-  ALLOWED_KEYS
-} from "../lib/backgroundPreferences.js";
+import { DEFAULT_BACKGROUND_KEY, THEME_COLOR_MAP } from "../lib/backgroundPreferences.js";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const {
@@ -66,15 +61,32 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
     <script is:inline>
       (function () {
         try {
-          var KEY = "{BACKGROUND_STORAGE_KEY}";
+          var KEY = 'mixtechdevs:bg-preference';
           var raw = localStorage.getItem(KEY);
           if (!raw) return;
-          var val = (raw + "").trim().toLowerCase();
-          var allowed = new Set({JSON.stringify(Array.from(ALLOWED_KEYS))});
+          var val = (raw + '').trim().toLowerCase();
+          var allowed = new Set([
+            'default','matrix','grid','city','spectrum','terrain','shards','aurora','futuristic','rain','constellation','neon'
+          ]);
           if (!allowed.has(val)) return;
-          var map = {JSON.stringify(THEME_COLOR_MAP)};
+          var map = {
+            'default': '#0b1020',
+            'matrix': '#000000',
+            'grid': '#191a1a',
+            'city': '#111111',
+            'spectrum': '#000000',
+            'terrain': '#343a40',
+            'shards': '#161616',
+            'aurora': '#050314',
+            'futuristic': '#1f1727',
+            'rain': '#000000',
+            'constellation': '#101018',
+            'neon': '#0a0005'
+          };
           var html = document.documentElement;
+          var body = document.body;
           html.dataset.background = val;
+          if (body) body.dataset.background = val;
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute('content', map[val] || map['default']);
         } catch (e) {
@@ -105,22 +117,14 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
       }
       /* Paint the overscroll/safe-area background on iOS */
       html { background: var(--layout-background); color-scheme: dark; }
-      /* Si el usuario elige un fondo, html debe reflejarlo también */
-      html[data-background="matrix"] { background: #000; }
-      html[data-background="grid"] { background: #191a1a; }
-      html[data-background="city"] { background: #111; }
-      html[data-background="spectrum"] { background: #000; }
-      html[data-background="terrain"] { background: #343a40; }
-      html[data-background="shards"] { background: #161616; }
-      html[data-background="aurora"] { background: #050314; }
-      html[data-background="futuristic"] { background: #1f1727; }
-      html[data-background="rain"] { background: #000; }
-      html[data-background="constellation"] { background: #101018; }
-      html[data-background="neon"] { background: #0a0005; }
+      /* Para evitar parpadeos oscuros en el primer paint, mantenemos
+         el gradiente por defecto en html. Los overlays se pintan como
+         capas separadas y usan transparencia. */
       body {
         margin: 0;
         color: var(--text);
-        background: var(--layout-background);
+        /* Evitar que una regla genérica pise los temas elegidos */
+        /* El fondo por defecto se aplica con una regla específica abajo */
         /* Avoid white gutters on small screens (iOS Safari) */
         background-attachment: fixed;
         min-height: 100dvh; /* fill dynamic viewport incl. safe areas */
@@ -136,6 +140,11 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
           "Apple Color Emoji",
           "Segoe UI Emoji";
       }
+      /* Aplica el gradiente sólo cuando es el fondo por defecto */
+      body[data-background="default"],
+      body:not([data-background]) {
+        background: var(--layout-background);
+      }
       /* iOS Safari has issues painting fixed backgrounds; use scroll on narrow viewports */
       @media (max-width: 820px) {
         body { background-attachment: scroll; }
@@ -145,17 +154,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
         overflow: hidden !important;
         overscroll-behavior: contain;
       }
-      body[data-background="matrix"] { background: #000; }
-      body[data-background="grid"] { background: #191a1a; }
-      body[data-background="city"] { background: #111; }
-      body[data-background="spectrum"] { background: #000; }
-      body[data-background="terrain"] { background: #343a40; }
-      body[data-background="shards"] { background: #161616; }
-      body[data-background="aurora"] { background: #050314; }
-      body[data-background="futuristic"] { background: #1f1727; }
-      body[data-background="rain"] { background: #000; }
-      body[data-background="constellation"] { background: #101018; }
-      body[data-background="neon"] { background: #0a0005; }
+      /* El color base del tema lo gestiona html[data-background] */
       a {
         color: var(--accent);
         text-decoration: none;

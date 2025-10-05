@@ -117,8 +117,7 @@ export default function BackgroundColorSettings({ strings }) {
             setLoading(false);
             setStoredChoice(DEFAULT_BACKGROUND_KEY);
             setDraftChoice(DEFAULT_BACKGROUND_KEY);
-            applyBackgroundToDocument(DEFAULT_BACKGROUND_KEY);
-            cacheBackgroundPreference(DEFAULT_BACKGROUND_KEY);
+            // No forzar el fondo por defecto: respetar la preferencia en caché
             return undefined;
         }
 

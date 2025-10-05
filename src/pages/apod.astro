@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import ApodSaveButton from "../components/ApodSaveButton.jsx";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const langParam = Astro.url.searchParams.get("lang");
@@ -89,6 +90,7 @@ const showImage = Boolean(imageUrl);
           {isImage && apodData?.hdurl && (
             <a class="btn secondary" id="apod-btn-hd" href={apodData.hdurl} target="_blank" rel="noopener noreferrer">HD</a>
           )}
+          <ApodSaveButton client:only="react" initialDate={apodData?.date ?? todayStr} />
         </div>
       </div>
     </div>
@@ -108,9 +110,9 @@ const showImage = Boolean(imageUrl);
       .apod__subtitle { margin: 0.25rem 0 0; color: rgba(255,255,255,0.8); }
       .apod__side { display: grid; gap: 0.9rem; align-content: start; justify-items: stretch; }
       .apod__label { font-size: 0.9rem; color: rgba(255,255,255,0.8); }
-      .apod__native { display: grid; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: center; width: 100%; }
+      .apod__native { display: grid; place-items: center; grid-template-columns: auto 1fr; gap: 0.6rem; align-items: center; width: 100%; }
       .apod__native input[type="date"] {
-        width: 100%;
+        width: 90%;
         padding: 0.5rem 0.6rem;
         border-radius: 10px;
         border: 1px solid rgba(255,255,255,0.18);
@@ -290,6 +292,7 @@ const showImage = Boolean(imageUrl);
           btnHd.style.display = (isImage && data.hdurl) ? 'inline-flex' : 'none';
         }
         if (input && data.date) input.value = clamp(data.date);
+        try { window.dispatchEvent(new CustomEvent('apod:datechange', { detail: { date: data.date || (input?.value) } })); } catch {}
         updateNextDisabled();
       }
 
@@ -517,6 +520,7 @@ const showImage = Boolean(imageUrl);
       renderCalendar();
       if (selected) calendarSetSelected(selected, true);
       if (input && selected) input.value = selected;
+      try { window.dispatchEvent(new CustomEvent('apod:datechange', { detail: { date: selected } })); } catch {}
     })();
   </script>
 </Layout>

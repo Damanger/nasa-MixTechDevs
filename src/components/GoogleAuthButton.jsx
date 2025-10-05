@@ -37,6 +37,7 @@ const defaultMenuStrings = {
     settings: "Ajustes",
     notes: "Notas",
     reminders: "Recordatorio",
+    images: "Imágenes",
     signOut: "Cerrar sesión",
 };
 
@@ -50,6 +51,12 @@ const remindersSlugByLang = {
     es: "recordatorio",
     en: "reminder",
     de: "erinnerung",
+};
+
+const imagesSlugByLang = {
+    es: "imagenes",
+    en: "images",
+    de: "bilder",
 };
 
 export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
@@ -177,7 +184,7 @@ export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
 
     const effectiveLang = getLanguageSafe(lang);
     const menuStrings = useMemo(() => {
-        const dictionary = getTranslations(effectiveLang);
+    const dictionary = getTranslations(effectiveLang);
         return dictionary?.userMenu ?? defaultMenuStrings;
     }, [effectiveLang]);
 
@@ -194,6 +201,10 @@ export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
     const reminderHref = effectiveLang === DEFAULT_LANG
         ? `/${reminderSlug}`
         : `/${reminderSlug}?lang=${effectiveLang}`;
+    const imagesSlug = imagesSlugByLang[effectiveLang] ?? imagesSlugByLang[DEFAULT_LANG];
+    const imagesHref = effectiveLang === DEFAULT_LANG
+        ? `/${imagesSlug}`
+        : `/${imagesSlug}?lang=${effectiveLang}`;
 
     return (
         <>
@@ -280,6 +291,14 @@ export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
                             style={menuLinkStyle}
                         >
                             {menuStrings.reminders}
+                        </a>
+                        <a
+                            role="menuitem"
+                            href={imagesHref}
+                            onClick={() => setOpen(false)}
+                            style={menuLinkStyle}
+                        >
+                            {menuStrings.images}
                         </a>
                         <a
                             role="menuitem"

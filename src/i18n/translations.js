@@ -296,6 +296,7 @@ const dictionaries = {
       settings: "Ajustes",
       notes: "Notas",
       reminders: "Recordatorio",
+      images: "Imágenes",
       signOut: "Cerrar sesión",
     },
     notes: {
@@ -704,6 +705,7 @@ const dictionaries = {
       settings: "Settings",
       notes: "Notes",
       reminders: "Reminder",
+      images: "Images",
       signOut: "Sign out",
     },
     notes: {
@@ -1114,6 +1116,7 @@ const dictionaries = {
       settings: "Einstellungen",
       notes: "Notizen",
       reminders: "Erinnerung",
+      images: "Bilder",
       signOut: "Abmelden",
     },
     notes: {

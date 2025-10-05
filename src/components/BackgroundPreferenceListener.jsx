@@ -56,11 +56,11 @@ export default function BackgroundPreferenceListener() {
         };
 
         const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-            const fallback = DEFAULT_BACKGROUND_KEY;
+            // Si no hay usuario, mantenemos la preferencia en caché
+            // (ya fue aplicada arriba si existía). No la sobreescribimos.
             if (!user) {
-                listeners.current.lastValue = fallback;
-                applyBackgroundToDocument(fallback);
-                cacheBackgroundPreference(fallback);
+                cleanupDb();
+                return;
             }
             handleUser(user);
         }, (error) => {
