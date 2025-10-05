@@ -169,3 +169,13 @@ select[multiple] {
 .btn-close{ background: rgba(255,80,80,0.08); color: #ffb4b4; border:1px solid rgba(255,80,80,0.12); padding:.45rem .7rem; border-radius:10px; }
 .btn-close:hover{ background: rgba(255,80,80,0.12); color: #ff9a9a; border-color: rgba(255,80,80,0.18); }
 .btn-close:focus{ outline: 2px solid rgba(255,80,80,0.12); }
+
+/* Small action buttons used in prediction panel */
+.btn{ padding:.45rem .7rem; border-radius:8px; border:1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02); color:var(--text); cursor:pointer; }
+.btn:hover{ background: rgba(255,255,255,.04); }
+
+/* Probabilities visual */
+.prob-row{ display:flex; align-items:center; gap:.6rem; }
+.prob-track{ flex:1; height:10px; background: rgba(255,255,255,.04); border-radius:8px; overflow:hidden; }
+.prob-fill{ height:100%; transition: width .3s ease; }
+.prob-label{ min-width:70px; text-align:right; font-weight:600; }

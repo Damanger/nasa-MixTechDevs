@@ -37,6 +37,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const [fileMeta, setFileMeta] = useState(null);
 	const [expandedIndex, setExpandedIndex] = useState(null);
 	const [predictions, setPredictions] = useState({});
+	const [copyStatus, setCopyStatus] = useState({});
 	const expandedRef = useRef(null);
 	const [dragActive, setDragActive] = useState(false);
 	const fileInputRef = useRef(null);
@@ -113,39 +114,113 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const stepLabels = useMemo(() => [ui.uploadHeading, ui.previewHeading].map(s => String(s).replace(/^\d+\)\s*/, '')), [ui]);
 	const canGo = (idx) => idx === 0 || rows.length > 0;
 
-	// Llamada a la API 
+	// Llamada a la API (intenta varias rutas conocidas; envía los campos de la fila como top-level JSON)
 	const API_BASE = 'https://mixtechdevs-nasa-exoplanet-detection.hf.space';
+
 	async function fetchPredictionForRow(row) {
-		variable_deprueba = JSON.stringify({ row })
-		console.log(variable_deprueba)
-		try {
-			const url = `${API_BASE}/predict_csv`;
-			const res = await fetch(url, {
-				method: 'POST',
-				mode: 'cors',
-				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-				body: variable_deprueba
-			});
-			if (!res.ok) {
-				// Intentar leer el body de la respuesta para obtener el mensaje de error del servidor
-				let bodyText = '';
-				try {
-					bodyText = await res.text();
-					// Si es JSON, formatearlo para legibilidad
-					try { const parsed = JSON.parse(bodyText); bodyText = JSON.stringify(parsed, null, 2); } catch { }
-				} catch (e) {
-					bodyText = '(no se pudo leer el body)';
+		const endpoints = ['/predict_csv_row', '/predict_csv_row/', '/predict_csv', '/predict_csv_raw'];
+		let lastError = null;
+		for (const ep of endpoints) {
+			const url = `${API_BASE}${ep}`;
+			try {
+				const res = await fetch(url, {
+					method: 'POST',
+					mode: 'cors',
+					headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+					body: JSON.stringify(row)
+				});
+
+				if (!res.ok) {
+					// leer body para diagnóstico
+					let bodyText = '';
+					try {
+						bodyText = await res.text();
+						try { const parsed = JSON.parse(bodyText); bodyText = JSON.stringify(parsed, null, 2); } catch { }
+					} catch (e) { bodyText = '(no se pudo leer el body)'; }
+
+					lastError = `HTTP ${res.status} from ${ep}\n${bodyText}`;
+					if (res.status === 404) {
+						// intentar siguiente endpoint
+						continue;
+					}
+					// otros códigos -> devolver error (se usará fallback)
+					throw new Error(lastError);
 				}
-				throw new Error(`HTTP ${res.status}\n${bodyText}`);
+
+				const data = await res.json();
+				if (Array.isArray(data)) return data[0] || data;
+				return data;
+			} catch (err) {
+				console.warn(`request to ${url} failed:`, err);
+				lastError = err;
+				// probar siguiente endpoint
 			}
-			const data = await res.json();
-			if (Array.isArray(data)) return data[0] || data;
-			return data;
-		} catch (err) {
-			console.warn('fetchPredictionForRow failed, using simulated output:', err);
-			// incluir el error en el retorno para que la UI lo muestre si es necesario
-			return { error: String(err), _simulated: true, ...(simulateModelOutput(row)) };
 		}
+
+		console.warn('All endpoint attempts failed, returning simulated output. Last error:', lastError);
+		return { error: String(lastError), _simulated: true, ...(simulateModelOutput(row)) };
+	}
+
+	// Persistir predicciones en localStorage por src
+	const LS_PRED = (s) => `anlz:preds:${s || 'default'}`;
+
+	useEffect(() => {
+		try { localStorage.setItem(LS_PRED(src), JSON.stringify(predictions)); } catch { }
+	}, [predictions, src]);
+
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem(LS_PRED(src));
+			if (raw) {
+				const parsed = JSON.parse(raw);
+				setPredictions(parsed || {});
+			}
+		} catch { }
+	}, [src]);
+
+	// Reintentar predicción para una fila (refetch)
+	async function retryPrediction(idx) {
+		if (idx == null) return;
+		setPredictions(prev => ({ ...prev, [idx]: { status: 'loading' } }));
+		try {
+			const result = await fetchPredictionForRow(rows[idx]);
+			setPredictions(prev => ({ ...prev, [idx]: { status: 'success', data: result } }));
+		} catch (err) {
+			setPredictions(prev => ({ ...prev, [idx]: { status: 'error', error: err?.message || String(err) } }));
+		}
+	}
+
+	// Copiar payload (fila) al portapapeles
+	async function copyPayload(idx) {
+		try {
+			const txt = JSON.stringify(rows[idx] || {}, null, 2);
+			await navigator.clipboard.writeText(txt);
+			setCopyStatus(prev => ({ ...prev, [idx]: 'copied' }));
+			setTimeout(() => setCopyStatus(prev => ({ ...prev, [idx]: undefined })), 1500);
+		} catch (e) {
+			console.warn('copy failed', e);
+			setCopyStatus(prev => ({ ...prev, [idx]: 'error' }));
+			setTimeout(() => setCopyStatus(prev => ({ ...prev, [idx]: undefined })), 1500);
+		}
+	}
+
+	function colorFor(p) {
+		if (p >= 0.75) return '#2ecc71'; // green
+		if (p >= 0.5) return '#f1c40f'; // yellow
+		if (p >= 0.25) return '#e67e22'; // orange
+		return '#e74c3c'; // red
+	}
+
+	function ProbRow({ k, v }) {
+		const lk = String(k).toLowerCase();
+		if (!(/probability|proba|p_?/i.test(lk) && typeof v === 'number')) return <span>{formatValue(k, v)}</span>;
+		const pct = Math.max(0, Math.min(1, Number(v)));
+		return (
+			<div className="prob-row">
+				<div className="prob-track"><div className="prob-fill" style={{ width: `${(pct*100).toFixed(2)}%`, background: colorFor(pct) }} /></div>
+				<span className="prob-label">{(pct*100).toFixed(2)} %</span>
+			</div>
+		);
 	}
 
 	function simulateModelOutput(row) {
@@ -315,13 +390,29 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 									{predictions[expandedIndex]?.status === 'loading' && <div className="muted">Cargando predicción...</div>}
 									{predictions[expandedIndex]?.status === 'error' && <div className="error">Error: {predictions[expandedIndex].error}</div>}
 									{predictions[expandedIndex]?.status === 'success' && predictions[expandedIndex].data && (
-										<table className="table slim">
-											<tbody>
-												{Object.entries(predictions[expandedIndex].data).map(([k, v]) => (
-													<tr key={k}><th style={{ textAlign: 'left', width: '45%' }}>{prettyKey(k)}</th><td>{formatValue(k, v)}</td></tr>
-												))}
-											</tbody>
-										</table>
+										<>
+											<div style={{ display: 'flex', gap: '.5rem', justifyContent: 'flex-end', marginBottom: '.5rem' }}>
+												<button className="btn" onClick={() => retryPrediction(expandedIndex)}>Reintentar</button>
+												<button className="btn" onClick={() => copyPayload(expandedIndex)}>{copyStatus[expandedIndex] === 'copied' ? 'Copiado' : 'Copiar payload'}</button>
+											</div>
+											<table className="table slim">
+												<tbody>
+													{/* Mostrar campos en orden fijo */}
+													{(() => {
+														const data = predictions[expandedIndex].data;
+														const ordered = ['status', 'prediction', 'probability_confirmed', 'probability_false_positive', 'model_used'];
+														const rowsToRender = [];
+														ordered.forEach(k => { if (data[k] !== undefined) rowsToRender.push([k, data[k]]); });
+														// añadir resto de campos como metadatos
+														Object.entries(data).forEach(([k, v]) => { if (!ordered.includes(k)) rowsToRender.push([k, v]); });
+														return rowsToRender.map(([k, v]) => (
+															<tr key={k}><th style={{ textAlign: 'left', width: '45%' }}>{prettyKey(k)}</th><td>{(/probability|proba|p_?/i.test(String(k).toLowerCase()) ? <ProbRow k={k} v={v} /> : formatValue(k, v))}</td></tr>
+														));
+													})()}
+												</tbody>
+											</table>
+											{predictions[expandedIndex].data?._simulated && <div className="muted" style={{ marginTop: '.4rem' }}>Esta predicción es SIMULADA</div>}
+										</>
 									)}
 								</div>
 							</div>
