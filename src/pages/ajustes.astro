@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 import BackgroundColorSettings from "../components/BackgroundColorSettings.jsx";
+import LanguagePreferenceSettings from "../components/LanguagePreferenceSettings.jsx";
 
 const langParam = Astro.url.searchParams.get("lang");
 const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
@@ -16,6 +17,7 @@ const settings = translations.settings;
   </section>
 
   <section class="settings-grid">
+    <LanguagePreferenceSettings client:load strings={settings.language} />
     <BackgroundColorSettings client:load strings={settings.background} />
   </section>
 </Layout>

@@ -20,6 +20,8 @@ import LightningBackground from "../components/LightningBackground.jsx";
 import PlasmaBackground from "../components/PlasmaBackground.jsx";
 // Removed DarkVeil and Constellation backgrounds
 import LightRaysBackground from "../components/LightRaysBackground.jsx";
+import LanguagePreferenceListener from "../components/LanguagePreferenceListener.jsx";
+import GlobalToaster from "../components/GlobalToaster.jsx";
 import ConstellationShell from "../components/ConstellationShell.jsx";
 import { DEFAULT_BACKGROUND_KEY, THEME_COLOR_MAP } from "../lib/backgroundPreferences.js";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
@@ -690,6 +692,8 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
   </head>
   <body data-background="default">
     <BackgroundPreferenceListener client:load />
+    <LanguagePreferenceListener client:load />
+    <GlobalToaster client:load />
     <MatrixBackground client:load />
     <SquaresBackground client:load />
     <CityLightsBackground client:load />

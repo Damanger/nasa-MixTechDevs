@@ -21,7 +21,7 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Inicio", analyze: "Analizar CSV", team: "Equipo", apod: "Imagen del día", moon: "Fase lunar" },
+      nav: { home: "Inicio", analyze: "Analizar CSV", team: "Equipo", apod: "Imagen del día", moon: "Fase lunar", system: "Mi sistema" },
       languageSwitcher: {
         label: "Idioma",
         options: { es: "Español", en: "Inglés", de: "Alemán" },
@@ -309,6 +309,17 @@ const dictionaries = {
           },
         },
       },
+      language: {
+        title: "Idioma predeterminado",
+        description: "Elige el idioma por defecto para la interfaz.",
+        loading: "Cargando preferencia…",
+        signedOut: "Inicia sesión con Google para elegir tu idioma.",
+        statusSaving: "Guardando…",
+        statusSaved: "Preferencia guardada",
+        statusError: "No se pudo guardar la preferencia.",
+        saveError: "Intenta de nuevo más tarde.",
+        options: { es: "Español", en: "Inglés", de: "Alemán" },
+      },
     },
     userMenu: {
       settings: "Ajustes",
@@ -452,7 +463,7 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Home", analyze: "Analyze CSV", team: "Team", apod: "Image of the Day", moon: "Moon Phase" },
+      nav: { home: "Home", analyze: "Analyze CSV", team: "Team", apod: "Image of the Day", moon: "Moon Phase", system: "My System" },
       languageSwitcher: {
         label: "Language",
         options: { es: "Spanish", en: "English", de: "German" },
@@ -736,6 +747,17 @@ const dictionaries = {
           },
         },
       },
+      language: {
+        title: "Default language",
+        description: "Choose the default UI language.",
+        loading: "Loading preference…",
+        signedOut: "Sign in with Google to choose your language.",
+        statusSaving: "Saving…",
+        statusSaved: "Preference saved",
+        statusError: "Could not save the preference.",
+        saveError: "Please try again later.",
+        options: { es: "Spanish", en: "English", de: "German" },
+      },
     },
     userMenu: {
       settings: "Settings",
@@ -879,7 +901,7 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase" },
+      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase", system: "Mein System" },
       languageSwitcher: {
         label: "Sprache",
         options: { es: "Spanisch", en: "Englisch", de: "Deutsch" },
@@ -1164,6 +1186,17 @@ const dictionaries = {
             description: "Weiche volumetrische Strahlen mit additiver Mischung.",
           },
         },
+      },
+      language: {
+        title: "Standardsprache",
+        description: "Wähle die Standardsprache der Oberfläche.",
+        loading: "Einstellung wird geladen…",
+        signedOut: "Mit Google anmelden, um die Sprache zu wählen.",
+        statusSaving: "Speichern…",
+        statusSaved: "Präferenz gespeichert",
+        statusError: "Präferenz konnte nicht gespeichert werden.",
+        saveError: "Versuche es später noch einmal.",
+        options: { es: "Spanisch", en: "Englisch", de: "Deutsch" },
       },
     },
     userMenu: {

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, onValue, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
+import { emitToast } from "../lib/toast.js";
 
 export default function ApodSaveButton({ initialDate }) {
   const [user, setUser] = useState(null);
@@ -56,6 +57,7 @@ export default function ApodSaveButton({ initialDate }) {
     try {
       setSaving(true);
       await set(ref(db, `users/${user.uid}/apod/savedDates/${currentDate}`), true);
+      try { emitToast('Imagen guardada en tu perfil', 'success'); } catch {}
     } finally {
       setSaving(false);
     }
@@ -67,4 +69,3 @@ export default function ApodSaveButton({ initialDate }) {
     </button>
   );
 }
-

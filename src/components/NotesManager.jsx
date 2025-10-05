@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { onValue, push, ref, remove, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
+import { emitToast } from "../lib/toast.js";
 
 const defaultStrings = {
     titleLabel: "Título",
@@ -264,6 +265,7 @@ export default function NotesManager({ strings }) {
             };
             await set(noteRef, payload);
             setStatus("success");
+            try { emitToast(copy.saveButton ?? 'Nota guardada', 'success'); } catch {}
             resetForm();
         } catch (err) {
             console.error("Failed to save note", err);

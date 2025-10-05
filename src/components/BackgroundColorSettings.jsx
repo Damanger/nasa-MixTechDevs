@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { onValue, ref, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
+import { emitToast } from "../lib/toast.js";
     import {
         applyBackgroundToDocument,
         cacheBackgroundPreference,
@@ -182,6 +183,7 @@ export default function BackgroundColorSettings({ strings }) {
             await set(prefRef, normalized);
             setStoredChoice(normalized);
             setStatus("saved");
+            try { emitToast(labels.statusSaved ?? "Preferencia guardada", 'success'); } catch {}
         } catch (error) {
             console.error("Failed to save background preference", error);
             setStatus("error");
