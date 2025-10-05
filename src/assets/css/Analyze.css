@@ -164,3 +164,8 @@ select[multiple] {
 .prediction-panel .table.slim th{ padding:.5rem; font-weight:700; border-bottom:1px solid rgba(255,255,255,.04); }
 .prediction-panel .table.slim td{ padding:.5rem; border-bottom:1px solid rgba(255,255,255,.02); }
 .prediction-panel h4{ font-size:1rem; }
+
+/* Botón cerrar con tono rojizo para indicar una acción de cierre */
+.btn-close{ background: rgba(255,80,80,0.08); color: #ffb4b4; border:1px solid rgba(255,80,80,0.12); padding:.45rem .7rem; border-radius:10px; }
+.btn-close:hover{ background: rgba(255,80,80,0.12); color: #ff9a9a; border-color: rgba(255,80,80,0.18); }
+.btn-close:focus{ outline: 2px solid rgba(255,80,80,0.12); }

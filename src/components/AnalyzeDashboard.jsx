@@ -291,7 +291,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 							<div className="panel prediction-panel" ref={expandedRef} style={{ marginTop: '.6rem' }}>
 								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 									<h4 style={{ margin: 0 }}>Detalle de predicción - fila {expandedIndex + 1}</h4>
-									<button className="btn" onClick={() => setExpandedIndex(null)}>Cerrar</button>
+									<button className="btn btn-close" onClick={() => setExpandedIndex(null)}>Cerrar</button>
 								</div>
 								<div style={{ marginTop: '.5rem' }}>
 									{predictions[expandedIndex]?.status === 'loading' && <div className="muted">Cargando predicción...</div>}
