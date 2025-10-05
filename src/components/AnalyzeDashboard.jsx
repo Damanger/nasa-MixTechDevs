@@ -114,11 +114,15 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const canGo = (idx) => idx === 0 || rows.length > 0;
 
 	// Llamada a la API 
+	const API_BASE = 'https://axlserial-nasa-exoplanet-detection.hf.space';
+
 	async function fetchPredictionForRow(row) {
 		try {
-			const res = await fetch('/predict_csv_row', {
+			const url = `${API_BASE}/predict_csv_row`;
+			const res = await fetch(url, {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
+				mode: 'cors',
+				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
 				body: JSON.stringify({ row })
 			});
 			if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -126,6 +130,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 			if (Array.isArray(data)) return data[0] || data;
 			return data;
 		} catch (err) {
+			console.warn('fetchPredictionForRow failed, using simulated output:', err);
 			return simulateModelOutput(row);
 		}
 	}
