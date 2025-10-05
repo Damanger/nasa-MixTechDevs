@@ -21,7 +21,15 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Inicio", analyze: "Analizar CSV", team: "Equipo", apod: "Imagen del día", moon: "Fase lunar", system: "Mi sistema solar" },
+      nav: {
+        home: "Inicio",
+        analyze: "Analizar CSV",
+        apod: "Imagen del día",
+        moon: "Fase lunar",
+        system: "Mi sistema solar",
+        postcard: "Postal galáctica",
+        team: "Equipo"
+      },
       languageSwitcher: {
         label: "Idioma",
         options: { es: "Español", en: "Inglés", de: "Alemán" },
@@ -98,6 +106,68 @@ const dictionaries = {
         "Cuarto menguante",
         "Creciente menguante"
       ]
+    },
+    postcard: {
+      title: "Postal galáctica",
+      subtitle: "Diseña una tarjeta espacial y compártela con tu tripulación.",
+      designHeading: "Elige tu boceto",
+      designDescription: "Explora seis estilos inspirados en nebulosas y estaciones orbitales.",
+      messageHeading: "Personaliza tu mensaje",
+      messageLabel: "Mensaje",
+      messagePlaceholder: "Escribe tus deseos cósmicos…",
+      senderLabel: "Remitente",
+      senderPlaceholder: "Nombre de quien envía la postal",
+      photoHeading: "Agrega una foto",
+      photoHint: "Se recomienda formato cuadrado (JPG o PNG).",
+      photoButton: "Seleccionar imagen",
+      photoRemove: "Quitar foto",
+      previewHeading: "Vista previa",
+      previewNote: "La postal se adapta automáticamente al boceto que elijas.",
+      sampleMessage: "Que cada nueva órbita nos acerque a los mundos que soñamos explorar.",
+      sampleSender: "Tripulación MixTechDevs",
+      shareHeading: "Comparte tu postal",
+      shareDescription: "Genera un enlace temporal para mostrar esta tarjeta.",
+      shareButton: "Crear enlace",
+      shareGenerating: "Generando…",
+      shareCopy: "Copiar enlace",
+      shareCopied: "¡Enlace copiado!",
+      shareError: "No pudimos crear el enlace.",
+      shareTooLarge: "La imagen es muy pesada para un enlace temporal. Usa un archivo más ligero.",
+      sharePreview: "Comparte este enlace para que tu tripulación vea la postal en línea.",
+      shareViewingNotice: "Estás viendo una postal compartida. Puedes ajustarla y generar un nuevo enlace.",
+      shareStale: "Actualizaste la postal. Genera un enlace nuevo para compartir los cambios.",
+      designs: [
+        {
+          id: "aurora",
+          name: "Aurora Boreal",
+          description: "Brillos verdes y violetas acarician el borde de tu mensaje.",
+        },
+        {
+          id: "supernova",
+          name: "Supernova",
+          description: "Un estallido estelar dorado ilumina el centro de la postal.",
+        },
+        {
+          id: "orbit",
+          name: "Órbita doble",
+          description: "Dos órbitas concéntricas rodean tu foto y el mensaje.",
+        },
+        {
+          id: "nebula",
+          name: "Nebulosa eterna",
+          description: "Remolinos magenta y turquesa envuelven la tarjeta.",
+        },
+        {
+          id: "signal",
+          name: "Señal de radar",
+          description: "Ondas de comunicación interplanetaria enfatizan cada palabra.",
+        },
+        {
+          id: "station",
+          name: "Módulo orbital",
+          description: "Paneles modulares y tipografía minimalista estilo estación espacial.",
+        },
+      ],
     },
     hero: {
       badge: "MixTechDevs · Exoplanetas",
@@ -490,7 +560,15 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Home", analyze: "Analyze CSV", team: "Team", apod: "Image of the Day", moon: "Moon Phase", system: "My Solar System" },
+      nav: {
+        home: "Home",
+        analyze: "Analyze CSV",
+        apod: "Image of the Day",
+        moon: "Moon Phase",
+        system: "My Solar System",
+        postcard: "Galactic Postcard",
+        team: "Team"
+      },
       languageSwitcher: {
         label: "Language",
         options: { es: "Spanish", en: "English", de: "German" },
@@ -567,6 +645,68 @@ const dictionaries = {
         "Last Quarter",
         "Waning Crescent"
       ]
+    },
+    postcard: {
+      title: "Galactic Postcard",
+      subtitle: "Design a space-themed card and send it to your crew.",
+      designHeading: "Pick a sketch",
+      designDescription: "Browse six concepts inspired by nebulas and orbital stations.",
+      messageHeading: "Customize your message",
+      messageLabel: "Message",
+      messagePlaceholder: "Write your cosmic wishes…",
+      senderLabel: "Sender",
+      senderPlaceholder: "Who is signing the postcard",
+      photoHeading: "Add a photo",
+      photoHint: "Square images (JPG or PNG) deliver the best result.",
+      photoButton: "Choose image",
+      photoRemove: "Remove photo",
+      previewHeading: "Preview",
+      previewNote: "The layout adapts automatically to the selected sketch.",
+      sampleMessage: "May every new orbit bring us closer to the worlds we dream of exploring.",
+      sampleSender: "MixTechDevs Crew",
+      shareHeading: "Share your postcard",
+      shareDescription: "Generate a temporary link so others can see this design.",
+      shareButton: "Create link",
+      shareGenerating: "Generating…",
+      shareCopy: "Copy link",
+      shareCopied: "Link copied!",
+      shareError: "We couldn't create the link.",
+      shareTooLarge: "The image is too heavy for a temporary link. Try a smaller file.",
+      sharePreview: "Send this link so your crew can preview the card online.",
+      shareViewingNotice: "You're viewing a shared postcard. Feel free to tweak it and generate a fresh link.",
+      shareStale: "You updated the postcard. Create a new link to share the latest version.",
+      designs: [
+        {
+          id: "aurora",
+          name: "Aurora Borealis",
+          description: "Emerald and violet lights embrace the edge of your text.",
+        },
+        {
+          id: "supernova",
+          name: "Supernova Burst",
+          description: "A golden stellar flash highlights the heart of your card.",
+        },
+        {
+          id: "orbit",
+          name: "Twin Orbit",
+          description: "Two concentric orbits frame your photo and message.",
+        },
+        {
+          id: "nebula",
+          name: "Eternal Nebula",
+          description: "Magenta and teal clouds swirl around the layout.",
+        },
+        {
+          id: "signal",
+          name: "Radar Signal",
+          description: "Interplanetary communication waves amplify each word.",
+        },
+        {
+          id: "station",
+          name: "Orbital Module",
+          description: "Modular panels and minimalist type evoke a space station.",
+        },
+      ],
     },
     hero: {
       badge: "MixTechDevs · Exoplanets",
@@ -955,7 +1095,15 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase", system: "Mein Sonnensystem" },
+      nav: {
+        home: "Startseite",
+        analyze: "CSV analysieren",
+        apod: "Bild des Tages",
+        moon: "Mondphase",
+        system: "Mein Sonnensystem",
+        postcard: "Galaktische Postkarte",
+        team: "Team"
+      },
       languageSwitcher: {
         label: "Sprache",
         options: { es: "Spanisch", en: "Englisch", de: "Deutsch" },
@@ -1032,6 +1180,68 @@ const dictionaries = {
         "Letztes Viertel",
         "Abnehmende Sichel"
       ]
+    },
+    postcard: {
+      title: "Galaktische Postkarte",
+      subtitle: "Gestalte eine Karte aus dem All und schicke sie an deine Crew.",
+      designHeading: "Wähle ein Skizzenmotiv",
+      designDescription: "Entdecke sechs Entwürfe inspiriert von Nebeln und Orbitalstationen.",
+      messageHeading: "Passe deine Nachricht an",
+      messageLabel: "Nachricht",
+      messagePlaceholder: "Schreibe deine kosmischen Wünsche…",
+      senderLabel: "Absender",
+      senderPlaceholder: "Name, der die Postkarte unterschreibt",
+      photoHeading: "Foto hinzufügen",
+      photoHint: "Quadratische Bilder (JPG oder PNG) funktionieren am besten.",
+      photoButton: "Bild auswählen",
+      photoRemove: "Foto entfernen",
+      previewHeading: "Vorschau",
+      previewNote: "Das Layout passt sich automatisch an die gewählte Skizze an.",
+      sampleMessage: "Möge jede neue Umlaufbahn uns den Welten näherbringen, die wir zu erkunden träumen.",
+      sampleSender: "MixTechDevs-Crew",
+      shareHeading: "Postkarte teilen",
+      shareDescription: "Erzeuge einen temporären Link, damit andere die Karte sehen können.",
+      shareButton: "Link erstellen",
+      shareGenerating: "Wird erstellt…",
+      shareCopy: "Link kopieren",
+      shareCopied: "Link kopiert!",
+      shareError: "Der Link konnte nicht erstellt werden.",
+      shareTooLarge: "Das Bild ist zu groß für einen temporären Link. Verwende eine kleinere Datei.",
+      sharePreview: "Sende diesen Link, damit deine Crew die Karte online ansehen kann.",
+      shareViewingNotice: "Du betrachtest eine geteilte Postkarte. Passe sie an und generiere anschließend einen neuen Link.",
+      shareStale: "Die Postkarte wurde geändert. Erstelle einen neuen Link, um die Aktualisierung zu teilen.",
+      designs: [
+        {
+          id: "aurora",
+          name: "Polarlicht",
+          description: "Smaragd- und violettfarbene Lichter rahmen deinen Text ein.",
+        },
+        {
+          id: "supernova",
+          name: "Supernova-Ausbruch",
+          description: "Ein goldener Sternenblitz betont das Herz deiner Karte.",
+        },
+        {
+          id: "orbit",
+          name: "Doppelorbit",
+          description: "Zwei konzentrische Bahnen umrahmen Foto und Nachricht.",
+        },
+        {
+          id: "nebula",
+          name: "Ewige Nebel",
+          description: "Magenta- und Türkiswolken wirbeln um das Layout.",
+        },
+        {
+          id: "signal",
+          name: "Radarsignal",
+          description: "Interplanetare Funkwellen verstärken jedes Wort.",
+        },
+        {
+          id: "station",
+          name: "Orbitalmodul",
+          description: "Modulare Paneele und Minimaltypografie erinnern an eine Raumstation.",
+        },
+      ],
     },
     hero: {
       badge: "MixTechDevs · Exoplaneten",

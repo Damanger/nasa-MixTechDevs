@@ -42,6 +42,7 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
   const apodBase = lang === DEFAULT_LANG ? "/apod" : `/apod?lang=${lang}`;
   const moonBase = lang === DEFAULT_LANG ? "/luna" : `/luna?lang=${lang}`;
   const systemBase = lang === DEFAULT_LANG ? "/sistema" : `/sistema?lang=${lang}`;
+  const postcardBase = lang === DEFAULT_LANG ? "/postal" : `/postal?lang=${lang}`;
 
   // Helper para extraer pathname de un href relativo/absoluto
   const hrefToPath = (href) => {
@@ -65,9 +66,10 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
       { href: apodBase, label: layoutMessages.nav.apod },
       { href: moonBase, label: layoutMessages.nav.moon },
       { href: systemBase, label: layoutMessages.nav.system },
+      { href: postcardBase, label: layoutMessages.nav.postcard },
       { href: teamBase, label: layoutMessages.nav.team }
     ],
-    [homeBase, analyzeBase, apodBase, moonBase, systemBase, teamBase, layoutMessages]
+    [homeBase, analyzeBase, apodBase, moonBase, systemBase, postcardBase, teamBase, layoutMessages]
   );
 
   return (

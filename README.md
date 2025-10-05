@@ -57,7 +57,12 @@ PUBLIC_FIREBASE_STORAGE_BUCKET=
 PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 PUBLIC_FIREBASE_APP_ID=
 PUBLIC_FIREBASE_MEASUREMENT_ID=
+PUBLIC_SHARE_BASE_URL=https://nasa-mix-tech-devs.vercel.app
 ```
+
+> `PUBLIC_SHARE_BASE_URL` es opcional; define el dominio que se usará al generar enlaces
+> temporales (p. ej. la URL pública de tu despliegue). Si no se establece y estás en
+> `localhost`, la app usará `https://nasa-mixtechdevs.vercel.app` como respaldo.
 
 ### Ejecución local
 1. Instala dependencias con `npm install`.
@@ -74,4 +79,3 @@ PUBLIC_FIREBASE_MEASUREMENT_ID=
 - NASA Exoplanet Archive y Astronomy Picture of the Day por datos e inspiración visual.
 - Comunidad open-source (Astro, React, Chart.js, Papa Parse, Three.js) por la base tecnológica.
 - Equipo MixTechDevs por la narrativa, diseño y construcción de la experiencia “A world away”.
-
