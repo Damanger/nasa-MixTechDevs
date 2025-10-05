@@ -8,7 +8,7 @@ const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
 const translations = getTranslations(lang);
 const solar = translations.solar ?? {
   title: lang === 'en' ? 'My Solar System' : lang === 'de' ? 'Mein Sonnensystem' : 'Mi sistema solar',
-  subtitle: lang === 'en' ? 'Configure planets and star, then watch them orbit.' : (lang === 'de' ? 'Konfiguriere Planeten und Stern und beobachte die Umläufe.' : 'Configura planetas y sol, y observa su órbita.'),
+  subtitle: lang === 'en' ? 'Create, organize and save your solar system in a custom way.' : (lang === 'de' ? '' : 'Crea, organiza y guarda tu sistema solar personalizado.'),
 };
 ---
 

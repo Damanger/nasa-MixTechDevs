@@ -338,6 +338,34 @@ export default function SolarSystemBuilder() {
     }
   };
 
+  const downloadPng = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    try {
+      // ensure latest frame
+      try { draw(performance.now()); } catch {}
+      const filename = `mi-sistema-${new Date().toISOString().replace(/[:T]/g,'-').slice(0,19)}.png`;
+      const trigger = (blobOrUrl) => {
+        const a = document.createElement('a');
+        a.href = typeof blobOrUrl === 'string' ? blobOrUrl : URL.createObjectURL(blobOrUrl);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          if (typeof blobOrUrl !== 'string') URL.revokeObjectURL(a.href);
+          document.body.removeChild(a);
+        }, 0);
+      };
+      if (canvas.toBlob) {
+        canvas.toBlob((blob) => blob && trigger(blob), 'image/png');
+      } else {
+        trigger(canvas.toDataURL('image/png'));
+      }
+    } catch (err) {
+      console.error('Failed to download canvas', err);
+    }
+  };
+
   const loadConfigFor = async (uidParam) => {
     const uid = uidParam ?? user?.uid;
     if (!uid) return;
@@ -378,6 +406,7 @@ export default function SolarSystemBuilder() {
             <span>Controles</span>
             {user && (
               <span className="actions">
+                <button type="button" className="btn-sm" onClick={downloadPng} title="Descargar imagen (PNG)">Descargar</button>
                 <button type="button" className="btn-sm primary" onClick={saveConfig} disabled={saveState==='saving'} title="Guardar sistema">
                   {saveState==='saving' ? 'Guardando…' : 'Guardar'}
                 </button>
@@ -385,6 +414,13 @@ export default function SolarSystemBuilder() {
             )}
           </div>
           {saveState==='error' && <div style={{color:'#ffb4b4', fontSize:'.9rem'}}>{saveError}</div>}
+        </div>
+
+        <div className="group">
+          <label>
+            <span style={{ marginRight: '.5rem' }}>Nombre</span>
+            <input type="text" placeholder="Mi sistema" value={label} onChange={(e) => setLabel(e.target.value)} style={{ flex: 1 }} />
+          </label>
         </div>
 
         <div className="group">
@@ -451,13 +487,6 @@ export default function SolarSystemBuilder() {
           </div>
         </div>
 
-        <div className="group">
-          <div className="fieldset-title">Nombre</div>
-          <label>
-            <span style={{ marginRight: '.5rem' }}>Texto</span>
-            <input type="text" placeholder="Mi sistema" value={label} onChange={(e) => setLabel(e.target.value)} style={{ flex: 1 }} />
-          </label>
-        </div>
       </div>
 
       <div className="solar-canvas" aria-label="Solar system canvas (3D)">

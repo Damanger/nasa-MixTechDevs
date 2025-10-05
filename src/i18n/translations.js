@@ -21,12 +21,16 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Inicio", analyze: "Analizar CSV", team: "Equipo", apod: "Imagen del día", moon: "Fase lunar", system: "Mi sistema" },
+      nav: { home: "Inicio", analyze: "Analizar CSV", team: "Equipo", apod: "Imagen del día", moon: "Fase lunar", system: "Mi sistema solar" },
       languageSwitcher: {
         label: "Idioma",
         options: { es: "Español", en: "Inglés", de: "Alemán" },
       },
       footer: "© {year} MixTechDevs",
+    },
+    solar: {
+      title: "Mi sistema solar",
+      subtitle: "Crea, organiza y guarda tu sistema solar personalizado.",
     },
     apod: {
       title: "Imagen del día (NASA APOD)",
@@ -463,12 +467,16 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Home", analyze: "Analyze CSV", team: "Team", apod: "Image of the Day", moon: "Moon Phase", system: "My System" },
+      nav: { home: "Home", analyze: "Analyze CSV", team: "Team", apod: "Image of the Day", moon: "Moon Phase", system: "My Solar System" },
       languageSwitcher: {
         label: "Language",
         options: { es: "Spanish", en: "English", de: "German" },
       },
       footer: "© {year} MixTechDevs",
+    },
+    solar: {
+      title: "My Solar System",
+      subtitle: "Create, organize and save your custom solar system.",
     },
     apod: {
       title: "NASA Astronomy Picture of the Day",
@@ -901,12 +909,16 @@ const dictionaries = {
     },
     layout: {
       badge: "ExoLens",
-      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase", system: "Mein System" },
+      nav: { home: "Startseite", analyze: "CSV analysieren", team: "Team", apod: "Bild des Tages", moon: "Mondphase", system: "Mein Sonnensystem" },
       languageSwitcher: {
         label: "Sprache",
         options: { es: "Spanisch", en: "Englisch", de: "Deutsch" },
       },
       footer: "© {year} MixTechDevs",
+    },
+    solar: {
+      title: "Mein Sonnensystem",
+      subtitle: "Erstelle, organisiere und speichere dein eigenes Sonnensystem.",
     },
     apod: {
       title: "NASA Astronomiebild des Tages",
