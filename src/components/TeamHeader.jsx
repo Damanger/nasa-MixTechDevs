@@ -31,9 +31,9 @@ export default function TeamHeader({ initialLang = DEFAULT_LANG }) {
       <h1 style={{ margin: 0 }}>{team.title}</h1>
       <p className="subtitle" style={{ maxWidth: "700px", margin: ".5rem auto 0" }}>{team.message}</p>
       <style>{`
-        .team-header { margin-top: -1rem; }
+        .team-header { margin-top: 0rem; }
         @media (min-width: 821px) {
-          .team-header { margin-top: 1rem; }
+          .team-header { margin-top: 2rem; }
         }
       `}</style>
     </motion.section>

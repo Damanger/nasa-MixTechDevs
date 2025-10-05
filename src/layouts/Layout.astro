@@ -3,6 +3,7 @@ import LanguageHeader from "../components/LanguageHeader.jsx";
 import LanguageFooter from "../components/LanguageFooter.jsx";
 import ScrollToTopButton from "../components/ScrollToTopButton.jsx";
 import BackgroundPreferenceListener from "../components/BackgroundPreferenceListener.jsx";
+import ReminderAssistant from "../components/ReminderAssistant.jsx";
 import MatrixBackground from "../components/MatrixBackground.jsx";
 import GridBackground from "../components/GridBackground.jsx";
 import CityLightsBackground from "../components/CityLightsBackground.jsx";
@@ -14,6 +15,7 @@ import FuturisticBackground from "../components/FuturisticBackground.jsx";
 import RainBackground from "../components/RainBackground.jsx";
 import ConstellationBackground from "../components/ConstellationBackground.jsx";
 import NeonBackground from "../components/NeonBackground.jsx";
+import ConstellationShell from "../components/ConstellationShell.jsx";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const {
@@ -188,7 +190,7 @@ const metaDescription = description ?? messages.meta.description;
         grid-template-columns: 1.2fr 1fr;
         gap: 2rem;
         align-items: center;
-        margin-top: 1rem;
+        margin-top: 2rem;
       }
       .badge {
         display: inline-block;
@@ -640,10 +642,12 @@ const metaDescription = description ?? messages.meta.description;
   <LanguageHeader client:idle initialLang={lang} />
       </div>
     </header>
+    <ConstellationShell client:load />
     <main class="container">
       <slot />
     </main>
   <ScrollToTopButton client:only="react" />
   <LanguageFooter client:idle initialLang={lang} />
   </body>
+  <ReminderAssistant client:load translations={messages} initialLang={lang} />
 </html>

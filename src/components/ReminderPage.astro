@@ -1,0 +1,57 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
+import RemindersManager from "./RemindersManager.jsx";
+
+const { initialLang = DEFAULT_LANG } = Astro.props;
+const langParam = Astro.url.searchParams.get("lang");
+const lang = getLanguageSafe(langParam ?? initialLang);
+const translations = getTranslations(lang);
+const reminderStrings = translations.reminders;
+---
+
+<Layout lang={lang} translations={translations}>
+  <section class="glass card reminders-hero">
+    <h1>{reminderStrings?.title ?? "Recordatorios"}</h1>
+    <p class="subtitle">{reminderStrings?.subtitle ?? "Gestiona tus recordatorios en un solo lugar."}</p>
+  </section>
+
+  <section class="reminders-container">
+    {reminderStrings?.description && (
+      <p class="description">{reminderStrings.description}</p>
+    )}
+    <RemindersManager client:load strings={reminderStrings} lang={lang} />
+  </section>
+</Layout>
+
+<style>
+  .reminders-hero {
+    margin-top: 0rem;
+    padding: 2.5rem;
+    text-align: center;
+  }
+
+  .subtitle {
+    margin: 0.75rem auto 0;
+    max-width: 640px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  @media (min-width: 821px) {
+    .reminders-hero {
+      margin-top: 2rem;
+    }
+  }
+
+  .reminders-container {
+    margin-top: 1.5rem;
+  }
+
+  .reminders-container .description {
+    margin: 0 0 1.25rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+</style>

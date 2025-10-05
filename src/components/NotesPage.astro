@@ -1,0 +1,47 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
+import NotesManager from "./NotesManager.jsx";
+
+const { initialLang = DEFAULT_LANG } = Astro.props;
+const langParam = Astro.url.searchParams.get("lang");
+const lang = getLanguageSafe(langParam ?? initialLang);
+const translations = getTranslations(lang);
+const notesStrings = translations.notes;
+---
+
+<Layout lang={lang} translations={translations}>
+  <section class="glass card notes-hero">
+    <h1>{notesStrings?.title ?? "Notas"}</h1>
+    <p class="subtitle">{notesStrings?.subtitle ?? "Crea y sincroniza tus notas."}</p>
+  </section>
+
+  <section class="notes-container">
+    <NotesManager client:load strings={notesStrings} lang={lang} />
+  </section>
+</Layout>
+
+<style>
+  .notes-hero {
+    margin-top: 0rem;
+    padding: 2.5rem;
+    text-align: center;
+  }
+
+  .subtitle {
+    margin: 0.75rem auto 0;
+    max-width: 640px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  @media (min-width: 821px) {
+    .notes-hero {
+      margin-top: 2rem;
+    }
+  }
+
+  .notes-container {
+    margin-top: 1rem;
+  }
+</style>

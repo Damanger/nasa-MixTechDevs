@@ -9,6 +9,7 @@ import {
 } from "../i18n/translations.js";
 import '../assets/css/LanguageHeader.css';
 import GoogleAuthButton from "./GoogleAuthButton.jsx";
+import ConstellationSearch from "./ConstellationSearch.jsx";
 
 const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
   const [lang, setLang] = useState(initialLang);
@@ -94,6 +95,18 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
           />
           {/* Google Sign-In */}
           <GoogleAuthButton lang={lang} />
+          {/* Constellation search button */}
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              const ev = new CustomEvent('toggle-constellation-search', { detail: {} });
+              window.dispatchEvent(ev);
+            }}
+            aria-label="Buscar constelaciones"
+          >
+            ✦
+          </button>
         </div>
       </nav>
     </>

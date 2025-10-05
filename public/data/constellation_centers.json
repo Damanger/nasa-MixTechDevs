@@ -1,0 +1,17 @@
+{
+  "Orion": { "ra": 83.8221, "dec": -5.3911 },
+  "Virgo": { "ra": 186.65, "dec": -3.5 },
+  "Ursa Major": { "ra": 165.0, "dec": 55.0 },
+  "Scorpius": { "ra": 240.0, "dec": -30.0 },
+  "Taurus": { "ra": 65.5, "dec": 19.0 },
+  "Leo": { "ra": 150.0, "dec": 15.0 },
+  "Cassiopeia": { "ra": 18.0, "dec": 60.0 },
+  "Cygnus": { "ra": 305.0, "dec": 40.0 },
+  "Canis Major": { "ra": 105.0, "dec": -20.0 },
+  "Gemini": { "ra": 100.0, "dec": 22.0 },
+  "Aquarius": { "ra": 340.0, "dec": -10.0 },
+  "Aquila": { "ra": 300.0, "dec": 5.0 },
+  "Pisces": { "ra": 10.0, "dec": 15.0 },
+  "Sagittarius": { "ra": 285.0, "dec": -30.0 },
+  "Pegasus": { "ra": 345.0, "dec": 20.0 }
+}

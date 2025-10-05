@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
-import { DEFAULT_LANG, getLanguageSafe } from "../i18n/translations.js";
+import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 import { auth, googleProvider } from "../lib/firebaseClient.js";
 
 const GoogleIcon = ({ size = 18 }) => (
@@ -32,6 +32,25 @@ function normalizeGooglePhotoURL(url, size = 64) {
         return url;
     }
 }
+
+const defaultMenuStrings = {
+    settings: "Ajustes",
+    notes: "Notas",
+    reminders: "Recordatorio",
+    signOut: "Cerrar sesión",
+};
+
+const notesSlugByLang = {
+    es: "notas",
+    en: "notes",
+    de: "notizen",
+};
+
+const remindersSlugByLang = {
+    es: "recordatorio",
+    en: "reminder",
+    de: "erinnerung",
+};
 
 export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
     const [user, setUser] = useState(null);
@@ -157,9 +176,24 @@ export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
     };
 
     const effectiveLang = getLanguageSafe(lang);
+    const menuStrings = useMemo(() => {
+        const dictionary = getTranslations(effectiveLang);
+        return dictionary?.userMenu ?? defaultMenuStrings;
+    }, [effectiveLang]);
+
     const settingsHref = effectiveLang === DEFAULT_LANG
         ? "/ajustes"
         : `/ajustes?lang=${effectiveLang}`;
+
+    const notesSlug = notesSlugByLang[effectiveLang] ?? notesSlugByLang[DEFAULT_LANG];
+    const notesHref = effectiveLang === DEFAULT_LANG
+        ? `/${notesSlug}`
+        : `/${notesSlug}?lang=${effectiveLang}`;
+
+    const reminderSlug = remindersSlugByLang[effectiveLang] ?? remindersSlugByLang[DEFAULT_LANG];
+    const reminderHref = effectiveLang === DEFAULT_LANG
+        ? `/${reminderSlug}`
+        : `/${reminderSlug}?lang=${effectiveLang}`;
 
     return (
         <>
@@ -233,11 +267,27 @@ export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
                         </div>
                         <a
                             role="menuitem"
+                            href={notesHref}
+                            onClick={() => setOpen(false)}
+                            style={menuLinkStyle}
+                        >
+                            {menuStrings.notes}
+                        </a>
+                        <a
+                            role="menuitem"
+                            href={reminderHref}
+                            onClick={() => setOpen(false)}
+                            style={menuLinkStyle}
+                        >
+                            {menuStrings.reminders}
+                        </a>
+                        <a
+                            role="menuitem"
                             href={settingsHref}
                             onClick={() => setOpen(false)}
                             style={menuLinkStyle}
                         >
-                            Ajustes
+                            {menuStrings.settings}
                         </a>
                         <button
                             role="menuitem"
@@ -248,7 +298,7 @@ export default function GoogleAuthButton({ lang = DEFAULT_LANG }) {
                             }}
                             style={{ ...menuItemStyle, backgroundColor: "rgba(168, 56, 56, 0.75)" }}
                         >
-                            Cerrar sesión
+                            {menuStrings.signOut}
                         </button>
                     </div>,
                     portalNode
