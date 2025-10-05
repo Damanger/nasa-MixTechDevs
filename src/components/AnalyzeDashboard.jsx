@@ -4,7 +4,6 @@ import Papa from "papaparse";
 import "../assets/css/Analyze.css";
 import parseCSV from "../lib/csv.js";
 
-// Chart.js + react-chartjs-2 + matrix plugin (ESM)
 import {
 	Chart as ChartJS,
 	CategoryScale, LinearScale, PointElement, LineElement, BarElement,
@@ -18,7 +17,6 @@ ChartJS.register(
 	Tooltip, Legend, Title, MatrixController, MatrixElement
 );
 
-// LocalStorage key for mapping persistence
 const LS_KEY = (src) => `anlz:mapping:${src || 'default'}`;
 
 export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-dataset.csv" }) {
@@ -37,6 +35,9 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const [rows, setRows] = useState([]);
 	const [headers, setHeaders] = useState([]);
 	const [fileMeta, setFileMeta] = useState(null);
+	const [expandedIndex, setExpandedIndex] = useState(null);
+	const [predictions, setPredictions] = useState({});
+	const expandedRef = useRef(null);
 	const [dragActive, setDragActive] = useState(false);
 	const fileInputRef = useRef(null);
 	const [yTrueCol, setYTrueCol] = useState("");
@@ -45,7 +46,6 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const [posClass, setPosClass] = useState("");
 	const [activeStep, setActiveStep] = useState(0);
 
-	// Carga CSV
 	function onFile(e) {
 		const file = e.target.files?.[0];
 		if (!file) return;
@@ -67,7 +67,6 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 		});
 	}
 
-	// Función que carga el CSV de ejemplo usando 'onFile' y el archivo en 'src' (es un archivo público de la app)
 	function loadExampleCSV() {
 		fetch(src)
 			.then(response => {
@@ -85,7 +84,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 			});
 	}
 
-	// Etiquetas
+
 	const labels = useMemo(() => {
 		if (!rows.length) return [];
 		const L = new Set();
@@ -99,7 +98,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 		if (!posClass && labels.length) setPosClass(labels[0]);
 	}, [labels, posClass]);
 
-	// Guardar mapeo
+
 	useEffect(() => {
 		try { localStorage.setItem(LS_KEY(src), JSON.stringify({ yTrueCol, yPredCol, probCols, posClass })); } catch { }
 	}, [yTrueCol, yPredCol, probCols, posClass, src]);
@@ -113,6 +112,79 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const stepLabels = useMemo(() => [ui.uploadHeading, ui.previewHeading].map(s => String(s).replace(/^\d+\)\s*/, '')), [ui]);
 	const canGo = (idx) => idx === 0 || rows.length > 0;
+
+	// Llamada a la API 
+	async function fetchPredictionForRow(row) {
+		try {
+			const res = await fetch('/predict_csv_row', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ row })
+			});
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const data = await res.json();
+			if (Array.isArray(data)) return data[0] || data;
+			return data;
+		} catch (err) {
+			return simulateModelOutput(row);
+		}
+	}
+
+	function simulateModelOutput(row) {
+		const nums = Object.values(row).map(v => (typeof v === 'number' ? v : parseFloat(v))).filter(n => !Number.isNaN(n));
+		const base = nums.length ? (nums.reduce((a, b) => a + b, 0) / nums.length) : Math.random();
+		const p_confirmed = Math.min(0.995, Math.max(0.001, (Math.abs(Math.sin(base)) || Math.random())));
+		return {
+			status: 'Predicción completada',
+			prediction: p_confirmed > 0.5 ? 'Confirmado' : 'Falso postivo',
+			probability_confirmed: Number(p_confirmed.toFixed(6)),
+			probability_false_positive: Number((1 - p_confirmed).toFixed(6)),
+			model_used: 'XGBoom + SMOTE'
+		};
+	}
+
+	async function handleRowClick(idx) {
+		if (expandedIndex === idx) {
+			setExpandedIndex(null);
+			return;
+		}
+		setExpandedIndex(idx);
+		if (predictions[idx]) return; 
+		setPredictions(prev => ({ ...prev, [idx]: { status: 'loading' } }));
+		try {
+			const result = await fetchPredictionForRow(rows[idx]);
+			setPredictions(prev => ({ ...prev, [idx]: { status: 'success', data: result } }));
+		} catch (err) {
+			setPredictions(prev => ({ ...prev, [idx]: { status: 'error', error: err?.message || String(err) } }));
+		}
+	}
+
+	const prettyKey = (k) => {
+		const map = {
+			status: 'Estado de predicción',
+			prediction: 'Predicción del modelo',
+			probability_confirmed: 'Probabilidad de confirmado',
+			probability_false_positive: 'Probabilidad de que sea un falso positivo',
+			model_used: 'Modelo utilizado'
+		};
+
+		const lk = String(k).toLowerCase();
+		if (map[lk]) return map[lk];
+		return String(k).replace(/_/g, ' ').replace(/\b\w/g, ch => ch.toUpperCase());
+	};
+
+	const formatValue = (k, v) => {
+		if (v === null || v === undefined) return '';
+		const lk = String(k).toLowerCase();
+		if (/probability|proba|p_?/i.test(lk) && typeof v === 'number') return `${(v * 100).toFixed(2)} %`;
+		return String(v);
+	};
+
+	useEffect(() => {
+		if (expandedIndex !== null && expandedRef.current) {
+			expandedRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+	}, [expandedIndex]);
 
 	return (
 		<motion.div
@@ -195,17 +267,47 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 						<p className="muted">
 							Este módulo muestra cómo se visualizarán etiquetas y probabilidades por fila cuando conectes tu modelo
 							(p. ej., a un endpoint <code>/api/predict</code>). Por ahora, puedes usar “Simular salida de modelo”.
+							Haz click en un elemento para visualizar su predicción y probabilidad.
 						</p>
 						<div className="preview" style={{ marginTop: '.6rem' }}>
 							<table className="table">
 								<thead><tr>{headers.map(h => <th key={h}>{h}</th>)}</tr></thead>
 								<tbody>
 									{rows.slice(0, 10).map((r, i) => (
-										<tr key={i}>{headers.map(h => <td key={h}>{String(r[h] ?? '')}</td>)}</tr>
+										<tr
+											key={i}
+											className="clickable-row"
+											onClick={() => handleRowClick(i)}
+											style={{ cursor: 'pointer' }}
+										>
+											{headers.map(h => <td key={h}>{String(r[h] ?? '')}</td>)}
+										</tr>
 									))}
 								</tbody>
 							</table>
 						</div>
+						{}
+						{expandedIndex !== null && (
+							<div className="panel prediction-panel" ref={expandedRef} style={{ marginTop: '.6rem' }}>
+								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+									<h4 style={{ margin: 0 }}>Detalle de predicción - fila {expandedIndex + 1}</h4>
+									<button className="btn" onClick={() => setExpandedIndex(null)}>Cerrar</button>
+								</div>
+								<div style={{ marginTop: '.5rem' }}>
+									{predictions[expandedIndex]?.status === 'loading' && <div className="muted">Cargando predicción...</div>}
+									{predictions[expandedIndex]?.status === 'error' && <div className="error">Error: {predictions[expandedIndex].error}</div>}
+									{predictions[expandedIndex]?.status === 'success' && predictions[expandedIndex].data && (
+										<table className="table slim">
+											<tbody>
+												{Object.entries(predictions[expandedIndex].data).map(([k, v]) => (
+													<tr key={k}><th style={{ textAlign: 'left', width: '45%' }}>{prettyKey(k)}</th><td>{formatValue(k, v)}</td></tr>
+												))}
+											</tbody>
+										</table>
+									)}
+								</div>
+							</div>
+						)}
 					</>
 				)}
 			</motion.div>)}

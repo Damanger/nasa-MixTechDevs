@@ -149,3 +149,18 @@ select[multiple] {
   .step .bullet{ flex:0 0 auto; }
   .stepper-nav{ width:100%; justify-content:flex-end; margin-top:.5rem; }
 }
+
+/* Filas clickeables y expansión */
+.clickable-row:hover{ background: rgba(255,255,255,.04); }
+.expanded-row td{ background: rgba(0,0,0,.18); }
+.prediction-result .table.slim { width:100%; border-collapse: collapse; }
+.prediction-result .table.slim th { padding: .35rem .5rem; font-weight:600; text-align:left; }
+.prediction-result .table.slim td { padding: .35rem .5rem; }
+.error{ color: #ffb4b4; }
+
+/* Panel de detalles de predicción (fuera de la tabla para evitar scroll horizontal) */
+.prediction-panel{ background: rgba(0,0,0,.14); border:1px solid var(--glass-brd); border-radius:10px; padding:.6rem; }
+.prediction-panel .table.slim { width:100%; border-collapse: collapse; }
+.prediction-panel .table.slim th{ padding:.5rem; font-weight:700; border-bottom:1px solid rgba(255,255,255,.04); }
+.prediction-panel .table.slim td{ padding:.5rem; border-bottom:1px solid rgba(255,255,255,.02); }
+.prediction-panel h4{ font-size:1rem; }
