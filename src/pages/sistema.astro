@@ -2,6 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 import SolarSystemBuilder from "../components/SolarSystemBuilder.jsx";
+import SolarSystemHero from "../components/SolarSystemHero.jsx";
 
 const langParam = Astro.url.searchParams.get("lang");
 const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
@@ -14,8 +15,7 @@ const solar = translations.solar ?? {
 
 <Layout lang={lang} translations={translations}>
   <section class="glass settings-hero">
-    <h1 style="margin:0; font-size:clamp(2rem,5vw,2.6rem);">{solar.title}</h1>
-    <h3 class="subtitle" style="max-width:560px; margin:0.5rem auto 0; font-weight:500; color:var(--text-secondary);">{solar.subtitle}</h3>
+    <SolarSystemHero client:only="react" initialLang={lang} />
   </section>
 
   <section class="builder-grid">
@@ -31,4 +31,3 @@ const solar = translations.solar ?? {
   .glass { background: var(--glass-bg); border: 1px solid var(--glass-brd); border-radius: 14px; }
   .settings-hero.glass { backdrop-filter: blur(14px) saturate(120%); }
 </style>
-

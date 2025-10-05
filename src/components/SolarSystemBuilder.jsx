@@ -3,6 +3,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { ref, set, get } from 'firebase/database';
 import { auth, db } from '../lib/firebaseClient.js';
 import { emitToast } from '../lib/toast.js';
+import { DEFAULT_LANG, LANG_EVENT, detectClientLanguage, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
@@ -12,6 +13,15 @@ const defaultPlanet = (i) => ({ color: [
 ][i % 9], size: clamp(10 - i, 4, 14), rings: false, ringTilt: 20 });
 
 export default function SolarSystemBuilder() {
+  const [lang, setLang] = useState(DEFAULT_LANG);
+  useEffect(() => {
+    const preferred = detectClientLanguage(DEFAULT_LANG);
+    setLang((p) => (p === preferred ? p : preferred));
+    const handler = (e) => setLang(getLanguageSafe(e.detail?.lang));
+    window.addEventListener(LANG_EVENT, handler);
+    return () => window.removeEventListener(LANG_EVENT, handler);
+  }, []);
+  const ui = useMemo(() => getTranslations(lang).solar?.controls ?? {}, [lang]);
   const [user, setUser] = useState(null);
   const [count, setCount] = useState(5);
   const [star, setStar] = useState(defaultStar);
@@ -328,7 +338,7 @@ export default function SolarSystemBuilder() {
       const data = serialize();
       await set(ref(db, `users/${user.uid}/solarSystem`), data);
       setSaveState('saved');
-      try { emitToast('Sistema guardado', 'success'); } catch {}
+      try { emitToast(ui.savedToast || 'Saved', 'success'); } catch {}
       setTimeout(() => setSaveState('idle'), 1500);
     } catch (err) {
       console.error('Failed to save solar system', err);
@@ -366,6 +376,51 @@ export default function SolarSystemBuilder() {
     }
   };
 
+  // Utility to get a pleasant random pastel-ish color in hex
+  const randomHex = () => {
+    const h = Math.floor(Math.random() * 360);
+    const s = 70;
+    const l = 65;
+    const c = (1 - Math.abs(2 * l / 100 - 1)) * (s / 100);
+    const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+    const m = l / 100 - c / 2;
+    let r1 = 0, g1 = 0, b1 = 0;
+    if (h < 60) { r1 = c; g1 = x; b1 = 0; }
+    else if (h < 120) { r1 = x; g1 = c; b1 = 0; }
+    else if (h < 180) { r1 = 0; g1 = c; b1 = x; }
+    else if (h < 240) { r1 = 0; g1 = x; b1 = c; }
+    else if (h < 300) { r1 = x; g1 = 0; b1 = c; }
+    else { r1 = c; g1 = 0; b1 = x; }
+    const toHex = (v) => {
+      const n = Math.round((v + m) * 255);
+      return n.toString(16).padStart(2, '0');
+    };
+    return `#${toHex(r1)}${toHex(g1)}${toHex(b1)}`;
+  };
+
+  // Randomize star/planets quickly for inspiration
+  const randomize = () => {
+    setStar((s) => ({ ...s, color: randomHex(), size: clamp(Math.round(16 + Math.random() * 40), 12, 60) }));
+    setPlanets((prev) => prev.map((p, i) => ({
+      ...p,
+      color: randomHex(),
+      size: clamp(Math.round(4 + Math.random() * 26), 2, 30),
+      rings: Math.random() < 0.35,
+      ringTilt: Math.round(Math.random() * 80),
+    })));
+  };
+
+  // Reset to defaults while keeping current planet count
+  const resetAll = () => {
+    setStar({ ...defaultStar });
+    setPlanets(Array.from({ length: count }, (_, i) => defaultPlanet(i)));
+    setShowOrbits(true);
+    setSpeed(1);
+    setAzimuth(0.6);
+    setElevation(0.35);
+    setZoom(540);
+  };
+
   const loadConfigFor = async (uidParam) => {
     const uid = uidParam ?? user?.uid;
     if (!uid) return;
@@ -392,7 +447,7 @@ export default function SolarSystemBuilder() {
       setElevation(clamp(parseFloat(cfg.elevation ?? 0.35), -1.5, 1.5));
       setZoom(clamp(parseInt(cfg.zoom ?? 540, 10), 220, 2000));
       setLabel(String(cfg.label ?? ''));
-      try { emitToast('Sistema cargado', 'success'); } catch {}
+      try { emitToast(ui.loadedToast || 'Loaded', 'success'); } catch {}
     } catch (err) {
       console.error('Failed to load solar system', err);
     }
@@ -402,15 +457,15 @@ export default function SolarSystemBuilder() {
     <div className="solar-builder">
       <div className="solar-controls">
         <div className="group toolbar">
-          <div className="fieldset-title" style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:'.5rem'}}>
-            <span>Controles</span>
+          <div className="fieldset-title">{ui.controls || 'Controles'}</div>
+          <div className="actions">
+            <button type="button" className="btn-sm" onClick={downloadPng} title={ui.downloadTitle || 'Descargar imagen (PNG)'}>{ui.download || 'Descargar'}</button>
+            <button type="button" className="btn-sm" onClick={randomize} title={ui.randomize || 'Aleatorizar'}>{ui.randomize || 'Aleatorizar'}</button>
+            <button type="button" className="btn-sm" onClick={resetAll} title={ui.reset || 'Restablecer'}>{ui.reset || 'Restablecer'}</button>
             {user && (
-              <span className="actions">
-                <button type="button" className="btn-sm" onClick={downloadPng} title="Descargar imagen (PNG)">Descargar</button>
-                <button type="button" className="btn-sm primary" onClick={saveConfig} disabled={saveState==='saving'} title="Guardar sistema">
-                  {saveState==='saving' ? 'Guardando…' : 'Guardar'}
-                </button>
-              </span>
+              <button type="button" className="btn-sm primary" onClick={saveConfig} disabled={saveState==='saving'} title={ui.save || 'Guardar'}>
+                {saveState==='saving' ? 'Guardando…' : (ui.save || 'Guardar')}
+              </button>
             )}
           </div>
           {saveState==='error' && <div style={{color:'#ffb4b4', fontSize:'.9rem'}}>{saveError}</div>}
@@ -418,14 +473,14 @@ export default function SolarSystemBuilder() {
 
         <div className="group">
           <label>
-            <span style={{ marginRight: '.5rem' }}>Nombre</span>
-            <input type="text" placeholder="Mi sistema" value={label} onChange={(e) => setLabel(e.target.value)} style={{ flex: 1 }} />
+            <span style={{ marginRight: '.5rem' }}>{ui.name || 'Nombre'}</span>
+            <input type="text" placeholder={ui.namePlaceholder || 'Mi sistema'} value={label} onChange={(e) => setLabel(e.target.value)} style={{ flex: 1 }} />
           </label>
         </div>
 
         <div className="group">
           <label>
-            Planetas (1–9)
+            {ui.planetsCount || 'Planetas (1–9)'}
             <select value={count} onChange={(e) => setCount(clamp(parseInt(e.target.value, 10), 1, 9))}>
               {Array.from({ length: 9 }, (_, i) => i + 1).map((n) => (
                 <option key={n} value={n}>{n}</option>
@@ -433,33 +488,33 @@ export default function SolarSystemBuilder() {
             </select>
           </label>
           <label>
-            Velocidad
+            {ui.speed || 'Velocidad'}
             <input type="range" min={0.2} max={3} step={0.1} value={speed} onChange={(e) => setSpeed(parseFloat(e.target.value))} />
           </label>
           <label>
-            Zoom
+            {ui.zoom || 'Zoom'}
             <input type="range" min={220} max={1600} step={10} value={zoom} onChange={(e) => setZoom(parseInt(e.target.value, 10))} />
           </label>
           <label className="row">
-            Mostrar órbitas
+            {ui.showOrbits || 'Mostrar órbitas'}
             <input type="checkbox" checked={showOrbits} onChange={(e) => setShowOrbits(e.target.checked)} />
           </label>
         </div>
 
         <div className="group">
-          <div className="fieldset-title">Sol</div>
+          <div className="fieldset-title">{ui.star || 'Sol'}</div>
           <label>
-            Color
+            {ui.color || 'Color'}
             <input type="color" value={star.color} onChange={(e) => setStar((s) => ({ ...s, color: e.target.value }))} />
           </label>
           <label>
-            Tamaño
+            {ui.size || 'Tamaño'}
             <input type="range" min={12} max={60} step={1} value={star.size} onChange={(e) => setStar((s) => ({ ...s, size: parseInt(e.target.value, 10) }))} />
           </label>
         </div>
 
         <div className="group">
-          <div className="fieldset-title">Planetas</div>
+          <div className="fieldset-title">{ui.planets || 'Planetas'}</div>
           <div className="planets-grid">
             {planets.map((p, i) => (
               <div key={i} className="planet-row">
@@ -468,7 +523,7 @@ export default function SolarSystemBuilder() {
                 <input type="range" min={2} max={30} step={1} value={p.size} aria-label={`Tamaño planeta ${i + 1}`} onChange={(e) => updatePlanet(i, { size: parseInt(e.target.value, 10) })} />
                 <label className="toggle">
                   <input type="checkbox" checked={!!p.rings} onChange={(e) => updatePlanet(i, { rings: e.target.checked })} />
-                  <span>Anillos</span>
+                  <span>{ui.rings || 'Anillos'}</span>
                 </label>
                 {p.rings && (
                   <input
@@ -479,7 +534,7 @@ export default function SolarSystemBuilder() {
                     step={1}
                     value={p.ringTilt ?? 0}
                     onChange={(e) => updatePlanet(i, { ringTilt: parseInt(e.target.value, 10) })}
-                    aria-label={`Inclinación anillos planeta ${i + 1}`}
+                    aria-label={`${ui.ringTilt || 'Inclinación'} planeta ${i + 1}`}
                   />
                 )}
               </div>
@@ -494,10 +549,10 @@ export default function SolarSystemBuilder() {
       </div>
 
       <style>{`
-        .solar-builder{ display:grid; grid-template-columns: 320px 1fr; gap:1rem; align-items: start; }
+        .solar-builder{ display:grid; grid-template-columns: 320px 1fr; gap:1rem; align-items: start; overflow-x: hidden; }
         @media (max-width: 900px){ .solar-builder{ grid-template-columns: 1fr; } }
         .solar-controls{ border:1px solid var(--glass-brd); background: var(--glass-bg); border-radius: 14px; padding: .9rem; backdrop-filter: blur(14px) saturate(120%); }
-        .toolbar .actions{ display:inline-flex; gap:.4rem; }
+        .toolbar .actions{ display:flex; flex-wrap: wrap; gap:.4rem; margin-top:.4rem; }
         .btn-sm{ border:1px solid var(--glass-brd); background: rgba(255,255,255,0.06); color: var(--text); border-radius: 8px; padding:.28rem .55rem; cursor:pointer; }
         .btn-sm:hover{ background: rgba(255,255,255,0.12); }
         .btn-sm.primary{ border-color: rgba(137,180,255,0.55); background: rgba(137,180,255,0.15); }
@@ -507,12 +562,12 @@ export default function SolarSystemBuilder() {
         .group select{ min-width: 82px; }
         .group .row{ gap:.75rem; }
         .fieldset-title{ font-weight: 600; opacity: .9; margin-bottom: .2rem; }
-        .planets-grid{ display:flex; flex-direction: column; gap:.45rem; max-height: 40vh; overflow:auto; padding-right: .25rem; }
+        .planets-grid{ display:flex; flex-direction: column; gap:.45rem; max-height: 40vh; overflow-y:auto; overflow-x:hidden; padding-right: .25rem; }
         .planet-row{ display:grid; grid-template-columns: 44px 56px minmax(0,1fr) auto; align-items:center; gap:.5rem; }
         .planet-label{ color: var(--muted); }
         .toggle{ display:inline-flex; align-items:center; gap:.35rem; white-space:nowrap; }
         .ring-tilt{ grid-column: 2 / span 2; }
-        .solar-controls{ overflow:auto; }
+        .solar-controls{ overflow-y:auto; overflow-x:hidden; }
         @media (min-width: 901px){
           .solar-controls{ height: 60vh; position: sticky; top: 0; }
           .solar-canvas{ height: 60vh; }
