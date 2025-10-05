@@ -114,24 +114,37 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const canGo = (idx) => idx === 0 || rows.length > 0;
 
 	// Llamada a la API 
-	const API_BASE = 'https://axlserial-nasa-exoplanet-detection.hf.space';
-
+	const API_BASE = 'https://mixtechdevs-nasa-exoplanet-detection.hf.space';
 	async function fetchPredictionForRow(row) {
+		variable_deprueba = JSON.stringify({ row })
+		console.log(variable_deprueba)
 		try {
-			const url = `${API_BASE}/predict_csv_row`;
+			const url = `${API_BASE}/predict_csv`;
 			const res = await fetch(url, {
 				method: 'POST',
 				mode: 'cors',
 				headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-				body: JSON.stringify({ row })
+				body: variable_deprueba
 			});
-			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			if (!res.ok) {
+				// Intentar leer el body de la respuesta para obtener el mensaje de error del servidor
+				let bodyText = '';
+				try {
+					bodyText = await res.text();
+					// Si es JSON, formatearlo para legibilidad
+					try { const parsed = JSON.parse(bodyText); bodyText = JSON.stringify(parsed, null, 2); } catch { }
+				} catch (e) {
+					bodyText = '(no se pudo leer el body)';
+				}
+				throw new Error(`HTTP ${res.status}\n${bodyText}`);
+			}
 			const data = await res.json();
 			if (Array.isArray(data)) return data[0] || data;
 			return data;
 		} catch (err) {
 			console.warn('fetchPredictionForRow failed, using simulated output:', err);
-			return simulateModelOutput(row);
+			// incluir el error en el retorno para que la UI lo muestre si es necesario
+			return { error: String(err), _simulated: true, ...(simulateModelOutput(row)) };
 		}
 	}
 
