@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { TERRAIN_BACKGROUND_KEY } from "../lib/backgroundPreferences.js";
 import useBackgroundActive from "../hooks/useBackgroundActive.js";
-import styles from "./TerrainBackground.module.css";
+import styles from "../assets/css/TerrainBackground.module.css";
 
 function sanitizeId(raw) {
     return raw.replace(/[^a-zA-Z0-9_-]/g, "");

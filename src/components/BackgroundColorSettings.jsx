@@ -2,23 +2,27 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { onValue, ref, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
-import {
-    applyBackgroundToDocument,
-    cacheBackgroundPreference,
-    DEFAULT_BACKGROUND_KEY,
-    MATRIX_BACKGROUND_KEY,
-    GRID_BACKGROUND_KEY,
-    CITY_BACKGROUND_KEY,
-    SPECTRUM_BACKGROUND_KEY,
-    TERRAIN_BACKGROUND_KEY,
-    SHARDS_BACKGROUND_KEY,
-    AURORA_BACKGROUND_KEY,
-    FUTURISTIC_BACKGROUND_KEY,
-    RAIN_BACKGROUND_KEY,
-    CONSTELLATION_BACKGROUND_KEY,
-    NEON_BACKGROUND_KEY,
-    sanitizeBackgroundValue
-} from "../lib/backgroundPreferences.js";
+    import {
+        applyBackgroundToDocument,
+        cacheBackgroundPreference,
+        DEFAULT_BACKGROUND_KEY,
+        MATRIX_BACKGROUND_KEY,
+        GRID_BACKGROUND_KEY,
+        CITY_BACKGROUND_KEY,
+        SPECTRUM_BACKGROUND_KEY,
+        TERRAIN_BACKGROUND_KEY,
+        SHARDS_BACKGROUND_KEY,
+        AURORA_BACKGROUND_KEY,
+        FUTURISTIC_BACKGROUND_KEY,
+        RAIN_BACKGROUND_KEY,
+        CONSTELLATION_BACKGROUND_KEY,
+        NEON_BACKGROUND_KEY,
+        GALAXY_BACKGROUND_KEY,
+        PRISMATIC_BACKGROUND_KEY,
+        LIGHTNING_BACKGROUND_KEY,
+        PLASMA_BACKGROUND_KEY,
+        sanitizeBackgroundValue
+    } from "../lib/backgroundPreferences.js";
 
 export default function BackgroundColorSettings({ strings }) {
     const [user, setUser] = useState(null);
@@ -92,6 +96,22 @@ export default function BackgroundColorSettings({ strings }) {
                     label: strings?.options?.neon?.label ?? "Geometría neón",
                     description:
                         strings?.options?.neon?.description ?? "Patrón vectorial vibrante con acentos magenta.",
+                },
+                galaxy: {
+                    label: strings?.options?.galaxy?.label ?? "Galaxia",
+                    description: strings?.options?.galaxy?.description ?? "Campo de estrellas en parallax.",
+                },
+                prismatic: {
+                    label: strings?.options?.prismatic?.label ?? "Destello prismático",
+                    description: strings?.options?.prismatic?.description ?? "Rayos de color con mezcla aditiva.",
+                },
+                lightning: {
+                    label: strings?.options?.lightning?.label ?? "Relámpago",
+                    description: strings?.options?.lightning?.description ?? "Descargas eléctricas estilizadas.",
+                },
+                plasma: {
+                    label: strings?.options?.plasma?.label ?? "Plasma",
+                    description: strings?.options?.plasma?.description ?? "Neblina energética en movimiento.",
                 },
             },
             loading: strings?.loading ?? "Cargando preferencia…",
@@ -288,7 +308,51 @@ export default function BackgroundColorSettings({ strings }) {
                                     </div>
                                 </label>
                             );
-                        })}
+                        }).concat([
+                            {
+                                id: GALAXY_BACKGROUND_KEY,
+                                label: labels.options.galaxy.label,
+                                description: labels.options.galaxy.description,
+                            },
+                            {
+                                id: PRISMATIC_BACKGROUND_KEY,
+                                label: labels.options.prismatic.label,
+                                description: labels.options.prismatic.description,
+                            },
+                            {
+                                id: LIGHTNING_BACKGROUND_KEY,
+                                label: labels.options.lightning.label,
+                                description: labels.options.lightning.description,
+                            },
+                            {
+                                id: PLASMA_BACKGROUND_KEY,
+                                label: labels.options.plasma.label,
+                                description: labels.options.plasma.description,
+                            },
+                            {
+                                id: "darkveil",
+                                label: labels.options.darkveil?.label ?? "Dark Veil",
+                                description: labels.options.darkveil?.description ?? "Procedural veil with subtle scanlines.",
+                            },
+                            {
+                                id: "lightrays",
+                                label: labels.options.lightrays?.label ?? "Light Rays",
+                                description: labels.options.lightrays?.description ?? "Soft volumetric beams with additive blend.",
+                            }
+                        ].map((option) => {
+                            const selected = draftChoice === option.id;
+                            const isSaving = status === "saving";
+                            return (
+                                <label key={option.id} className="background-option" data-selected={selected ? "true" : "false"}>
+                                    <input type="radio" name="background-option" value={option.id} checked={selected} onChange={() => selectChoice(option.id)} disabled={isSaving} />
+                                    <div className="background-option__preview" data-kind={option.id} />
+                                    <div className="background-option__details">
+                                        <span className="background-option__label">{option.label}</span>
+                                        <span className="background-option__description">{option.description}</span>
+                                    </div>
+                                </label>
+                            );
+                        }))}
                     </div>
                     {renderStatus() ? (
                         <span style={{ color: "var(--muted)" }}>{renderStatus()}</span>
@@ -414,6 +478,40 @@ export default function BackgroundColorSettings({ strings }) {
           .background-option__preview[data-kind="${NEON_BACKGROUND_KEY}"]::after {
             background:
               linear-gradient(135deg, #11000d, #2c0015);
+          }
+          .background-option__preview[data-kind="${GALAXY_BACKGROUND_KEY}"]::after {
+            background:
+              radial-gradient(circle at 60% 40%, rgba(255,255,255,0.25) 0%, transparent 45%),
+              radial-gradient(circle at 20% 80%, rgba(150,200,255,0.18) 0%, transparent 55%),
+              linear-gradient(135deg, #000010 0%, #0a0a20 100%);
+          }
+          .background-option__preview[data-kind="${PRISMATIC_BACKGROUND_KEY}"]::after {
+            background:
+              conic-gradient(from 0deg, rgba(255,0,200,0.35), rgba(0,200,255,0.35), rgba(255,255,0,0.35), rgba(255,0,200,0.35)),
+              linear-gradient(135deg, #0a0a12 0%, #101020 100%);
+          }
+          .background-option__preview[data-kind="${LIGHTNING_BACKGROUND_KEY}"]::after {
+            background:
+              linear-gradient(180deg, rgba(140,160,255,0.35), rgba(0,0,0,0.0)),
+              linear-gradient(135deg, #050510 0%, #0a0a18 100%);
+          }
+          .background-option__preview[data-kind="${PLASMA_BACKGROUND_KEY}"]::after {
+            background:
+              radial-gradient(circle at 30% 30%, rgba(137,180,255,0.25), transparent 55%),
+              linear-gradient(135deg, #06060d 0%, #0a0a14 100%);
+          }
+          .background-option__preview[data-kind="darkveil"]::after {
+            background:
+              radial-gradient(80px 60px at 20% 20%, rgba(120,120,160,0.22), transparent 60%),
+              radial-gradient(100px 80px at 80% 60%, rgba(40,60,120,0.22), transparent 60%),
+              linear-gradient(135deg, #050314 0%, #070711 100%);
+            background-blend-mode: multiply, screen, normal;
+          }
+          .background-option__preview[data-kind="lightrays"]::after {
+            background:
+              linear-gradient(75deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.0) 45%),
+              linear-gradient(65deg, rgba(255,255,255,0.14) 10%, rgba(255,255,255,0.0) 55%),
+              linear-gradient(135deg, #0a0a12 0%, #101020 100%);
           }
           @keyframes background-option-matrix {
             from { background-position: 0 0, 0 0; }

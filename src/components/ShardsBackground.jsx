@@ -1,6 +1,6 @@
 import { SHARDS_BACKGROUND_KEY } from "../lib/backgroundPreferences.js";
 import useBackgroundActive from "../hooks/useBackgroundActive.js";
-import styles from "./ShardsBackground.module.css";
+import styles from "../assets/css/ShardsBackground.module.css";
 
 export default function ShardsBackground() {
     const active = useBackgroundActive(SHARDS_BACKGROUND_KEY);

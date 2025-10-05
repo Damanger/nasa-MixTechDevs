@@ -5,7 +5,7 @@ import ScrollToTopButton from "../components/ScrollToTopButton.jsx";
 import BackgroundPreferenceListener from "../components/BackgroundPreferenceListener.jsx";
 import ReminderAssistant from "../components/ReminderAssistant.jsx";
 import MatrixBackground from "../components/MatrixBackground.jsx";
-import GridBackground from "../components/GridBackground.jsx";
+import SquaresBackground from "../components/SquaresBackground.jsx";
 import CityLightsBackground from "../components/CityLightsBackground.jsx";
 import SpectrumBackground from "../components/SpectrumBackground.jsx";
 import TerrainBackground from "../components/TerrainBackground.jsx";
@@ -15,6 +15,12 @@ import FuturisticBackground from "../components/FuturisticBackground.jsx";
 import RainBackground from "../components/RainBackground.jsx";
 import ConstellationBackground from "../components/ConstellationBackground.jsx";
 import NeonBackground from "../components/NeonBackground.jsx";
+import GalaxyBackground from "../components/GalaxyBackground.jsx";
+import PrismaticBurstBackground from "../components/PrismaticBurstBackground.jsx";
+import LightningBackground from "../components/LightningBackground.jsx";
+import PlasmaBackground from "../components/PlasmaBackground.jsx";
+import DarkVeilBackground from "../components/DarkVeilBackground.jsx";
+import LightRaysBackground from "../components/LightRaysBackground.jsx";
 import ConstellationShell from "../components/ConstellationShell.jsx";
 import { DEFAULT_BACKGROUND_KEY, THEME_COLOR_MAP } from "../lib/backgroundPreferences.js";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
@@ -66,7 +72,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
           if (!raw) return;
           var val = (raw + '').trim().toLowerCase();
           var allowed = new Set([
-            'default','matrix','grid','city','spectrum','terrain','shards','aurora','futuristic','rain','constellation','neon'
+            'default','matrix','grid','city','spectrum','terrain','shards','aurora','futuristic','rain','constellation','neon','galaxy','prismatic','lightning','plasma','darkveil','lightrays'
           ]);
           if (!allowed.has(val)) return;
           var map = {
@@ -81,7 +87,13 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
             'futuristic': '#1f1727',
             'rain': '#000000',
             'constellation': '#101018',
-            'neon': '#0a0005'
+            'neon': '#0a0005',
+            'galaxy': '#000010',
+            'prismatic': '#0a0a12',
+            'lightning': '#050510',
+            'plasma': '#06060d',
+            'darkveil': '#070711',
+            'lightrays': '#0a0a12'
           };
           var html = document.documentElement;
           var body = document.body;
@@ -682,7 +694,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
   <body data-background="default">
     <BackgroundPreferenceListener client:load />
     <MatrixBackground client:load />
-    <GridBackground client:load />
+    <SquaresBackground client:load />
     <CityLightsBackground client:load />
     <SpectrumBackground client:load />
     <TerrainBackground client:load />
@@ -692,6 +704,12 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
     <RainBackground client:load />
     <ConstellationBackground client:load />
     <NeonBackground client:load />
+    <GalaxyBackground client:load />
+    <PrismaticBurstBackground client:load />
+    <LightningBackground client:load />
+    <PlasmaBackground client:load />
+    <DarkVeilBackground client:load />
+    <LightRaysBackground client:load />
     <header class="site-header">
       <div class="container">
   <LanguageHeader client:idle initialLang={lang} />

@@ -289,6 +289,30 @@ const dictionaries = {
             label: "Geometría neón",
             description: "Patrón vectorial vibrante con acentos magenta.",
           },
+          prismatic: {
+            label: "Destello prismático",
+            description: "Rayos de color con mezcla aditiva.",
+          },
+          lightning: {
+            label: "Relámpago",
+            description: "Descargas eléctricas estilizadas.",
+          },
+          plasma: {
+            label: "Plasma",
+            description: "Neblina energética en movimiento.",
+          },
+          galaxy: {
+            label: "Galaxia",
+            description: "Campo estelar con brillo y parallax.",
+          },
+          darkveil: {
+            label: "Velo oscuro",
+            description: "Velo procedimental con scanlines sutiles.",
+          },
+          lightrays: {
+            label: "Rayos de luz",
+            description: "Rayos volumétricos suaves con mezcla aditiva.",
+          },
         },
       },
     },
@@ -697,6 +721,30 @@ const dictionaries = {
           neon: {
             label: "Neon geometry",
             description: "Vibrant vector pattern with magenta accents.",
+          },
+          prismatic: {
+            label: "Prismatic burst",
+            description: "Color rays with additive blending.",
+          },
+          lightning: {
+            label: "Lightning",
+            description: "Stylised electric discharges.",
+          },
+          plasma: {
+            label: "Plasma",
+            description: "Energetic moving haze.",
+          },
+          galaxy: {
+            label: "Galaxy",
+            description: "Starfield with glow and parallax.",
+          },
+          darkveil: {
+            label: "Dark Veil",
+            description: "Procedural veil with subtle scanlines.",
+          },
+          lightrays: {
+            label: "Light Rays",
+            description: "Soft volumetric beams with additive blend.",
           },
         },
       },
@@ -1108,6 +1156,30 @@ const dictionaries = {
           neon: {
             label: "Neon-Geometrie",
             description: "Lebhaftes Vektormuster mit Magenta-Akzenten.",
+          },
+          prismatic: {
+            label: "Prismatischer Strahl",
+            description: "Farbstrahlen mit additiver Mischung.",
+          },
+          lightning: {
+            label: "Blitz",
+            description: "Stilisierte elektrische Entladungen.",
+          },
+          plasma: {
+            label: "Plasma",
+            description: "Energiegeladener, bewegter Nebel.",
+          },
+          galaxy: {
+            label: "Galaxie",
+            description: "Sternenfeld mit Glühen und Parallaxe.",
+          },
+          darkveil: {
+            label: "Dunkler Schleier",
+            description: "Prozeduraler Schleier mit subtilen Scanlines.",
+          },
+          lightrays: {
+            label: "Lichtstrahlen",
+            description: "Weiche volumetrische Strahlen mit additiver Mischung.",
           },
         },
       },

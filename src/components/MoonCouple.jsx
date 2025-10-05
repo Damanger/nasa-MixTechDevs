@@ -67,7 +67,7 @@ function MoonImage({ phase, fraction, label }) {
         <div className="moonimg__label" style={{ fontWeight: 700, marginTop: '.35rem' }}>{label}</div>
         <div className="moonimg__meta" style={{ fontVariantNumeric: 'tabular-nums', opacity: .85 }}>{percent}%</div>
       </figcaption>
-      <style jsx>{`
+      <style>{`
         @media (max-width: 560px){ .moonimg img{ width: 140px; height: 140px; } }
       `}</style>
     </figure>
@@ -160,7 +160,7 @@ export default function MoonCouple({ messages }) {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .mooncouple{ display:grid; gap:.75rem; }
         .mooncouple__controls{ display:grid; grid-template-columns:1fr 1fr; gap:.5rem; align-items:end; place-items:center; text-align:center; }
         .mooncouple__label{ display:grid; gap:.35rem; font-weight:600; }

@@ -1,6 +1,6 @@
 import { SPECTRUM_BACKGROUND_KEY } from "../lib/backgroundPreferences.js";
 import useBackgroundActive from "../hooks/useBackgroundActive.js";
-import styles from "./SpectrumBackground.module.css";
+import styles from "../assets/css/SpectrumBackground.module.css";
 
 export default function SpectrumBackground() {
     const active = useBackgroundActive(SPECTRUM_BACKGROUND_KEY);

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { MATRIX_BACKGROUND_KEY } from "../lib/backgroundPreferences.js";
 import useBackgroundActive from "../hooks/useBackgroundActive.js";
-import styles from "./MatrixBackground.module.css";
+import styles from "../assets/css/MatrixBackground.module.css";
 
 const PATTERN_COUNT = 5;
 const COLUMNS_PER_PATTERN = 40;

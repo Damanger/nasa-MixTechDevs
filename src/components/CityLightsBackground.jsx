@@ -1,6 +1,6 @@
 import { CITY_BACKGROUND_KEY } from "../lib/backgroundPreferences.js";
 import useBackgroundActive from "../hooks/useBackgroundActive.js";
-import styles from "./CityLightsBackground.module.css";
+import styles from "../assets/css/CityLightsBackground.module.css";
 
 export default function CityLightsBackground() {
     const active = useBackgroundActive(CITY_BACKGROUND_KEY);

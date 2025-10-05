@@ -1,6 +1,6 @@
 import { NEON_BACKGROUND_KEY } from "../lib/backgroundPreferences.js";
 import useBackgroundActive from "../hooks/useBackgroundActive.js";
-import styles from "./NeonBackground.module.css";
+import styles from "../assets/css/NeonBackground.module.css";
 
 export default function NeonBackground() {
     const active = useBackgroundActive(NEON_BACKGROUND_KEY);
