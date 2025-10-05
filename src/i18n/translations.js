@@ -297,17 +297,19 @@ const dictionaries = {
     analyze: {
       title: "Analizar CSV",
       message:
-        "La ruta /analizar está lista. Carga tus archivos CSV cuando gustes.",
+        "Sube tu archivo CSV y valida exoplanetas al instante mediante el modelo de detección creado por MixTechDevs.",
     },
     analyzeUI: {
       uploadHeading: "1) Cargar CSV",
+	  exampleDataset: "Usar CSV de ejemplo",
       dropHint: "Arrastra y suelta tu CSV aquí, o haz clic para elegir",
       headersHint: "El CSV debe incluir encabezados en la primera fila.",
       selectFile: "Elegir archivo",
       fileInfo: { name: "Archivo", rows: "Filas", cols: "Columnas" },
       mappingHeading: "2) Mapeo de columnas",
       metricsHeading: "3) Métricas y visualizaciones",
-      previewHeading: "4) Vista previa del resultado del modelo (futuro)",
+      previewHeading: "4) Predicciones del modelo de detección",
+	  predictionsDesc: "El modelo de MixTechDevs evalúa cada fila del CSV y asigna una probabilidad de ser un candidato a exoplaneta o falso positivo.",
       clear: "Reiniciar",
       showMetrics: "Mostrar métricas",
       showCharts: "Mostrar gráficos",
@@ -832,17 +834,19 @@ const dictionaries = {
     analyze: {
       title: "Analyze CSV",
       message:
-        "Route /analizar is live. Drop your CSV files here when you're ready.",
+        "Upload your CSV file and instantly validate exoplanets using the detection model created by MixTechDevs.",
     },
     analyzeUI: {
       uploadHeading: "1) Upload CSV",
+	  exampleDataset: "Use example CSV",
       dropHint: "Drag & drop your CSV here, or click to choose",
       headersHint: "The CSV must include headers in the first row.",
       selectFile: "Choose file",
       fileInfo: { name: "File", rows: "Rows", cols: "Columns" },
       mappingHeading: "2) Column mapping",
       metricsHeading: "3) Metrics & visualizations",
-      previewHeading: "4) Model output preview (future)",
+      previewHeading: "4) Detection model predictions",
+	  predictionsDesc: "The MixTechDevs model evaluates each CSV row and assigns a probability of being an exoplanet candidate or false positive.",
       clear: "Reset",
       showMetrics: "Show metrics",
       showCharts: "Show charts",
@@ -1368,10 +1372,11 @@ const dictionaries = {
     analyze: {
       title: "CSV analysieren",
       message:
-        "Die Route /analizar ist aktiv. Lade deine CSV-Dateien hier, sobald du bereit bist.",
+        "Laden Sie Ihre CSV-Datei hoch und validieren Sie Exoplaneten sofort mithilfe des von MixTechDevs erstellten Erkennungsmodells.",
     },
     analyzeUI: {
       uploadHeading: "1) CSV hochladen",
+	  exampleDataset: "Beispiel-CSV verwenden",
       dropHint: "Ziehe deine CSV hierher oder klicke zur Auswahl",
       headersHint:
         "Die CSV-Datei muss Kopfzeilen in der ersten Zeile enthalten.",
@@ -1379,7 +1384,8 @@ const dictionaries = {
       fileInfo: { name: "Datei", rows: "Zeilen", cols: "Spalten" },
       mappingHeading: "2) Spaltenzuordnung",
       metricsHeading: "3) Metriken & Visualisierungen",
-      previewHeading: "4) Modellvorschau (zukünftig)",
+      previewHeading: "4) Vorhersagen des Erkennungsmodells",
+	  predictionsDesc: "Das MixTechDevs-Modell bewertet jede CSV-Zeile und weist eine Wahrscheinlichkeit zu, ob es sich um einen Exoplaneten-Kandidaten oder ein falsch positives Ergebnis handelt.",
       clear: "Zurücksetzen",
       showMetrics: "Metriken anzeigen",
       showCharts: "Diagramme anzeigen",
