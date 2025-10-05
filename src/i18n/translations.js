@@ -281,10 +281,7 @@ const dictionaries = {
             label: "Lluvia azul",
             description: "Cortinas de lluvia neón sobre un difuminado tecnológico.",
           },
-          constellation: {
-            label: "Constelaciones",
-            description: "Cielo nocturno con destellos brillantes.",
-          },
+          
           neon: {
             label: "Geometría neón",
             description: "Patrón vectorial vibrante con acentos magenta.",
@@ -305,10 +302,7 @@ const dictionaries = {
             label: "Galaxia",
             description: "Campo estelar con brillo y parallax.",
           },
-          darkveil: {
-            label: "Velo oscuro",
-            description: "Velo procedimental con scanlines sutiles.",
-          },
+          
           lightrays: {
             label: "Rayos de luz",
             description: "Rayos volumétricos suaves con mezcla aditiva.",
@@ -714,10 +708,7 @@ const dictionaries = {
             label: "Blue rain",
             description: "Neon rainfall cascading across a dark blur.",
           },
-          constellation: {
-            label: "Constellations",
-            description: "Night sky with shimmering starbursts.",
-          },
+          
           neon: {
             label: "Neon geometry",
             description: "Vibrant vector pattern with magenta accents.",
@@ -738,10 +729,7 @@ const dictionaries = {
             label: "Galaxy",
             description: "Starfield with glow and parallax.",
           },
-          darkveil: {
-            label: "Dark Veil",
-            description: "Procedural veil with subtle scanlines.",
-          },
+          
           lightrays: {
             label: "Light Rays",
             description: "Soft volumetric beams with additive blend.",
@@ -1149,10 +1137,7 @@ const dictionaries = {
             label: "Blaue Regenfälle",
             description: "Neonregen, der über einen dunklen Schleier fließt.",
           },
-          constellation: {
-            label: "Sternbilder",
-            description: "Nachthimmel mit schimmernden Lichtpunkten.",
-          },
+          
           neon: {
             label: "Neon-Geometrie",
             description: "Lebhaftes Vektormuster mit Magenta-Akzenten.",
@@ -1173,10 +1158,7 @@ const dictionaries = {
             label: "Galaxie",
             description: "Sternenfeld mit Glühen und Parallaxe.",
           },
-          darkveil: {
-            label: "Dunkler Schleier",
-            description: "Prozeduraler Schleier mit subtilen Scanlines.",
-          },
+          
           lightrays: {
             label: "Lichtstrahlen",
             description: "Weiche volumetrische Strahlen mit additiver Mischung.",

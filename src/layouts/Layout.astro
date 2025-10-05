@@ -13,13 +13,12 @@ import ShardsBackground from "../components/ShardsBackground.jsx";
 import AuroraBackground from "../components/AuroraBackground.jsx";
 import FuturisticBackground from "../components/FuturisticBackground.jsx";
 import RainBackground from "../components/RainBackground.jsx";
-import ConstellationBackground from "../components/ConstellationBackground.jsx";
 import NeonBackground from "../components/NeonBackground.jsx";
 import GalaxyBackground from "../components/GalaxyBackground.jsx";
 import PrismaticBurstBackground from "../components/PrismaticBurstBackground.jsx";
 import LightningBackground from "../components/LightningBackground.jsx";
 import PlasmaBackground from "../components/PlasmaBackground.jsx";
-import DarkVeilBackground from "../components/DarkVeilBackground.jsx";
+// Removed DarkVeil and Constellation backgrounds
 import LightRaysBackground from "../components/LightRaysBackground.jsx";
 import ConstellationShell from "../components/ConstellationShell.jsx";
 import { DEFAULT_BACKGROUND_KEY, THEME_COLOR_MAP } from "../lib/backgroundPreferences.js";
@@ -72,7 +71,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
           if (!raw) return;
           var val = (raw + '').trim().toLowerCase();
           var allowed = new Set([
-            'default','matrix','grid','city','spectrum','terrain','shards','aurora','futuristic','rain','constellation','neon','galaxy','prismatic','lightning','plasma','darkveil','lightrays'
+            'default','matrix','grid','city','spectrum','terrain','shards','aurora','futuristic','rain','neon','galaxy','prismatic','lightning','plasma','lightrays'
           ]);
           if (!allowed.has(val)) return;
           var map = {
@@ -86,13 +85,11 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
             'aurora': '#050314',
             'futuristic': '#1f1727',
             'rain': '#000000',
-            'constellation': '#101018',
             'neon': '#0a0005',
             'galaxy': '#000010',
             'prismatic': '#0a0a12',
             'lightning': '#050510',
             'plasma': '#06060d',
-            'darkveil': '#070711',
             'lightrays': '#0a0a12'
           };
           var html = document.documentElement;
@@ -702,13 +699,11 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
     <AuroraBackground client:load />
     <FuturisticBackground client:load />
     <RainBackground client:load />
-    <ConstellationBackground client:load />
     <NeonBackground client:load />
     <GalaxyBackground client:load />
     <PrismaticBurstBackground client:load />
     <LightningBackground client:load />
     <PlasmaBackground client:load />
-    <DarkVeilBackground client:load />
     <LightRaysBackground client:load />
     <header class="site-header">
       <div class="container">

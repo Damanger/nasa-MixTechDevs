@@ -9,14 +9,12 @@ export const SHARDS_BACKGROUND_KEY = "shards";
 export const AURORA_BACKGROUND_KEY = "aurora";
 export const FUTURISTIC_BACKGROUND_KEY = "futuristic";
 export const RAIN_BACKGROUND_KEY = "rain";
-export const CONSTELLATION_BACKGROUND_KEY = "constellation";
 export const NEON_BACKGROUND_KEY = "neon";
 // Removed Iridescence; replaced with Prismatic, Lightning, Plasma
 export const PRISMATIC_BACKGROUND_KEY = "prismatic";
 export const LIGHTNING_BACKGROUND_KEY = "lightning";
 export const PLASMA_BACKGROUND_KEY = "plasma";
 export const GALAXY_BACKGROUND_KEY = "galaxy";
-export const DARKVEIL_BACKGROUND_KEY = "darkveil";
 export const LIGHTRAYS_BACKGROUND_KEY = "lightrays";
 export const BACKGROUND_STORAGE_KEY = "mixtechdevs:bg-preference";
 
@@ -32,13 +30,11 @@ export const OVERLAY_KEYS = new Set([
     AURORA_BACKGROUND_KEY,
     FUTURISTIC_BACKGROUND_KEY,
     RAIN_BACKGROUND_KEY,
-    CONSTELLATION_BACKGROUND_KEY,
     NEON_BACKGROUND_KEY,
     GALAXY_BACKGROUND_KEY,
     PRISMATIC_BACKGROUND_KEY,
     LIGHTNING_BACKGROUND_KEY,
     PLASMA_BACKGROUND_KEY,
-    DARKVEIL_BACKGROUND_KEY,
     LIGHTRAYS_BACKGROUND_KEY,
 ]);
 
@@ -55,13 +51,11 @@ export const THEME_COLOR_MAP = {
     [AURORA_BACKGROUND_KEY]: "#050314",
     [FUTURISTIC_BACKGROUND_KEY]: "#1f1727",
     [RAIN_BACKGROUND_KEY]: "#000000",
-    [CONSTELLATION_BACKGROUND_KEY]: "#101018",
     [NEON_BACKGROUND_KEY]: "#0a0005",
     [GALAXY_BACKGROUND_KEY]: "#000010",
     [PRISMATIC_BACKGROUND_KEY]: "#0a0a12",
     [LIGHTNING_BACKGROUND_KEY]: "#050510",
     [PLASMA_BACKGROUND_KEY]: "#06060d",
-    [DARKVEIL_BACKGROUND_KEY]: "#070711",
     [LIGHTRAYS_BACKGROUND_KEY]: "#0a0a12",
 };
 

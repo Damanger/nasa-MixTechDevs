@@ -15,7 +15,6 @@ import { auth, db } from "../lib/firebaseClient.js";
         AURORA_BACKGROUND_KEY,
         FUTURISTIC_BACKGROUND_KEY,
         RAIN_BACKGROUND_KEY,
-        CONSTELLATION_BACKGROUND_KEY,
         NEON_BACKGROUND_KEY,
         GALAXY_BACKGROUND_KEY,
         PRISMATIC_BACKGROUND_KEY,
@@ -86,11 +85,6 @@ export default function BackgroundColorSettings({ strings }) {
                     label: strings?.options?.rain?.label ?? "Lluvia azul",
                     description:
                         strings?.options?.rain?.description ?? "Cortinas de lluvia neón sobre blur futurista.",
-                },
-                constellation: {
-                    label: strings?.options?.constellation?.label ?? "Constelaciones",
-                    description:
-                        strings?.options?.constellation?.description ?? "Cielo nocturno con destellos brillantes.",
                 },
                 neon: {
                     label: strings?.options?.neon?.label ?? "Geometría neón",
@@ -275,11 +269,6 @@ export default function BackgroundColorSettings({ strings }) {
                                 description: labels.options.rain.description,
                             },
                             {
-                                id: CONSTELLATION_BACKGROUND_KEY,
-                                label: labels.options.constellation.label,
-                                description: labels.options.constellation.description,
-                            },
-                            {
                                 id: NEON_BACKGROUND_KEY,
                                 label: labels.options.neon.label,
                                 description: labels.options.neon.description,
@@ -328,11 +317,6 @@ export default function BackgroundColorSettings({ strings }) {
                                 id: PLASMA_BACKGROUND_KEY,
                                 label: labels.options.plasma.label,
                                 description: labels.options.plasma.description,
-                            },
-                            {
-                                id: "darkveil",
-                                label: labels.options.darkveil?.label ?? "Dark Veil",
-                                description: labels.options.darkveil?.description ?? "Procedural veil with subtle scanlines.",
                             },
                             {
                                 id: "lightrays",
@@ -471,10 +455,7 @@ export default function BackgroundColorSettings({ strings }) {
               radial-gradient(ellipse at 20% 80%, rgba(0, 204, 255, 0.4) 0%, transparent 60%),
               #02050a;
           }
-          .background-option__preview[data-kind="${CONSTELLATION_BACKGROUND_KEY}"]::after {
-            background:
-              linear-gradient(135deg, #050512 0%, #1d2333 100%);
-          }
+          
           .background-option__preview[data-kind="${NEON_BACKGROUND_KEY}"]::after {
             background:
               linear-gradient(135deg, #11000d, #2c0015);
@@ -500,13 +481,7 @@ export default function BackgroundColorSettings({ strings }) {
               radial-gradient(circle at 30% 30%, rgba(137,180,255,0.25), transparent 55%),
               linear-gradient(135deg, #06060d 0%, #0a0a14 100%);
           }
-          .background-option__preview[data-kind="darkveil"]::after {
-            background:
-              radial-gradient(80px 60px at 20% 20%, rgba(120,120,160,0.22), transparent 60%),
-              radial-gradient(100px 80px at 80% 60%, rgba(40,60,120,0.22), transparent 60%),
-              linear-gradient(135deg, #050314 0%, #070711 100%);
-            background-blend-mode: multiply, screen, normal;
-          }
+          
           .background-option__preview[data-kind="lightrays"]::after {
             background:
               linear-gradient(75deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.0) 45%),
