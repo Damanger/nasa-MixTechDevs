@@ -136,6 +136,11 @@ const dictionaries = {
       sharePreview: "Comparte este enlace para que tu tripulación vea la postal en línea.",
       shareViewingNotice: "Estás viendo una postal compartida. Puedes ajustarla y generar un nuevo enlace.",
       shareStale: "Actualizaste la postal. Genera un enlace nuevo para compartir los cambios.",
+      shareShorten: "Acortar enlace",
+      shareShortening: "Acortando…",
+      shareShortenedCopy: "Copiar enlace corto",
+      shareShortCopied: "¡Enlace corto copiado!",
+      shareShortError: "No pudimos acortar el enlace.",
       designs: [
         {
           id: "aurora",
@@ -675,6 +680,11 @@ const dictionaries = {
       sharePreview: "Send this link so your crew can preview the card online.",
       shareViewingNotice: "You're viewing a shared postcard. Feel free to tweak it and generate a fresh link.",
       shareStale: "You updated the postcard. Create a new link to share the latest version.",
+      shareShorten: "Shorten link",
+      shareShortening: "Shortening…",
+      shareShortenedCopy: "Copy short link",
+      shareShortCopied: "Short link copied!",
+      shareShortError: "We couldn't shorten the link.",
       designs: [
         {
           id: "aurora",
@@ -1210,6 +1220,11 @@ const dictionaries = {
       sharePreview: "Sende diesen Link, damit deine Crew die Karte online ansehen kann.",
       shareViewingNotice: "Du betrachtest eine geteilte Postkarte. Passe sie an und generiere anschließend einen neuen Link.",
       shareStale: "Die Postkarte wurde geändert. Erstelle einen neuen Link, um die Aktualisierung zu teilen.",
+      shareShorten: "Link kürzen",
+      shareShortening: "Kürze…",
+      shareShortenedCopy: "Kurzlink kopieren",
+      shareShortCopied: "Kurzlink kopiert!",
+      shareShortError: "Der Link konnte nicht gekürzt werden.",
       designs: [
         {
           id: "aurora",

@@ -28,6 +28,11 @@ const FALLBACK_STRINGS = {
   shareTooLarge: "Image is too large for a temporary link. Try a smaller file.",
   shareStale: "You've updated the postcard. Create a new link to share the changes.",
   shareViewingNotice: "You're viewing a shared postcard. Feel free to adjust it before re-sharing.",
+  shareShorten: "Shorten link",
+  shareShortening: "Shortening…",
+  shareShortenedCopy: "Copy short link",
+  shareShortCopied: "Short link copied!",
+  shareShortError: "We couldn't shorten the link.",
   designs: [
     {
       id: "aurora",
@@ -103,6 +108,10 @@ function decodePayload(value) {
   }
 }
 
+function isDataUrl(value) {
+  return typeof value === "string" && value.startsWith("data:");
+}
+
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -112,8 +121,43 @@ function fileToDataUrl(file) {
   });
 }
 
-function isDataUrl(value) {
-  return typeof value === "string" && value.startsWith("data:");
+async function maybeOptimizeDataUrl(dataUrl) {
+  if (!isDataUrl(dataUrl)) return dataUrl;
+  if (typeof document === "undefined") return dataUrl;
+
+  try {
+    const img = new Image();
+    const loadPromise = new Promise((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = reject;
+    });
+    img.src = dataUrl;
+    await loadPromise;
+
+    const MAX_DIMENSION = 420;
+    const MAX_PIXELS = MAX_DIMENSION * MAX_DIMENSION;
+    const totalPixels = img.width * img.height;
+    const scale = totalPixels > MAX_PIXELS
+      ? Math.sqrt(MAX_PIXELS / totalPixels)
+      : 1;
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(img.width * scale));
+    canvas.height = Math.max(1, Math.round(img.height * scale));
+    const ctx = canvas.getContext("2d", { alpha: true });
+    if (!ctx) return dataUrl;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    // Prefer webp for better compression; fallback to png if unsupported.
+    const outputType = canvas.toDataURL("image/webp", 0.82);
+    if (outputType && outputType.length < dataUrl.length) {
+      return outputType;
+    }
+    return dataUrl;
+  } catch (error) {
+    console.warn("Failed to optimise postcard image", error);
+    return dataUrl;
+  }
 }
 
 function getShareBase() {
@@ -130,6 +174,24 @@ function getShareBase() {
   }
 
   return DEFAULT_SHARE_BASE;
+}
+
+function readShareTokenFromLocation() {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(window.location.search);
+  let encoded = params.get(SHARE_PARAM);
+  if (encoded) return encoded;
+
+  const rawHash = window.location.hash.slice(1);
+  if (!rawHash) return null;
+
+  // Support both "share=..." and custom hash strings without key/value pairs
+  if (rawHash.startsWith(`${SHARE_PARAM}=`)) {
+    return rawHash.slice(SHARE_PARAM.length + 1);
+  }
+
+  const hashParams = new URLSearchParams(rawHash);
+  return hashParams.get(SHARE_PARAM);
 }
 
 function normalizeStrings(input) {
@@ -179,7 +241,6 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
 
   const [photo, setPhoto] = useState(null);
   const photoInputId = useId();
-  const revokeRef = useRef(null);
   const parsedShareRef = useRef(false);
   const copyTimeoutRef = useRef(null);
   const [shareUrl, setShareUrl] = useState(null);
@@ -188,13 +249,12 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
   const [copyFeedback, setCopyFeedback] = useState(null);
   const [isShareView, setIsShareView] = useState(false);
   const shareSnapshotRef = useRef(null);
+  const [shortUrl, setShortUrl] = useState(null);
+  const [shortState, setShortState] = useState("idle");
+  const [shortError, setShortError] = useState(null);
 
   useEffect(() => {
     return () => {
-      if (revokeRef.current) {
-        URL.revokeObjectURL(revokeRef.current);
-        revokeRef.current = null;
-      }
       if (copyTimeoutRef.current) {
         clearTimeout(copyTimeoutRef.current);
       }
@@ -204,33 +264,24 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
   const handlePhotoChange = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const objectUrl = URL.createObjectURL(file);
-    if (revokeRef.current) {
-      URL.revokeObjectURL(revokeRef.current);
-    }
-    revokeRef.current = objectUrl;
     try {
-      const dataUrl = await fileToDataUrl(file);
-      setPhoto({ file, url: objectUrl, name: file.name, dataUrl });
+      const baseDataUrl = await fileToDataUrl(file);
+      const optimizedDataUrl = await maybeOptimizeDataUrl(baseDataUrl);
+      setPhoto({ file, url: optimizedDataUrl, name: file.name, dataUrl: optimizedDataUrl });
     } catch (error) {
       console.error("Failed to read postcard image", error);
-      setPhoto({ file, url: objectUrl, name: file.name, dataUrl: null });
+      setPhoto({ file, url: null, name: file.name, dataUrl: null });
     }
   };
 
   const removePhoto = () => {
-    if (revokeRef.current) {
-      URL.revokeObjectURL(revokeRef.current);
-      revokeRef.current = null;
-    }
     setPhoto(null);
   };
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (parsedShareRef.current) return;
-    const params = new URLSearchParams(window.location.search);
-    const encoded = params.get(SHARE_PARAM);
+    const encoded = readShareTokenFromLocation();
     if (!encoded) return;
     const payload = decodePayload(encoded);
     if (!payload) return;
@@ -248,7 +299,14 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
       setPhoto({ file: null, url: payload.p, name: "shared-image", dataUrl: payload.p });
     }
     setIsShareView(true);
-    setShareUrl(window.location.href);
+    const renderedUrl = new URL(window.location.href);
+    renderedUrl.searchParams.delete(SHARE_PARAM);
+    renderedUrl.hash = `${SHARE_PARAM}=${encoded}`;
+    if (window.history && window.history.replaceState) {
+      const title = typeof document !== "undefined" ? document.title : "";
+      window.history.replaceState({}, title, renderedUrl.toString());
+    }
+    setShareUrl(renderedUrl.toString());
     setShareState("success");
     const snapshot = JSON.stringify({
       d: payload.d ?? firstDesign,
@@ -275,6 +333,9 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
     });
     if (snapshot !== shareSnapshotRef.current) {
       setShareState("stale");
+      setShortUrl(null);
+      setShortState("idle");
+      setShortError(null);
     }
   }, [selectedDesign, message, sender, photo?.dataUrl, photo?.url, sampleMessage, sampleSender, shareState]);
 
@@ -283,6 +344,9 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
     setShareState("loading");
     setShareError(null);
     setCopyFeedback(null);
+    setShortUrl(null);
+    setShortState("idle");
+    setShortError(null);
 
     try {
       let photoData = null;
@@ -322,11 +386,8 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
       const url = new URL(currentPath, `${shareBase}/`);
       const params = new URLSearchParams(currentSearch);
       params.delete(SHARE_PARAM);
-      params.forEach((value, key) => {
-        url.searchParams.set(key, value);
-      });
-      url.searchParams.set(SHARE_PARAM, encoded);
-      url.hash = "";
+      url.search = params.size ? `?${params.toString()}` : "";
+      url.hash = `${SHARE_PARAM}=${encoded}`;
       const shareLink = url.toString();
       setShareUrl(shareLink);
       setShareState("success");
@@ -370,6 +431,46 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
   const canCopyLink = Boolean(
     shareUrl && (shareState === "success" || shareState === "stale")
   );
+  const canShorten = canCopyLink && shortState !== "loading";
+
+  const handleShortenLink = async () => {
+    if (!shareUrl) return;
+    setShortState("loading");
+    setShortError(null);
+    try {
+      const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(shareUrl)}`);
+      if (!response.ok) {
+        throw new Error(`Shorten failed with status ${response.status}`);
+      }
+      const text = (await response.text()).trim();
+      if (!/^https?:/i.test(text)) {
+        throw new Error("Shorten API returned invalid response");
+      }
+      setShortUrl(text);
+      setShortState("success");
+    } catch (error) {
+      console.error("Failed to shorten postcard link", error);
+      setShortState("error");
+      setShortError(strings.shareShortError ?? FALLBACK_STRINGS.shareShortError);
+    }
+  };
+
+  const handleCopyShortLink = async () => {
+    if (!shortUrl) return;
+    try {
+      await navigator.clipboard.writeText(shortUrl);
+      setCopyFeedback("short-copied");
+      if (copyTimeoutRef.current) {
+        clearTimeout(copyTimeoutRef.current);
+      }
+      copyTimeoutRef.current = setTimeout(() => {
+        setCopyFeedback(null);
+      }, 2200);
+    } catch (error) {
+      console.error("Failed to copy short link", error);
+      setShareError(strings.shareError);
+    }
+  };
 
   return (
     <section className="postcard-studio">
@@ -487,10 +588,25 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
                   {copyFeedback === "copied" ? strings.shareCopied : strings.shareCopy}
                 </button>
               ) : null}
+              {canShorten ? (
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={handleShortenLink}
+                  disabled={shortState === "loading"}
+                >
+                  {shortState === "loading" ? strings.shareShortening : strings.shareShorten}
+                </button>
+              ) : null}
             </div>
             {shareError ? (
               <p className="helper-text error-text" role="status">
                 {shareError}
+              </p>
+            ) : null}
+            {shortError ? (
+              <p className="helper-text error-text" role="status">
+                {shortError}
               </p>
             ) : null}
             {canCopyLink ? (
@@ -505,6 +621,23 @@ function GalacticPostcardStudio({ strings: rawStrings }) {
                 <p id="share-hint" className="helper-text">
                   {strings.sharePreview}
                 </p>
+              </div>
+            ) : null}
+            {shortUrl ? (
+              <div className="share-output">
+                <input
+                  type="text"
+                  value={shortUrl}
+                  readOnly
+                  onFocus={(event) => event.target.select()}
+                />
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={handleCopyShortLink}
+                >
+                  {copyFeedback === "short-copied" ? strings.shareShortCopied : strings.shareShortenedCopy}
+                </button>
               </div>
             ) : null}
           </section>
