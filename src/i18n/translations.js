@@ -303,7 +303,7 @@ const dictionaries = {
       uploadHeading: "Cargar CSV",
 	  exampleDataset: "Usar CSV de ejemplo",
       // Core prediction labels (added for parity with English)
-      predictionDetails: "Haz click en un elemento para ver su predicción y probabilidad.",
+  predictionDetails: "Haz clic en un elemento para ver su predicción y probabilidad.",
       confirmedProbability: "Probabilidad de exoplaneta",
       falsePositiveProbability: "Probabilidad de falso positivo",
       falsePositiveResult: "Falso positivo",
@@ -314,7 +314,7 @@ const dictionaries = {
       selectFile: "Elegir archivo",
       fileInfo: { name: "Archivo", rows: "Filas", cols: "Columnas" },
       previewHeading: "Visualización de resultados",
- 	  predictionsDesc: "El modelo de MixTechDevs evalúa cada fila del CSV y asigna una probabilidad de ser un candidato a exoplaneta o falso positivo. Haz click en un elemento para visualizar su predicción y probabilidad.",
+  predictionsDesc: "El modelo de MixTechDevs evalúa cada fila del CSV y asigna una probabilidad de ser un candidato a exoplaneta o falso positivo. Haz clic en una fila para visualizar su predicción y probabilidades.",
       // Added keys used by AnalyzeDashboard.jsx
       prediction: "Predicción del modelo",
       probability_confirmed: "Probabilidad (exoplaneta)",
@@ -735,7 +735,7 @@ const dictionaries = {
     },
     hero: {
       badge: "MixTechDevs · Exoplanets",
-      title: "Discover exoplanets from your CSVs",
+      title: "Discover exoplanets from your databases",
       subtitle: {
         leading: "A suite of ",
         highlight: "MixTechDevs tools",
@@ -745,7 +745,7 @@ const dictionaries = {
       ctaPrimary: "Import CSV",
       ctaSecondary: "View guides",
       hints: [
-        "Upload a CSV and validate exoplanets instantly",
+        "Upload a database and validate exoplanets instantly",
         "Spot patterns in observational catalogues",
         "Classify by method, mass, or habitability",
       ],
@@ -868,20 +868,20 @@ const dictionaries = {
       closeButton: "Close",
       falsePositiveResult: "False Positive",
       exoplanetCandidateResult: "Exoplanet Candidate",
-      uploadHeading: "1) Upload CSV",
-	  exampleDataset: "Use example CSV",
+  uploadHeading: "1) Upload CSV",
+  exampleDataset: "Use example CSV",
       dropHint: "Drag & drop your CSV here, or click to choose",
   headersHint: "The CSV must include headers in the first row. The required column list is shown below.",
   headersExact: "Column names must match exactly the labels shown below.",
       selectFile: "Choose file",
       fileInfo: { name: "File", rows: "Rows", cols: "Columns" },
-      previewHeading: "2) Detection model predictions",
-	  predictionsDesc: "The MixTechDevs model evaluates each CSV row and assigns a probability of being an exoplanet candidate or false positive.",
+  previewHeading: "2) Detection model predictions",
+  predictionsDesc: "The MixTechDevs model evaluates each CSV row and assigns a probability of being an exoplanet candidate or false positive. Click a row to view the prediction and probabilities.",
   // Added keys used by AnalyzeDashboard.jsx
   probability_confirmed: "Probability (exoplanet)",
   probability_false_positive: "Probability (false positive)",
   // action keys removed: retry/copy payload (not used in UI)
-  closeButtonLabel: "Close",
+  closeButton: "Close",
   simulatedNotice: "This prediction is SIMULATED",
   orUploadHint: "Or upload your own CSV below",
   noRowsHint: "Upload a CSV file to view results.",
@@ -894,10 +894,10 @@ const dictionaries = {
       showMetrics: "Show metrics",
       showCharts: "Show charts",
       downloadExample: "Download example JSON",
-      csvLoading: "Parsing CSV…",
-      predictionsProgress: "Predictions: {done} / {total}",
-      downloadPredictions: "Download predictions (CSV)",
-      noPredictions: "No predictions available yet",
+          csvLoading: "Parsing CSV…",
+          predictionsProgress: "Predictions: {done} / {total}",
+          downloadPredictions: "Download predictions (CSV)",
+          noPredictions: "No predictions available yet",
     },
     team: {
       title: "MixTechDevs · Team",
@@ -1296,12 +1296,12 @@ const dictionaries = {
     },
     hero: {
       badge: "MixTechDevs · Exoplaneten",
-      title: "Entdecke Exoplaneten aus deinen CSV-Dateien",
+      title: "Entdecke Exoplaneten aus deinen Datenbanken",
       subtitle: {
         leading: "Ein Set von ",
         highlight: "MixTechDevs-Werkzeugen",
         trailing:
-          " das CSV-Dateien auswertet, um neue Welten aufzuspüren und zu verstehen.",
+          " das Datenbanken auswertet, um neue Welten aufzuspüren und zu verstehen.",
       },
       ctaPrimary: "CSV importieren",
       ctaSecondary: "Leitfäden ansehen",
@@ -1423,7 +1423,7 @@ const dictionaries = {
     },
     analyzeUI: {
       uploadHeading: "1) CSV hochladen",
-	  exampleDataset: "Beispiel-CSV verwenden",
+      exampleDataset: "Beispiel-CSV verwenden",
       // Core prediction labels (added for parity with English)
       predictionDetails: "Klicke ein Element an, um Vorhersage und Wahrscheinlichkeit zu sehen.",
       confirmedProbability: "Exoplanet-Wahrscheinlichkeit",
@@ -1438,8 +1438,8 @@ const dictionaries = {
       fileInfo: { name: "Datei", rows: "Zeilen", cols: "Spalten" },
       mappingHeading: "2) Spaltenzuordnung",
       metricsHeading: "3) Metriken & Visualisierungen",
-      previewHeading: "4) Vorhersagen des Erkennungsmodells",
-	  predictionsDesc: "Das MixTechDevs-Modell bewertet jede CSV-Zeile und weist eine Wahrscheinlichkeit zu, ob es sich um einen Exoplaneten-Kandidaten oder ein falsch positives Ergebnis handelt.",
+  previewHeading: "4) Vorhersagen des Erkennungsmodells",
+  predictionsDesc: "Das MixTechDevs-Modell bewertet jede CSV-Zeile und weist eine Wahrscheinlichkeit zu, ob es sich um einen Exoplaneten-Kandidaten oder ein falsch positives Ergebnis handelt. Klicke auf eine Zeile, um die Vorhersage und Wahrscheinlichkeiten zu sehen.",
   // Added keys used by AnalyzeDashboard.jsx
   prediction: "Modellvorhersage",
   probability_confirmed: "Wahrscheinlichkeit (Exoplanet)",

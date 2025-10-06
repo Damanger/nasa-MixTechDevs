@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import Papa from "papaparse";
 import "../assets/css/Analyze.css";
-import parseCSV from "../lib/csv.js";
+// prefer Papa.parse(worker) for local file parsing to avoid blocking the UI thread
 
 import {
 	Chart as ChartJS,
@@ -138,14 +138,31 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 		try { localStorage.setItem(LS_KEY(src), JSON.stringify({ yTrueCol, yPredCol, probCols, posClass })); } catch { }
 	}, [yTrueCol, yPredCol, probCols, posClass, src]);
 
-	const onLocalFile = async (f) => {
-		if (!f) return; const txt = await f.text();
+	const onLocalFile = (f) => {
+		if (!f) return;
 		setCsvLoading(true);
-		const data = parseCSV(txt); const clean = Array.isArray(data) ? data.map(mapRow) : [];
-		setRows(clean); const cols = Object.keys(clean[0] || {});
-		setHeaders(cols); setFileMeta({ name: f.name, rows: clean.length, cols: cols.length });
-		setCsvLoading(false);
-		setPredictionsTotal(clean.length);
+		Papa.parse(f, {
+			header: true,
+			dynamicTyping: true,
+			skipEmptyLines: true,
+			worker: true,
+			complete: (res) => {
+				const clean = (res && res.data) ? res.data.filter(r => Object.keys(r).length > 0) : [];
+				setRows(clean);
+				const cols = res?.meta?.fields || Object.keys(clean[0] || {});
+				setHeaders(cols);
+				setFileMeta({ name: f.name, rows: clean.length, cols: cols.length });
+				const guessY = cols.find(c => /^(y|label|target|clase|verdadero)/i.test(c)) || "";
+				const guessP = cols.filter(c => /proba|prob_|p_/i.test(c));
+				setYTrueCol(guessY);
+				setYPredCol(cols.find(c => /^(y_pred|pred|hat|yhat|predicho|clase_pred)/i.test(c)) || "");
+				setProbCols(guessP);
+				setCsvLoading(false);
+				setPredictionsTotal(clean.length);
+				setActiveStep(1);
+			},
+			error: (err) => { setCsvLoading(false); alert(`Error al parsear CSV: ${err.message || err}`); }
+		});
 	};
 
 	const stepLabels = useMemo(() => [ui.uploadHeading, ui.previewHeading].map(s => String(s).replace(/^\d+\)\s*/, '')), [ui]);
