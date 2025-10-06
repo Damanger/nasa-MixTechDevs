@@ -171,7 +171,7 @@ const dictionaries = {
     },
     hero: {
       badge: "MixTechDevs · Exoplanetas",
-      title: "Descubre exoplanetas a partir de tus CSV",
+      title: "Descubre exoplanetas a partir de tus bases de datos",
       subtitle: {
         leading: "Una suite de ",
         highlight: "herramientas MixTechDevs",
