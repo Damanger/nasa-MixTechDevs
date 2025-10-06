@@ -76,7 +76,7 @@ export default function MoonPhaseByDate({ messages }) {
   const { label, fraction, phaseVal, idx } = useMemo(() => {
     const dt = new Date(`${dateStr}T12:00:00`);
     if (Number.isNaN(dt.getTime())) {
-      return { label: "Fecha inválida", fraction: 0, phaseVal: 0, idx: 0 };
+      return { label: messages?.invalidDate || "Invalid date", fraction: 0, phaseVal: 0, idx: 0 };
     }
     const illum = getMoonIllumination(dt);
     const i = phaseIndex(illum.phase);
@@ -143,8 +143,8 @@ export default function MoonPhaseByDate({ messages }) {
         />
         <div className="mpb-info" style={{ minWidth: 220, flex: "1 1 240px", display: "flex", flexDirection: "column", justifyContent: "center", alignContent: "center", textAlign: "center", marginBottom: "1rem" }}>
           <div style={{ fontSize: 18, fontWeight: 700 }}>{label}</div>
-          <div>{(messages?.illumination || "Iluminación")} : {percent}%</div>
-          <div>phase 0–1: {phaseVal.toFixed(3)}</div>
+          <div>{(messages?.illumination || "Illumination")} : {percent}%</div>
+          <div>{(messages?.phaseValue || "Phase 0–1")}: {phaseVal.toFixed(3)}</div>
         </div>
       </div>
 

@@ -3,13 +3,23 @@ import { onAuthStateChanged } from "firebase/auth";
 import { ref, onValue, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
 import { emitToast } from "../lib/toast.js";
+import { DEFAULT_LANG, LANG_EVENT, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
-export default function ApodSaveButton({ initialDate }) {
+export default function ApodSaveButton({ initialDate, lang: langProp }) {
   const [user, setUser] = useState(null);
   const [currentDate, setCurrentDate] = useState(initialDate || null);
   const [saving, setSaving] = useState(false);
   const [savedDates, setSavedDates] = useState(() => new Set());
   const [ready, setReady] = useState(false);
+  const [lang, setLang] = useState(getLanguageSafe(langProp || DEFAULT_LANG));
+
+  const t = getTranslations(lang)?.apod || {};
+
+  useEffect(() => {
+    const handler = (e) => setLang(getLanguageSafe(e?.detail?.lang || DEFAULT_LANG));
+    window.addEventListener(LANG_EVENT, handler);
+    return () => window.removeEventListener(LANG_EVENT, handler);
+  }, []);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
@@ -57,15 +67,15 @@ export default function ApodSaveButton({ initialDate }) {
     try {
       setSaving(true);
       await set(ref(db, `users/${user.uid}/apod/savedDates/${currentDate}`), true);
-      try { emitToast('Imagen guardada en tu perfil', 'success'); } catch {}
+      try { emitToast(t.saveToast || 'Saved', 'success'); } catch {}
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <button type="button" className="btn" onClick={handleSave} disabled={disabled || alreadySaved} title={alreadySaved ? "Ya guardada" : "Guardar imagen en perfil"}>
-      {alreadySaved ? "Guardada" : (saving ? "Guardando…" : "Guardar imagen en perfil")}
+    <button type="button" className="btn" onClick={handleSave} disabled={disabled || alreadySaved} title={alreadySaved ? (t.saveButtonTitleSaved || 'Already saved') : (t.saveButton || 'Save image')}>
+      {alreadySaved ? (t.saveButtonSaved || 'Saved') : (saving ? (t.saveButtonSaving || 'Saving…') : (t.saveButton || 'Save image'))}
     </button>
   );
 }

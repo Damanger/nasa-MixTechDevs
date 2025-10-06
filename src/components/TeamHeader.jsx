@@ -22,7 +22,7 @@ export default function TeamHeader({ initialLang = DEFAULT_LANG }) {
   return (
     <motion.section
       className="glass card team-header"
-      style={{ padding: "2rem", textAlign: "center" }}
+      style={{ padding: "2rem", textAlign: "center", marginTop: "3rem" }}
       initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-10% 0px" }}
@@ -30,12 +30,6 @@ export default function TeamHeader({ initialLang = DEFAULT_LANG }) {
     >
       <h1 style={{ margin: 0 }}>{team.title}</h1>
       <p className="subtitle" style={{ maxWidth: "700px", margin: ".5rem auto 0" }}>{team.message}</p>
-      <style>{`
-        .team-header { margin-top: 0rem; }
-        @media (min-width: 821px) {
-          .team-header { margin-top: 2rem; }
-        }
-      `}</style>
     </motion.section>
   );
 }

@@ -153,9 +153,9 @@ export default function MoonCouple({ messages }) {
 
       {overlay.visible && (
         <div className="mooncouple__result">
-          <div className="overlay-moon" aria-label={messages?.combined || 'Combinada'}>
-            <img src={overlay.srcA} alt={(messages?.dateA || 'Fecha A')} />
-            <img src={overlay.srcB} alt={(messages?.dateB || 'Fecha B')} />
+          <div className="overlay-moon" aria-label={messages?.combined || 'Combined'}>
+            <img src={overlay.srcA} alt={(messages?.dateA || 'A')} />
+            <img src={overlay.srcB} alt={(messages?.dateB || 'B')} />
           </div>
         </div>
       )}

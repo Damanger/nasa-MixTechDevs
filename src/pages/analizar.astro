@@ -10,7 +10,7 @@ const { analyze } = translations;
 ---
 
 <Layout lang={lang} translations={translations}>
-  <section class="glass card" style="padding:2.5rem; text-align:center; margin-bottom:1rem">
+  <section class="glass card" style="padding:2.5rem; text-align:center;">
     <h1 style="margin:0; font-size:clamp(2rem, 5vw, 2.6rem);">{analyze.title}</h1>
     <p class="subtitle" style="max-width:520px; margin:1rem auto 0;">{analyze.message}</p>
   </section>
@@ -23,8 +23,8 @@ const { analyze } = translations;
 
 <style>
   /* Espaciado responsive para tarjetas en /analizar */
-  .glass.card { margin-top: 0rem; }
+  .glass.card { margin-top: 3rem; }
   @media (min-width: 821px) {
-    .glass.card { margin-top: 2rem; }
+    .glass.card { margin-top: 3rem; }
   }
 </style>

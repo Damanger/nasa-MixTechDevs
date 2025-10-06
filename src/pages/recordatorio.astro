@@ -1,5 +1,9 @@
 ---
 import ReminderPage from "../components/ReminderPage.astro";
+import { DEFAULT_LANG, getLanguageSafe } from "../i18n/translations.js";
+
+const langParam = Astro.url.searchParams.get("lang");
+const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
 ---
 
-<ReminderPage initialLang="es" />
+<ReminderPage initialLang={lang} />

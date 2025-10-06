@@ -74,7 +74,34 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
 
   return (
     <>
-      <div className="badge">{layoutMessages.badge}</div>
+      <div className="header-top">
+        <div className="header-left">
+          <div className="badge">{layoutMessages.badge}</div>
+          <div className="header-lang">
+            <LanguageSwitcher
+              lang={lang}
+              options={layoutMessages.languageSwitcher.options}
+            />
+          </div>
+        </div>
+        <div className="header-actions">
+          {/* Google Sign-In */}
+          <GoogleAuthButton lang={lang} />
+          {/* Constellation search button */}
+          <button
+            type="button"
+            className="btn icon-btn"
+            onClick={() => {
+              const ev = new CustomEvent('toggle-constellation-search', { detail: {} });
+              window.dispatchEvent(ev);
+            }}
+            aria-label="Buscar constelaciones"
+            title="Buscar constelaciones"
+          >
+            🌠
+          </button>
+        </div>
+      </div>
 
       <nav className="navbar">
         {navLinks.map((link) => {
@@ -91,27 +118,6 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
             </a>
           );
         })}
-
-        <div className="navbar-right">
-          <LanguageSwitcher
-            lang={lang}
-            options={layoutMessages.languageSwitcher.options}
-          />
-          {/* Google Sign-In */}
-          <GoogleAuthButton lang={lang} />
-          {/* Constellation search button */}
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              const ev = new CustomEvent('toggle-constellation-search', { detail: {} });
-              window.dispatchEvent(ev);
-            }}
-            aria-label="Buscar constelaciones"
-          >
-            🌠
-          </button>
-        </div>
       </nav>
     </>
   );

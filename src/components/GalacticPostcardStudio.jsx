@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, useId } from "react";
 import { initializeApp, getApps } from "firebase/app";
 import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../assets/css/GalacticPostcardStudio.css";
-import { DEFAULT_LANG } from "../i18n/translations.js";
+import { DEFAULT_LANG, LANG_EVENT, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 import { emitToast } from "../lib/toast.js";
 
 const FALLBACK_STRINGS = {
@@ -31,6 +31,9 @@ const FALLBACK_STRINGS = {
   shareMakeYourOwn: "Create your own postcard",
   previewHeading: "Shared preview",
   previewDescription: "Someone shared this postcard with you. Enjoy the view!",
+  recipientLabel: "To (recipient)",
+  toLabel: "To:",
+  fromLabel: "From:",
 };
 
 const DESIGNS = [
@@ -227,9 +230,14 @@ function decodePayload(token) {
   }
 }
 
-function useStrings(lang) {
-  // If you have i18n, wire it here; fallback uses English literals above.
-  return FALLBACK_STRINGS;
+function useStrings(lang, provided) {
+  try {
+    const t = getTranslations(lang)?.postcard ?? {};
+    // Merge order: fallback < provided (SSR) < dynamic translations (active lang)
+    return { ...FALLBACK_STRINGS, ...(provided || {}), ...t };
+  } catch {
+    return { ...FALLBACK_STRINGS, ...(provided || {}) };
+  }
 }
 
 function ensureSquareViaCSS(url) {
@@ -240,10 +248,10 @@ function ensureSquareViaCSS(url) {
 function getLangOrDefault() {
   try {
     const url = new URL(window.location.href);
-    const lang = url.searchParams.get("lang") || DEFAULT_LANG || "en";
-    return lang;
+    const urlLang = url.searchParams.get("lang");
+    return getLanguageSafe(urlLang || DEFAULT_LANG || "en");
   } catch {
-    return DEFAULT_LANG || "en";
+    return getLanguageSafe(DEFAULT_LANG || "en");
   }
 }
 
@@ -257,9 +265,10 @@ function dataUrlSizeKB(dataUrl) {
   return Math.round(bytes / 1024);
 }
 
-function GalacticPostcardStudio() {
-  const [lang, setLang] = useState(getLangOrDefault());
-  const strings = useStrings(lang);
+function GalacticPostcardStudio({ strings: initialStrings, langCode }) {
+  const initialLang = getLanguageSafe(langCode || getLangOrDefault());
+  const [lang, setLang] = useState(initialLang);
+  const strings = useMemo(() => useStrings(lang, initialStrings), [lang, initialStrings]);
 
   // Share route path (configurable via PUBLIC_SHARE_PATH). Keep here so multiple hooks can use it.
   const sharePath = (import.meta.env && import.meta.env.PUBLIC_SHARE_PATH) || '/verpostal';
@@ -282,6 +291,25 @@ function GalacticPostcardStudio() {
     setRecipient((current) => current);
     previousSamplesRef.current = { message: sampleMessage, sender: sampleSender };
   }, [sampleMessage, sampleSender]);
+
+  // Update default samples when translations change; preserve user-edited content
+  useEffect(() => {
+    const nextSampleMsg = strings.sampleMessage || sampleMessage;
+    const nextSampleSender = strings.sampleSender || sampleSender;
+    if (nextSampleMsg !== sampleMessage) setSampleMessage(nextSampleMsg);
+    if (nextSampleSender !== sampleSender) setSampleSender(nextSampleSender);
+    // previousSamplesRef + the effect above will handle replacing displayed message/sender
+  }, [strings.sampleMessage, strings.sampleSender]);
+
+  // React to language changes broadcasted globally
+  useEffect(() => {
+    const handler = (event) => {
+      const next = getLanguageSafe(event?.detail?.lang || DEFAULT_LANG);
+      setLang(next);
+    };
+    try { window.addEventListener(LANG_EVENT, handler); } catch {}
+    return () => { try { window.removeEventListener(LANG_EVENT, handler); } catch {} };
+  }, []);
 
   const [photo, setPhoto] = useState(null);
   const photoInputId = useId();
@@ -466,7 +494,7 @@ function GalacticPostcardStudio() {
       shareSnapshotRef.current = snapshot;
       setShareState("success");
 
-      try { emitToast("Share link ready.", "success"); } catch {}
+  try { emitToast(strings.shareReady || FALLBACK_STRINGS.shareCopied, "success"); } catch {}
     } catch (error) {
       console.error("Failed to generate share link", error);
       if (error?.code === "PHOTO_TOO_LARGE") {
@@ -694,7 +722,7 @@ function GalacticPostcardStudio() {
 
           <div className="shared-actions" style={{ marginTop: '0.75rem' }}>
             <a href={window.location.origin + window.location.pathname} className="btn">
-              {strings.shareMakeYourOwn}
+              {strings.shareMakeYourOwn || strings.createButton}
             </a>
           </div>
         </div>
@@ -736,9 +764,9 @@ function GalacticPostcardStudio() {
   return (
     <section className="postcard-studio glass" style={{ padding: '1rem' }}>
       <header className="studio-header">
-        <h2>Galactic Postcard Studio</h2>
+        <h2>{strings.title || 'Galactic Postcard Studio'}</h2>
         <p className="helper-text">
-          Design and share cosmic postcards—pick a style, add a message, and optionally attach a photo.
+          {strings.subtitle || 'Design and share cosmic postcards—pick a style, add a message, and optionally attach a photo.'}
         </p>
       </header>
 
@@ -771,9 +799,9 @@ function GalacticPostcardStudio() {
                       setSelectedDesign(design.id);
                       setShareState("stale");
                     }}
-                    title={design.name}
+                    title={(strings.designNames && strings.designNames[design.id]) || design.name}
                   >
-                    <span className="design-name">{design.name}</span>
+                    <span className="design-name">{(strings.designNames && strings.designNames[design.id]) || design.name}</span>
                   </button>
                 );
               })}
@@ -817,12 +845,12 @@ function GalacticPostcardStudio() {
               />
             </div>
             <div className="field">
-              <label htmlFor="recipient-input">Para (recipient)</label>
+              <label htmlFor="recipient-input">{strings.recipientLabel || "Para (recipient)"}</label>
               <input
                 id="recipient-input"
                 type="text"
                 maxLength={100}
-                placeholder="e.g., Friends of the Crew"
+                placeholder={strings.recipientPlaceholder || "e.g., Friends of the Crew"}
                 value={recipient}
                 onChange={(e) => { setRecipient(e.target.value); setShareState('stale'); }}
                 className="glass"
@@ -849,7 +877,7 @@ function GalacticPostcardStudio() {
                 hidden
               />
               <label htmlFor={photoInputId} className="photo-label">
-                {strings.photoDropHint}
+                {strings.photoDropHint || strings.photoHint}
               </label>
               {photo ? (
                 <div className="photo-preview">
@@ -919,7 +947,7 @@ function GalacticPostcardStudio() {
 
         <div className="studio-column preview-column">
           <header className="section-header">
-            <h2>Preview</h2>
+            <h2>{strings.previewHeading || 'Preview'}</h2>
           </header>
           <div
             className={["postcard-preview", "glass", designClassName].join(" ")}
@@ -937,14 +965,14 @@ function GalacticPostcardStudio() {
             )}
             <div className="message-block">
               <p className="line para-line">
-                <span className="message-label">Para:</span>
+                <span className="message-label">{strings.toLabel || "Para:"}</span>
                 <span className="recipient-text">{recipient || ''}</span>
               </p>
 
               <p className="line message-body">{message || sampleMessage}</p>
 
               <p className="line from-line">
-                <span className="from-label">De:</span>
+                <span className="from-label">{strings.fromLabel || "De:"}</span>
                 <span className="sender-text">{sender ? String(sender).trim() : ''}</span>
               </p>
             </div>

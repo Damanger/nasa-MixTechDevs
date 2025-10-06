@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import MoonPhaseByDate from "./MoonPhaseByDate.jsx";
 import MoonCouple from "./MoonCouple.jsx";
+import { DEFAULT_LANG, LANG_EVENT, getTranslations, getLanguageSafe, detectClientLanguage } from "../i18n/translations.js";
 
 export default function MoonSwitcher({ messages }) {
   const getInitial = () => {
@@ -14,6 +15,7 @@ export default function MoonSwitcher({ messages }) {
   };
 
   const [mode, setMode] = useState(typeof window === "undefined" ? "couple" : getInitial());
+  const [strings, setStrings] = useState(messages);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -21,11 +23,39 @@ export default function MoonSwitcher({ messages }) {
     window.history.replaceState({}, "", url.toString());
   }, [mode]);
 
+  // Keep translations in sync with client language changes
+  useEffect(() => {
+    // If messages were provided by server, use them initially; then listen to changes
+    const applyLang = (nextLang) => {
+      try {
+        const safe = getLanguageSafe(nextLang || detectClientLanguage(DEFAULT_LANG));
+        setStrings(getTranslations(safe).moon);
+      } catch {
+        setStrings(messages);
+      }
+    };
+
+    applyLang();
+
+    const handler = (ev) => {
+      const next = ev?.detail?.lang;
+      applyLang(next);
+    };
+    window.addEventListener(LANG_EVENT, handler);
+    return () => window.removeEventListener(LANG_EVENT, handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Also update if parent passes new messages (e.g., navigation)
+  useEffect(() => {
+    if (messages) setStrings(messages);
+  }, [messages]);
+
   const labels = useMemo(() => ({
-    label: messages?.modeLabel || "Personas",
-    one: messages?.modeOne || "1 persona",
-    two: messages?.modeTwo || "2 personas",
-  }), [messages]);
+    label: strings?.modeLabel || "People",
+    one: strings?.modeOne || "1 person",
+    two: strings?.modeTwo || "2 people",
+  }), [strings]);
 
   return (
     <div className="moonswitcher">
@@ -52,9 +82,9 @@ export default function MoonSwitcher({ messages }) {
 
       <div className="moonswitcher__view">
         {mode === 'single' ? (
-          <MoonPhaseByDate messages={messages} />
+          <MoonPhaseByDate messages={strings} />
         ) : (
-          <MoonCouple messages={messages} />
+          <MoonCouple messages={strings} />
         )}
       </div>
 

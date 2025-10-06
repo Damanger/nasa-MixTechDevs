@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import MoonSwitcher from "../components/MoonSwitcher.jsx";
+import MoonHeader from "../components/MoonHeader.jsx";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 
 const langParam = Astro.url.searchParams.get("lang");
@@ -10,8 +11,7 @@ const { moon } = messages;
 ---
 <Layout lang={lang} title={moon.title} description={moon.subtitle} translations={messages}>
   <section class="glass card moonsection" style="padding:1.25rem 1.25rem 1.5rem; display:grid; gap:0.75rem;">
-    <h1 class="moon-title" style="margin-bottom:.5rem;">{moon.title}</h1>
-    <p class="moon-sub">{moon.subtitle}</p>
+    <MoonHeader client:only="react" messages={moon} />
     <MoonSwitcher client:only="react" messages={moon} />
     <style>
       .moon-title { margin: 0 0 0.25rem 0; }
@@ -31,12 +31,7 @@ const { moon } = messages;
       }
       @media (min-width: 1024px) {
         .moonsection {
-          margin-top: 2rem;
-        }
-      }
-      @media (max-width: 820px) {
-        .moonsection {
-          margin-top: 0rem;
+          margin-top: 3rem;
         }
       }
     </style>

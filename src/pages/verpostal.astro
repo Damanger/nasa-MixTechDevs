@@ -18,7 +18,7 @@ const viewerStrings = translations.postcardViewer ?? {
 
 const pageTitle = `${viewerStrings.title} · MixTechDevs`;
 const pageDescription = viewerStrings.subtitle ?? translations.meta?.description ?? "";
-const createHref = lang === DEFAULT_LANG ? "/verpostal" : `/verpostal?lang=${lang}`;
+const createHref = lang === DEFAULT_LANG ? "/postal" : `/postal?lang=${lang}`;
 ---
 
 <Layout title={pageTitle} description={pageDescription} lang={lang} translations={translations}>
@@ -36,7 +36,7 @@ const createHref = lang === DEFAULT_LANG ? "/verpostal" : `/verpostal?lang=${lan
       <a class="btn viewer-cta" href={createHref}>{viewerStrings.cta}</a>
     </section>
 
-    <GalacticPostcardViewer client:load strings={viewerStrings} postcardStrings={postcardStrings} />
+  <GalacticPostcardViewer client:load strings={viewerStrings} postcardStrings={postcardStrings} createHref={createHref} />
   </main>
 
   <style>

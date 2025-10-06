@@ -80,6 +80,14 @@ const dictionaries = {
       monthPrevAria: "Mes anterior",
       monthNextAria: "Mes siguiente",
       altFallback: "Imagen APOD",
+      // Saved images page + save button
+      savedTitle: "Imágenes guardadas",
+      savedSubtitle: "Tu colección de APOD",
+      saveButton: "Guardar imagen en perfil",
+      saveButtonSaving: "Guardando…",
+      saveButtonSaved: "Guardada",
+      saveButtonTitleSaved: "Ya guardada",
+      saveToast: "Imagen guardada en tu perfil",
     },
     moon: {
       title: "Fase lunar",
@@ -88,7 +96,9 @@ const dictionaries = {
       modeOne: "1 persona",
       modeTwo: "2 personas",
       dateLabel: "Fecha",
+      invalidDate: "Fecha inválida",
       illumination: "Iluminación",
+      phaseValue: "Fase 0–1",
       compareTitle: "Comparar dos fechas",
       dateA: "Persona 1",
       dateB: "Persona 2",
@@ -110,6 +120,7 @@ const dictionaries = {
     postcard: {
       title: "Postal galáctica",
       subtitle: "Diseña una tarjeta espacial y compártela con tu tripulación.",
+      createButton: "Crear tu postal",
       designHeading: "Elige tu boceto",
       designDescription: "Explora seis estilos inspirados en nebulosas y estaciones orbitales.",
       messageHeading: "Personaliza tu mensaje",
@@ -119,16 +130,23 @@ const dictionaries = {
       senderPlaceholder: "Nombre de quien envía la postal",
       photoHeading: "Agrega una foto",
       photoHint: "Se recomienda formato cuadrado (JPG o PNG).",
+      photoDropHint: "Arrastra y suelta o haz clic para subir una imagen cuadrada (JPG/PNG ~1–2 MB).",
       photoButton: "Seleccionar imagen",
       photoRemove: "Quitar foto",
       previewHeading: "Vista previa",
+      previewDescription: "Alguien compartió esta postal contigo. ¡Disfruta la vista!",
       previewNote: "La postal se adapta automáticamente al boceto que elijas.",
       sampleMessage: "Que cada nueva órbita nos acerque a los mundos que soñamos explorar.",
       sampleSender: "Tripulación MixTechDevs",
+      recipientLabel: "Para (destinatario)",
+  recipientPlaceholder: "p. ej., Amigos de la tripulación",
+      toLabel: "Para:",
+      fromLabel: "De:",
       shareHeading: "Comparte tu postal",
       shareDescription: "Genera un enlace temporal para mostrar esta tarjeta.",
       shareButton: "Crear enlace",
       shareGenerating: "Generando…",
+  shareReady: "Enlace listo para compartir.",
       shareCopy: "Copiar enlace",
       shareCopied: "¡Enlace copiado!",
       shareError: "No pudimos crear el enlace.",
@@ -136,6 +154,15 @@ const dictionaries = {
       sharePreview: "Comparte este enlace para que tu tripulación vea la postal en línea.",
       shareViewingNotice: "Estás viendo una postal compartida. Puedes ajustarla y generar un nuevo enlace.",
       shareStale: "Actualizaste la postal. Genera un enlace nuevo para compartir los cambios.",
+      shareMakeYourOwn: "Crea tu propia postal",
+      designNames: {
+        "nebula-aurora": "Nebulosa Aurora",
+        "orbital-crossing": "Cruce Orbital",
+        "ion-trail": "Estela de Iones",
+        "ring-halo": "Halo de Anillos",
+        "solar-panel": "Panel Solar",
+        "starlit-grid": "Rejilla Estrellada"
+      },
       designs: [
         {
           id: "aurora",
@@ -185,6 +212,14 @@ const dictionaries = {
         "Detecta patrones en catálogos observacionales",
         "Clasifica por método, masa o habitabilidad",
       ],
+    },
+    // Viewer page strings
+    postcardViewer: {
+      title: "Postal galáctica",
+      subtitle: "Vista de una postal compartida.",
+      cta: "Crear tu postal",
+      loading: "Cargando postal…",
+      missing: "No pudimos cargar la postal compartida.",
     },
     sections: {
       methods: {
@@ -645,6 +680,14 @@ const dictionaries = {
       monthPrevAria: "Previous month",
       monthNextAria: "Next month",
       altFallback: "APOD image",
+      // Saved images page + save button
+      savedTitle: "Saved Images",
+      savedSubtitle: "Your APOD collection",
+      saveButton: "Save image to profile",
+      saveButtonSaving: "Saving…",
+      saveButtonSaved: "Saved",
+      saveButtonTitleSaved: "Already saved",
+      saveToast: "Image saved to your profile",
     },
     moon: {
       title: "Moon Phase",
@@ -653,7 +696,9 @@ const dictionaries = {
       modeOne: "1 person",
       modeTwo: "2 people",
       dateLabel: "Date",
+      invalidDate: "Invalid date",
       illumination: "Illumination",
+      phaseValue: "Phase 0–1",
       compareTitle: "Compare two dates",
       dateA: "Person 1",
       dateB: "Person 2",
@@ -675,6 +720,7 @@ const dictionaries = {
     postcard: {
       title: "Galactic Postcard",
       subtitle: "Design a space-themed card and send it to your crew.",
+      createButton: "Create your postcard",
       designHeading: "Pick a sketch",
       designDescription: "Browse six concepts inspired by nebulas and orbital stations.",
       messageHeading: "Customize your message",
@@ -684,16 +730,23 @@ const dictionaries = {
       senderPlaceholder: "Who is signing the postcard",
       photoHeading: "Add a photo",
       photoHint: "Square images (JPG or PNG) deliver the best result.",
+      photoDropHint: "Drag & drop or click to upload a square image (JPG/PNG ~1–2 MB).",
       photoButton: "Choose image",
       photoRemove: "Remove photo",
       previewHeading: "Preview",
+      previewDescription: "Someone shared this postcard with you. Enjoy the view!",
       previewNote: "The layout adapts automatically to the selected sketch.",
       sampleMessage: "May every new orbit bring us closer to the worlds we dream of exploring.",
       sampleSender: "MixTechDevs Crew",
+      recipientLabel: "To (recipient)",
+  recipientPlaceholder: "e.g., Friends of the Crew",
+      toLabel: "To:",
+      fromLabel: "From:",
       shareHeading: "Share your postcard",
       shareDescription: "Generate a temporary link so others can see this design.",
       shareButton: "Create link",
       shareGenerating: "Generating…",
+  shareReady: "Share link ready.",
       shareCopy: "Copy link",
       shareCopied: "Link copied!",
       shareError: "We couldn't create the link.",
@@ -701,6 +754,15 @@ const dictionaries = {
       sharePreview: "Send this link so your crew can preview the card online.",
       shareViewingNotice: "You're viewing a shared postcard. Feel free to tweak it and generate a fresh link.",
       shareStale: "You updated the postcard. Create a new link to share the latest version.",
+      shareMakeYourOwn: "Create your own postcard",
+      designNames: {
+        "nebula-aurora": "Nebula Aurora",
+        "orbital-crossing": "Orbital Crossing",
+        "ion-trail": "Ion Trail",
+        "ring-halo": "Ring Halo",
+        "solar-panel": "Solar Panel",
+        "starlit-grid": "Starlit Grid"
+      },
       designs: [
         {
           id: "aurora",
@@ -750,6 +812,14 @@ const dictionaries = {
         "Spot patterns in observational catalogues",
         "Classify by method, mass, or habitability",
       ],
+    },
+    // Viewer page strings
+    postcardViewer: {
+      title: "Galactic Postcard",
+      subtitle: "Viewing a shared postcard.",
+      cta: "Create your postcard",
+      loading: "Loading postcard…",
+      missing: "We couldn't load the shared postcard.",
     },
     sections: {
       methods: {
@@ -1132,6 +1202,11 @@ const dictionaries = {
       },
     },
   },
+  
+  // Viewer strings for shared postcard page
+  postcardViewer: {
+    // Placeholder; actual per-language objects below
+  },
 
   de: {
     meta: {
@@ -1207,6 +1282,14 @@ const dictionaries = {
       monthPrevAria: "Vorheriger Monat",
       monthNextAria: "Nächster Monat",
       altFallback: "APOD-Bild",
+      // Saved images page + save button
+      savedTitle: "Gespeicherte Bilder",
+      savedSubtitle: "Deine APOD-Sammlung",
+      saveButton: "Bild im Profil speichern",
+      saveButtonSaving: "Wird gespeichert…",
+      saveButtonSaved: "Gespeichert",
+      saveButtonTitleSaved: "Bereits gespeichert",
+      saveToast: "Bild in deinem Profil gespeichert",
     },
     moon: {
       title: "Mondphase",
@@ -1215,7 +1298,9 @@ const dictionaries = {
       modeOne: "1 Person",
       modeTwo: "2 Personen",
       dateLabel: "Datum",
+      invalidDate: "Ungültiges Datum",
       illumination: "Beleuchtung",
+      phaseValue: "Phase 0–1",
       compareTitle: "Zwei Daten vergleichen",
       dateA: "Person 1",
       dateB: "Person 2",
@@ -1237,6 +1322,7 @@ const dictionaries = {
     postcard: {
       title: "Galaktische Postkarte",
       subtitle: "Gestalte eine Karte aus dem All und schicke sie an deine Crew.",
+      createButton: "Erstelle deine Postkarte",
       designHeading: "Wähle ein Skizzenmotiv",
       designDescription: "Entdecke sechs Entwürfe inspiriert von Nebeln und Orbitalstationen.",
       messageHeading: "Passe deine Nachricht an",
@@ -1246,16 +1332,23 @@ const dictionaries = {
       senderPlaceholder: "Name, der die Postkarte unterschreibt",
       photoHeading: "Foto hinzufügen",
       photoHint: "Quadratische Bilder (JPG oder PNG) funktionieren am besten.",
+      photoDropHint: "Ziehen & ablegen oder klicken, um ein quadratisches Bild hochzuladen (JPG/PNG ~1–2 MB).",
       photoButton: "Bild auswählen",
       photoRemove: "Foto entfernen",
       previewHeading: "Vorschau",
+      previewDescription: "Jemand hat diese Postkarte mit dir geteilt.",
       previewNote: "Das Layout passt sich automatisch an die gewählte Skizze an.",
       sampleMessage: "Möge jede neue Umlaufbahn uns den Welten näherbringen, die wir zu erkunden träumen.",
       sampleSender: "MixTechDevs-Crew",
+      recipientLabel: "An (Empfänger)",
+  recipientPlaceholder: "z. B. Crew-Freunde",
+      toLabel: "An:",
+      fromLabel: "Von:",
       shareHeading: "Postkarte teilen",
       shareDescription: "Erzeuge einen temporären Link, damit andere die Karte sehen können.",
       shareButton: "Link erstellen",
       shareGenerating: "Wird erstellt…",
+  shareReady: "Freigabelink bereit.",
       shareCopy: "Link kopieren",
       shareCopied: "Link kopiert!",
       shareError: "Der Link konnte nicht erstellt werden.",
@@ -1263,6 +1356,15 @@ const dictionaries = {
       sharePreview: "Sende diesen Link, damit deine Crew die Karte online ansehen kann.",
       shareViewingNotice: "Du betrachtest eine geteilte Postkarte. Passe sie an und generiere anschließend einen neuen Link.",
       shareStale: "Die Postkarte wurde geändert. Erstelle einen neuen Link, um die Aktualisierung zu teilen.",
+      shareMakeYourOwn: "Erstelle deine eigene Postkarte",
+      designNames: {
+        "nebula-aurora": "Nebel-Aurora",
+        "orbital-crossing": "Orbit-Kreuzung",
+        "ion-trail": "Ionen-Spur",
+        "ring-halo": "Ring-Halo",
+        "solar-panel": "Solarpanel",
+        "starlit-grid": "Sternengitter"
+      },
       designs: [
         {
           id: "aurora",
@@ -1295,6 +1397,14 @@ const dictionaries = {
           description: "Modulare Paneele und Minimaltypografie erinnern an eine Raumstation.",
         },
       ],
+    },
+    // Viewer page strings
+    postcardViewer: {
+      title: "Galaktische Postkarte",
+      subtitle: "Ansicht einer geteilten Postkarte.",
+      cta: "Erstelle deine Postkarte",
+      loading: "Postkarte wird geladen…",
+      missing: "Die geteilte Postkarte konnte nicht geladen werden.",
     },
     hero: {
       badge: "MixTechDevs · Exoplaneten",

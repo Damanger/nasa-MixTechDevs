@@ -6,8 +6,8 @@ import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translat
 const langParam = Astro.url.searchParams.get("lang");
 const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
 const messages = getTranslations(lang);
-const title = "Saved Images";
-const description = "Your APOD collection";
+const title = messages?.apod?.savedTitle || "Saved Images";
+const description = messages?.apod?.savedSubtitle || "Your APOD collection";
 ---
 <Layout lang={lang} title={title} description={description} translations={messages}>
   <section class="container">

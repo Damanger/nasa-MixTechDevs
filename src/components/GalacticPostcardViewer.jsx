@@ -40,7 +40,7 @@ function sanitizePayload(payload, sampleMessage, sampleSender) {
   return { design, message, sender, recipient, photo };
 }
 
-export default function GalacticPostcardViewer({ strings, postcardStrings }) {
+export default function GalacticPostcardViewer({ strings, postcardStrings, createHref }) {
   const [status, setStatus] = useState("loading");
   const [data, setData] = useState(null);
   const [introPlaying, setIntroPlaying] = useState(true);
@@ -284,7 +284,7 @@ export default function GalacticPostcardViewer({ strings, postcardStrings }) {
         )}
         <div className="message-block">
           <p className="line para-line">
-            <span className="message-label">Para:</span>
+            <span className="message-label">{postcardStrings?.toLabel || 'Para:'}</span>
             <span className="recipient-text"> {data.recipient || ''}</span>
           </p>
 
@@ -295,7 +295,7 @@ export default function GalacticPostcardViewer({ strings, postcardStrings }) {
           )}
 
           <p className="line from-line">
-            <span className="from-label">De:</span>
+            <span className="from-label">{postcardStrings?.fromLabel || 'De:'}</span>
             <span className="sender-text">{data.sender ? String(data.sender).trim() : ''}</span>
           </p>
         </div>
@@ -303,8 +303,8 @@ export default function GalacticPostcardViewer({ strings, postcardStrings }) {
       {/* Duplicate CTA shown below postcard when revealPostcard is true. */}
       {revealPostcard ? (
         <div className="postcard-cta-wrapper" style={{ marginTop: '1rem' }}>
-          <a className="btn viewer-cta viewer-cta-below" href="/postal">
-            {strings?.createButton ?? 'Create your postcard'}
+          <a className="btn viewer-cta viewer-cta-below" href={createHref || '/verpostal'}>
+            {postcardStrings?.createButton || strings?.cta || 'Create your postcard'}
           </a>
         </div>
       ) : null}

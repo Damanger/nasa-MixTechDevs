@@ -42,9 +42,8 @@ export default function ReminderAssistant({ translations, initialLang }) {
                 lang = "es";
             }
         }
-        if (lang.startsWith("en")) return "/reminder";
-        if (lang.startsWith("de")) return "/erinnerung";
-        return "/recordatorio"; // default: Spanish
+        // Consolidated to a single route: /recordatorio with optional ?lang
+        return lang && !lang.startsWith("es") ? `/recordatorio?lang=${encodeURIComponent(lang)}` : "/recordatorio";
     };
 
     const navigateToReminders = () => {
