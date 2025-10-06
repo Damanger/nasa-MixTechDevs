@@ -79,7 +79,7 @@ export default function GalacticPostcardViewer({ strings, postcardStrings }) {
                 ? `https://${String(firebaseProjectId)}-default-rtdb.firebaseio.com`
                 : null;
             if (databaseURL) {
-              const endpoint = `${databaseURL.replace(/\/+$/, "")}/postalesTemp/${key}.json`;
+              const endpoint = `${databaseURL.replace(/\/+$/, "")}/imgTemp/${key}.json`;
               const res = await fetch(endpoint);
               if (res.ok) {
                 const body = await res.json();

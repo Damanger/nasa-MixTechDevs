@@ -105,6 +105,44 @@ async function uploadToFirebaseIfNeeded(fileOrDataUrl, pathHint = "postcards/pho
   }
 }
 
+// Upload a data URL to the Realtime Database under /imgTemp/<key>.json as a temporary store.
+// Returns a token string of the form `db:<key>` on success, or null on failure.
+async function uploadToRealtimeDbTemp(dataUrl, path = 'imgTemp') {
+  try {
+    const env = typeof import.meta !== 'undefined' ? import.meta.env : {};
+    const firebaseDatabaseUrlEnv = env.PUBLIC_FIREBASE_DATABASE_URL;
+    const firebaseProjectId = env.PUBLIC_FIREBASE_PROJECT_ID;
+    const databaseURL = firebaseDatabaseUrlEnv
+      ? String(firebaseDatabaseUrlEnv)
+      : firebaseProjectId
+        ? `https://${String(firebaseProjectId)}-default-rtdb.firebaseio.com`
+        : null;
+    if (!databaseURL) return null;
+
+    // Generate a reasonably unique key
+    const key = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`;
+    const endpoint = `${databaseURL.replace(/\/+$/, "")}/${path}/${encodeURIComponent(key)}.json`;
+
+    const body = {
+      p: dataUrl,
+      createdAt: Date.now(),
+      // store an expiresAt field (2 days)
+      expiresAt: Date.now() + (2 * 24 * 60 * 60 * 1000)
+    };
+
+    const res = await fetch(endpoint, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) return null;
+    return `db:${key}`;
+  } catch (err) {
+    console.warn('Failed to upload image to Realtime DB', err);
+    return null;
+  }
+}
+
 // Utility: encode small payload into URL hash safely
 function safeEncode(str) {
   try {
@@ -371,24 +409,36 @@ function GalacticPostcardStudio() {
 
       // If photo is present, try to upload to Firebase for a stable URL
       if (photo?.dataUrl) {
-        // If data URL is large, try to upload or fallback
+        // Prefer storing the dataUrl temporarily in Realtime DB if Firebase is configured
+        // to avoid excessively long share URLs. If upload fails, fall back to embedding
+        // when the size is within limits.
         const kb = dataUrlSizeKB(photo.dataUrl);
-        if (kb > MAX_EMBED_KB) {
-          // upload to firebase (if configured)
-          const uploaded = await uploadToFirebaseIfNeeded(photo.dataUrl, "postcards/photo");
-          if (uploaded) {
-            payload.p = uploaded;
-          } else {
-            // fallback to attempt embedding but warn/limit
-            const optimized = await maybeOptimizeDataUrl(photo.dataUrl);
-            if (dataUrlSizeKB(optimized) > MAX_EMBED_KB) {
-              throw Object.assign(new Error("PHOTO_TOO_LARGE"), { code: "PHOTO_TOO_LARGE" });
-            }
-            payload.p = optimized;
-          }
+        let dbToken = null;
+        try {
+          dbToken = await uploadToRealtimeDbTemp(photo.dataUrl, 'imgTemp');
+        } catch (e) {
+          dbToken = null;
+        }
+
+        if (dbToken) {
+          payload.p = dbToken; // db:<key>
         } else {
-          // small enough to embed (temporary convenience)
-          payload.p = await maybeOptimizeDataUrl(photo.dataUrl);
+          // If Realtime DB isn't available or upload failed, fall back to prior behavior.
+          if (kb > MAX_EMBED_KB) {
+            // try to upload to storage if configured
+            const uploaded = await uploadToFirebaseIfNeeded(photo.dataUrl, "postcards/photo");
+            if (uploaded) {
+              payload.p = uploaded;
+            } else {
+              const optimized = await maybeOptimizeDataUrl(photo.dataUrl);
+              if (dataUrlSizeKB(optimized) > MAX_EMBED_KB) {
+                throw Object.assign(new Error("PHOTO_TOO_LARGE"), { code: "PHOTO_TOO_LARGE" });
+              }
+              payload.p = optimized;
+            }
+          } else {
+            payload.p = await maybeOptimizeDataUrl(photo.dataUrl);
+          }
         }
       } else if (photo?.url) {
         payload.p = photo.url;
