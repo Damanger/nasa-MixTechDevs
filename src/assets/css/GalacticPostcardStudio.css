@@ -287,6 +287,37 @@
   gap: 0.75rem;
 }
 
+/* Photo upload preview: keep image contained and responsive */
+.photo-dropzone {
+  border-radius: 12px;
+}
+
+.photo-preview {
+  margin-top: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 12, 24, 0.45);
+  border-radius: 12px;
+  padding: 0.75rem;
+  overflow: hidden; /* prevent image spill */
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.photo-preview .photo-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 280px; /* responsive cap to avoid tall overflow */
+  object-fit: contain; /* fit entirely within box */
+  border-radius: 10px;
+}
+
+.photo-preview .btn.secondary {
+  align-self: center;
+}
+
 .upload-button,
 .ghost-button {
   display: inline-flex;
