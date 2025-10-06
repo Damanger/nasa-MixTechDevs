@@ -37,7 +37,6 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	const [fileMeta, setFileMeta] = useState(null);
 	const [expandedIndex, setExpandedIndex] = useState(null);
 	const [predictions, setPredictions] = useState({});
-	const [copyStatus, setCopyStatus] = useState({});
 	const expandedRef = useRef(null);
 	const [dragActive, setDragActive] = useState(false);
 	const fileInputRef = useRef(null);
@@ -63,10 +62,36 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 				setYTrueCol(guessY);
 				setYPredCol(cols.find(c => /^(y_pred|pred|hat|yhat|predicho|clase_pred)/i.test(c)) || "");
 				setProbCols(guessP);
+				// Ir automáticamente a la pestaña de visualización
+				setActiveStep(1);
 			},
 			error: (err) => alert(`Error al parsear CSV: ${err.message}`)
 		});
 	}
+
+	// Atajos de teclado: ← / → para navegar, Esc para cerrar el panel
+	useEffect(() => {
+		function onKey(e) {
+			if (expandedIndex === null) return;
+			if (e.key === 'ArrowLeft') {
+				e.preventDefault();
+				gotoIndex(expandedIndex - 1);
+				return;
+			}
+			if (e.key === 'ArrowRight') {
+				e.preventDefault();
+				gotoIndex(expandedIndex + 1);
+				return;
+			}
+			if (e.key === 'Escape') {
+				setExpandedIndex(null);
+				return;
+			}
+		}
+
+		window.addEventListener('keydown', onKey);
+		return () => window.removeEventListener('keydown', onKey);
+	}, [expandedIndex, rows]);
 
 	function loadExampleCSV() {
 		fetch(src)
@@ -78,6 +103,8 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 				const blob = new Blob([data], { type: "text/csv" });
 				const file = new File([blob], "example-dataset.csv");
 				onFile({ target: { files: [file] } });
+				// Mostrar la pestaña de visualización automáticamente
+				setActiveStep(1);
 			})
 			.catch(error => {
 				console.error(error);
@@ -116,7 +143,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	// Paginación para la tabla de preview
 	const [page, setPage] = useState(0);
-	const PAGE_SIZE = 50;
+	const PAGE_SIZE = 20;
 	const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
 
 	useEffect(() => {
@@ -187,31 +214,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 		} catch { }
 	}, [src]);
 
-	// Reintentar predicción para una fila (refetch)
-	async function retryPrediction(idx) {
-		if (idx == null) return;
-		setPredictions(prev => ({ ...prev, [idx]: { status: 'loading' } }));
-		try {
-			const result = await fetchPredictionForRow(rows[idx]);
-			setPredictions(prev => ({ ...prev, [idx]: { status: 'success', data: result } }));
-		} catch (err) {
-			setPredictions(prev => ({ ...prev, [idx]: { status: 'error', error: err?.message || String(err) } }));
-		}
-	}
 
-	// Copiar payload (fila) al portapapeles
-	async function copyPayload(idx) {
-		try {
-			const txt = JSON.stringify(rows[idx] || {}, null, 2);
-			await navigator.clipboard.writeText(txt);
-			setCopyStatus(prev => ({ ...prev, [idx]: 'copied' }));
-			setTimeout(() => setCopyStatus(prev => ({ ...prev, [idx]: undefined })), 1500);
-		} catch (e) {
-			console.warn('copy failed', e);
-			setCopyStatus(prev => ({ ...prev, [idx]: 'error' }));
-			setTimeout(() => setCopyStatus(prev => ({ ...prev, [idx]: undefined })), 1500);
-		}
-	}
 
 	function colorFor(p) {
 		if (p >= 0.75) return '#2ecc71'; // green
@@ -260,6 +263,27 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 			setPredictions(prev => ({ ...prev, [idx]: { status: 'error', error: err?.message || String(err) } }));
 		}
 	}
+
+// Navegar a un índice global: ajustar página y abrir fila, cargando predicción si es necesario
+async function gotoIndex(globalIdx) {
+	if (globalIdx == null) return;
+	if (globalIdx < 0 || globalIdx >= rows.length) return;
+
+	// ajustar página para que la fila sea visible
+	const desiredPage = Math.floor(globalIdx / PAGE_SIZE);
+	setPage(desiredPage);
+
+	setExpandedIndex(globalIdx);
+	if (predictions[globalIdx]) return;
+	setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'loading' } }));
+	try {
+		const result = await fetchPredictionForRow(rows[globalIdx]);
+		setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'success', data: result } }));
+	} catch (err) {
+		setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'error', error: err?.message || String(err) } }));
+	}
+
+}
 
 	const prettyKey = (k) => {
 		const map = {
@@ -311,10 +335,10 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 							<span>{label}</span>
 						</button>
 					))}
-					<div className="stepper-nav">
+					{/* <div className="stepper-nav">
 						<button className="btn" type="button" onClick={() => setActiveStep(s => Math.max(0, s - 1))} disabled={activeStep === 0}>←</button>
 						<button className="btn" type="button" onClick={() => setActiveStep(s => Math.min(1, s + 1))} disabled={activeStep === 1 || !canGo(activeStep + 1)}>→</button>
-					</div>
+					</div> */}
 				</div>
 			</motion.div>
 			{activeStep === 0 && (<motion.div
@@ -349,7 +373,21 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 					<input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={onFile} />
 					<span className="hint">{ui.dropHint}</span>
 				</div>
-				<p className="hint">{ui.headersHint}</p>
+								<div className="hint csv-headers">
+									<p style={{ margin: 0 }}>{ui.headersHint}</p>
+									<ul className="required-cols" style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', padding: 0, listStyle: 'none', marginTop: '.5rem' }}>
+										{[
+											'koi_prad','koi_dicco_msky','koi_dor','koi_max_mult_ev','koi_model_snr',
+											'koi_max_sngle_ev','koi_fwm_stat_sig','koi_num_transits','koi_ror',
+											'koi_fwm_srao','koi_srho','koi_insol','koi_duration','koi_teq','koi_period'
+										].map(c => (
+											<li key={c} style={{ marginRight: '.75rem', background: 'rgba(255,255,255,0.03)', padding: '.18rem .5rem', borderRadius: 6 }}>
+												<code style={{ fontSize: '0.92em' }}>{c}</code>
+											</li>
+										))}
+									</ul>
+														<p style={{ marginTop: '.5rem', fontSize: '0.85em', opacity: 0.9 }}>{ui.headersExact}</p>
+								</div>
 				{fileMeta && (
 					<div className="file-info" style={{ marginTop: '.6rem' }}>
 						<span><b>{ui.fileInfo.name}:</b> {fileMeta.name}</span>
@@ -400,10 +438,12 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 										return `Mostrando ${start} - ${end} de ${rows.length}`;
 									})()}
 								</div>
-								<div style={{ display: 'flex', gap: '.5rem' }}>
-									<button className="btn" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}>{ui.prevButton || 'Anterior'}</button>
-									<button className="btn" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}>{ui.nextButton || 'Siguiente'}</button>
-								</div>
+								{rows.length > PAGE_SIZE && (
+									<div style={{ display: 'flex', gap: '.5rem' }}>
+										<button className="btn" onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0} aria-label={ui.prevButton || 'Anterior'} title={ui.prevButton || 'Anterior'}>‹</button>
+										<button className="btn" onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1} aria-label={ui.nextButton || 'Siguiente'} title={ui.nextButton || 'Siguiente'}>›</button>
+									</div>
+								)}
 							</div>
 						</div>
 						{}
@@ -411,17 +451,30 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 							<div className="panel prediction-panel" ref={expandedRef} style={{ marginTop: '.6rem' }}>
 								<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 									<h4 style={{ margin: 0 }}>{ui.prediction || 'Detalle de predicción'} - fila {expandedIndex + 1}</h4>
-									<button className="btn btn-close" onClick={() => setExpandedIndex(null)}>{ui.closeButton || 'Cerrar'}</button>
+									<div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+										{/* Prev / Next to navigate between rows */}
+										<button
+											className="btn"
+											onClick={() => gotoIndex(expandedIndex - 1)}
+											disabled={expandedIndex <= 0}
+										>
+											{ui.prevButton || 'Anterior'}
+										</button>
+										<button
+											className="btn"
+											onClick={() => gotoIndex(expandedIndex + 1)}
+											disabled={expandedIndex >= rows.length - 1}
+										>
+											{ui.nextButton || 'Siguiente'}
+										</button>
+										</div>
 								</div>
 								<div style={{ marginTop: '.5rem' }}>
 									{predictions[expandedIndex]?.status === 'loading' && <div className="muted">{ui.loadingPrediction || 'Cargando predicción...'}</div>}
 									{predictions[expandedIndex]?.status === 'error' && <div className="error">{(ui.errorLabel || 'Error:')} {predictions[expandedIndex].error}</div>}
 									{predictions[expandedIndex]?.status === 'success' && predictions[expandedIndex].data && (
 										<>
-											<div style={{ display: 'flex', gap: '.5rem', justifyContent: 'flex-end', marginBottom: '.5rem' }}>
-												<button className="btn" onClick={() => retryPrediction(expandedIndex)}>{ui.retryButton || 'Reintentar'}</button>
-												<button className="btn" onClick={() => copyPayload(expandedIndex)}>{copyStatus[expandedIndex] === 'copied' ? (ui.payloadCopied || 'Copiado') : (ui.payloadCopy || 'Copiar payload')}</button>
-											</div>
+
 											<table className="table slim">
 												<tbody>
 													{/* Mostrar campos en orden fijo */}

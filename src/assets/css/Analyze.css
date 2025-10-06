@@ -186,3 +186,29 @@ select[multiple] {
 .prob-track{ flex:1; height:10px; background: rgba(255,255,255,.04); border-radius:8px; overflow:hidden; }
 .prob-fill{ height:100%; transition: width .3s ease; }
 .prob-label{ min-width:70px; text-align:right; font-weight:600; }
+
+/* Required columns chips (list rendered in AnalyzeDashboard.jsx) */
+.csv-headers { text-align: center; }
+.csv-headers .required-cols { justify-content: center; align-items: center; }
+.csv-headers .required-cols li { display: inline-flex; align-items: center; justify-content: center; margin: .25rem .5rem .25rem 0; padding: .18rem .6rem; border-radius: 8px; background: rgba(255,255,255,0.03); }
+.csv-headers .required-cols li code { font-weight: 700; color: var(--accent); background: transparent; padding: 0; }
+.csv-headers p { color: var(--muted); }
+
+/* Mobile: stack the chips vertically and center them */
+@media (max-width: 480px) {
+    .csv-headers .required-cols { flex-direction: column; gap: .45rem; align-items: center; }
+    .csv-headers .required-cols li { width: auto; margin: 0; padding: .4rem .6rem; }
+}
+
+/* iOS / Safari compatibility tweaks (iOS 16+ / iOS26 friendly) */
+html, body { -webkit-text-size-adjust: 100%; }
+.preview, .dropzone { -webkit-overflow-scrolling: touch; }
+/* Use safe-area insets so content isn't hidden by notches on iOS */
+.analyze-root { padding-left: calc(1rem + env(safe-area-inset-left)); padding-right: calc(1rem + env(safe-area-inset-right)); }
+
+/* Improve font rendering on WebKit */
+body, .analyze-root, .panel { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Ensure sticky headers behave better in Safari */
+.table thead th { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+
