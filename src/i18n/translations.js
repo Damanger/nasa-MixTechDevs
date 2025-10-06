@@ -337,6 +337,7 @@ const dictionaries = {
       predictionsProgress: "Predicciones: {done} / {total}",
       downloadPredictions: "Descargar predicciones (CSV)",
       noPredictions: "Aún no hay predicciones disponibles",
+      invalidCSV_missing: "CSV inválido: faltan columnas requeridas: {cols}",
     },
     team: {
       title: "MixTechDevs · Equipo",
@@ -898,6 +899,7 @@ const dictionaries = {
           predictionsProgress: "Predictions: {done} / {total}",
           downloadPredictions: "Download predictions (CSV)",
           noPredictions: "No predictions available yet",
+          invalidCSV_missing: "Invalid CSV: missing required columns: {cols}",
     },
     team: {
       title: "MixTechDevs · Team",
@@ -1462,6 +1464,7 @@ const dictionaries = {
       predictionsProgress: "Vorhersagen: {done} / {total}",
       downloadPredictions: "Vorhersagen herunterladen (CSV)",
       noPredictions: "Noch keine Vorhersagen vorhanden",
+      invalidCSV_missing: "Ungültige CSV: fehlende erforderliche Spalten: {cols}",
     },
     team: {
       title: "MixTechDevs · Team",

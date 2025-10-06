@@ -34,6 +34,13 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const [rows, setRows] = useState([]);
 	const [headers, setHeaders] = useState([]);
+	// columnas requeridas para el CSV — mantener sincronizado con lo mostrado en la UI
+	const REQUIRED_HEADERS = [
+		'koi_prad','koi_dicco_msky','koi_dor','koi_max_mult_ev','koi_model_snr',
+		'koi_max_sngle_ev','koi_fwm_stat_sig','koi_num_transits','koi_ror',
+		'koi_fwm_srao','koi_srho','koi_insol','koi_duration','koi_teq','koi_period'
+	];
+	const [csvError, setCsvError] = useState(null);
 	const [csvLoading, setCsvLoading] = useState(false);
 	const [predictionsTotal, setPredictionsTotal] = useState(0);
 	const [predictionsDone, setPredictionsDone] = useState(0);
@@ -53,13 +60,22 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	function onFile(e) {
 		const file = e.target.files?.[0];
 		if (!file) return;
+		setCsvError(null);
 		setCsvLoading(true);
 		Papa.parse(file, {
 			header: true, dynamicTyping: true, skipEmptyLines: true, worker: true,
 			complete: (res) => {
-				const clean = res.data.filter(r => Object.keys(r).length > 0);
+				const clean = (res && res.data) ? res.data.filter(r => Object.keys(r).length > 0) : [];
+				const cols = res?.meta?.fields || Object.keys(clean[0] || {});
+				// validar columnas requeridas
+				const missing = REQUIRED_HEADERS.filter(h => !cols.includes(h));
+				if (missing.length) {
+					setCsvLoading(false);
+					setCsvError(ui.invalidCSV_missing ? ui.invalidCSV_missing.replace('{cols}', missing.join(', ')) : `Missing columns: ${missing.join(', ')}`);
+					return;
+				}
+				// si pasa validación, actualizar estado
 				setRows(clean);
-				const cols = res.meta.fields || Object.keys(clean[0] || {});
 				setHeaders(cols);
 				setFileMeta({ name: file.name, rows: clean.length, cols: cols.length });
 				const guessY = cols.find(c => /^(y|label|target|clase|verdadero)/i.test(c)) || "";
@@ -140,6 +156,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const onLocalFile = (f) => {
 		if (!f) return;
+		setCsvError(null);
 		setCsvLoading(true);
 		Papa.parse(f, {
 			header: true,
@@ -148,8 +165,15 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 			worker: true,
 			complete: (res) => {
 				const clean = (res && res.data) ? res.data.filter(r => Object.keys(r).length > 0) : [];
-				setRows(clean);
 				const cols = res?.meta?.fields || Object.keys(clean[0] || {});
+				// validar columnas requeridas
+				const missing = REQUIRED_HEADERS.filter(h => !cols.includes(h));
+				if (missing.length) {
+					setCsvLoading(false);
+					setCsvError(ui.invalidCSV_missing ? ui.invalidCSV_missing.replace('{cols}', missing.join(', ')) : `Missing columns: ${missing.join(', ')}`);
+					return;
+				}
+				setRows(clean);
 				setHeaders(cols);
 				setFileMeta({ name: f.name, rows: clean.length, cols: cols.length });
 				const guessY = cols.find(c => /^(y|label|target|clase|verdadero)/i.test(c)) || "";
@@ -437,6 +461,7 @@ function downloadPredictionsCSV() {
 					<span className="hint">{ui.dropHint}</span>
 				</div>
 				{csvLoading && <p className="muted" style={{ marginTop: '.5rem' }}>{ui.csvLoading || 'Parsing CSV…'}</p>}
+				{csvError && <div className="error" style={{ marginTop: '.5rem' }}>{csvError}. {ui.exampleDataset ? <button className="link" onClick={loadExampleCSV}>{ui.exampleDataset}</button> : ''}</div>}
 								<div className="hint csv-headers">
 									<p style={{ margin: 0 }}>{ui.headersHint}</p>
 									<ul className="required-cols" style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', padding: 0, listStyle: 'none', marginTop: '.5rem' }}>
