@@ -34,6 +34,10 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const [rows, setRows] = useState([]);
 	const [headers, setHeaders] = useState([]);
+	const [csvLoading, setCsvLoading] = useState(false);
+	const [predictionsTotal, setPredictionsTotal] = useState(0);
+	const [predictionsDone, setPredictionsDone] = useState(0);
+	const [predictionsInFlight, setPredictionsInFlight] = useState(0);
 	const [fileMeta, setFileMeta] = useState(null);
 	const [expandedIndex, setExpandedIndex] = useState(null);
 	const [predictions, setPredictions] = useState({});
@@ -49,6 +53,7 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 	function onFile(e) {
 		const file = e.target.files?.[0];
 		if (!file) return;
+		setCsvLoading(true);
 		Papa.parse(file, {
 			header: true, dynamicTyping: true, skipEmptyLines: true, worker: true,
 			complete: (res) => {
@@ -62,10 +67,12 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 				setYTrueCol(guessY);
 				setYPredCol(cols.find(c => /^(y_pred|pred|hat|yhat|predicho|clase_pred)/i.test(c)) || "");
 				setProbCols(guessP);
+				setCsvLoading(false);
+				setPredictionsTotal(clean.length);
 				// Ir automáticamente a la pestaña de visualización
 				setActiveStep(1);
 			},
-			error: (err) => alert(`Error al parsear CSV: ${err.message}`)
+			error: (err) => { setCsvLoading(false); alert(`Error al parsear CSV: ${err.message}`); }
 		});
 	}
 
@@ -133,9 +140,12 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 
 	const onLocalFile = async (f) => {
 		if (!f) return; const txt = await f.text();
+		setCsvLoading(true);
 		const data = parseCSV(txt); const clean = Array.isArray(data) ? data.map(mapRow) : [];
 		setRows(clean); const cols = Object.keys(clean[0] || {});
 		setHeaders(cols); setFileMeta({ name: f.name, rows: clean.length, cols: cols.length });
+		setCsvLoading(false);
+		setPredictionsTotal(clean.length);
 	};
 
 	const stepLabels = useMemo(() => [ui.uploadHeading, ui.previewHeading].map(s => String(s).replace(/^\d+\)\s*/, '')), [ui]);
@@ -256,12 +266,17 @@ export default function AnalyzeDashboard({ lang = DEFAULT_LANG, src = "/example-
 		setExpandedIndex(idx);
 		if (predictions[idx]) return; 
 		setPredictions(prev => ({ ...prev, [idx]: { status: 'loading' } }));
-		try {
-			const result = await fetchPredictionForRow(rows[idx]);
-			setPredictions(prev => ({ ...prev, [idx]: { status: 'success', data: result } }));
-		} catch (err) {
-			setPredictions(prev => ({ ...prev, [idx]: { status: 'error', error: err?.message || String(err) } }));
-		}
+			setPredictionsInFlight(n => n + 1);
+			try {
+				const result = await fetchPredictionForRow(rows[idx]);
+				setPredictions(prev => ({ ...prev, [idx]: { status: 'success', data: result } }));
+				setPredictionsDone(d => d + 1);
+			} catch (err) {
+				setPredictions(prev => ({ ...prev, [idx]: { status: 'error', error: err?.message || String(err) } }));
+				setPredictionsDone(d => d + 1);
+			} finally {
+				setPredictionsInFlight(n => Math.max(0, n - 1));
+			}
 	}
 
 // Navegar a un índice global: ajustar página y abrir fila, cargando predicción si es necesario
@@ -276,13 +291,44 @@ async function gotoIndex(globalIdx) {
 	setExpandedIndex(globalIdx);
 	if (predictions[globalIdx]) return;
 	setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'loading' } }));
-	try {
-		const result = await fetchPredictionForRow(rows[globalIdx]);
-		setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'success', data: result } }));
-	} catch (err) {
-		setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'error', error: err?.message || String(err) } }));
-	}
+		setPredictionsInFlight(n => n + 1);
+		try {
+			const result = await fetchPredictionForRow(rows[globalIdx]);
+			setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'success', data: result } }));
+			setPredictionsDone(d => d + 1);
+		} catch (err) {
+			setPredictions(prev => ({ ...prev, [globalIdx]: { status: 'error', error: err?.message || String(err) } }));
+			setPredictionsDone(d => d + 1);
+		} finally {
+			setPredictionsInFlight(n => Math.max(0, n - 1));
+		}
 
+}
+
+function downloadPredictionsCSV() {
+	const headerRow = [...headers, 'prediction', 'probability_confirmed', 'probability_false_positive'];
+	const lines = [headerRow.join(',')];
+	for (let i = 0; i < rows.length; i++) {
+		const r = rows[i] || {};
+		const pred = predictions[i]?.data || {};
+		const vals = headers.map(h => {
+			const v = r[h];
+			return typeof v === 'string' ? `"${v.replace(/"/g, '""')}"` : (v ?? '');
+		});
+		vals.push(pred.prediction ?? '');
+		vals.push(pred.probability_confirmed ?? '');
+		vals.push(pred.probability_false_positive ?? '');
+		lines.push(vals.join(','));
+	}
+	const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+	const url = URL.createObjectURL(blob);
+	const a = document.createElement('a');
+	a.href = url;
+	a.download = (fileMeta?.name ? `${fileMeta.name.replace(/\.csv$/i, '')}-predictions.csv` : 'predictions.csv');
+	document.body.appendChild(a);
+	a.click();
+	a.remove();
+	setTimeout(() => URL.revokeObjectURL(url), 3000);
 }
 
 	const prettyKey = (k) => {
@@ -373,6 +419,7 @@ async function gotoIndex(globalIdx) {
 					<input ref={fileInputRef} type="file" accept=".csv,text/csv" onChange={onFile} />
 					<span className="hint">{ui.dropHint}</span>
 				</div>
+				{csvLoading && <p className="muted" style={{ marginTop: '.5rem' }}>{ui.csvLoading || 'Parsing CSV…'}</p>}
 								<div className="hint csv-headers">
 									<p style={{ margin: 0 }}>{ui.headersHint}</p>
 									<ul className="required-cols" style={{ display: 'flex', flexWrap: 'wrap', gap: '.5rem', padding: 0, listStyle: 'none', marginTop: '.5rem' }}>
@@ -404,11 +451,17 @@ async function gotoIndex(globalIdx) {
 				transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
 			>
 				<h3>{ui.previewHeading}</h3>
-				{!rows.length ? <p className="muted">{ui.noRowsHint || 'Carga un archivo CSV para ver los resultados.'}</p> : (
+					{!rows.length ? <p className="muted">{ui.noRowsHint || 'Carga un archivo CSV para ver los resultados.'}</p> : (
 					<>
-						<p className="muted">
-							{ui.predictionsDesc}
-						</p>
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+								<p className="muted" style={{ margin: 0 }}>
+									{ui.predictionsDesc}
+								</p>
+								<div style={{ display: 'flex', gap: '.5rem', alignItems: 'center' }}>
+									{predictionsTotal > 0 && <div className="muted">{ui.predictionsProgress ? ui.predictionsProgress.replace('{done}', String(predictionsDone)).replace('{total}', String(predictionsTotal)) : `${predictionsDone} / ${predictionsTotal}`}</div>}
+									<button className="btn" onClick={downloadPredictionsCSV} disabled={predictionsDone === 0}>{ui.downloadPredictions || 'Download predictions (CSV)'}</button>
+								</div>
+							</div>
 							<div className="preview" style={{ marginTop: '.6rem' }}>
 							<table className="table">
 								<thead><tr>{headers.map(h => <th key={h}>{h}</th>)}</tr></thead>

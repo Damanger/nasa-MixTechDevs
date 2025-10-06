@@ -333,6 +333,10 @@ const dictionaries = {
       showMetrics: "Mostrar métricas",
       showCharts: "Mostrar gráficos",
       downloadExample: "Descargar ejemplo JSON",
+      csvLoading: "Parseando CSV…",
+      predictionsProgress: "Predicciones: {done} / {total}",
+      downloadPredictions: "Descargar predicciones (CSV)",
+      noPredictions: "Aún no hay predicciones disponibles",
     },
     team: {
       title: "MixTechDevs · Equipo",
@@ -890,6 +894,10 @@ const dictionaries = {
       showMetrics: "Show metrics",
       showCharts: "Show charts",
       downloadExample: "Download example JSON",
+      csvLoading: "Parsing CSV…",
+      predictionsProgress: "Predictions: {done} / {total}",
+      downloadPredictions: "Download predictions (CSV)",
+      noPredictions: "No predictions available yet",
     },
     team: {
       title: "MixTechDevs · Team",
@@ -1450,6 +1458,10 @@ const dictionaries = {
       showMetrics: "Metriken anzeigen",
       showCharts: "Diagramme anzeigen",
       downloadExample: "Beispiel-JSON herunterladen",
+      csvLoading: "CSV wird geparst…",
+      predictionsProgress: "Vorhersagen: {done} / {total}",
+      downloadPredictions: "Vorhersagen herunterladen (CSV)",
+      noPredictions: "Noch keine Vorhersagen vorhanden",
     },
     team: {
       title: "MixTechDevs · Team",
