@@ -42,7 +42,7 @@ const LanguageHeader = ({ initialLang = DEFAULT_LANG }) => {
   const apodBase = lang === DEFAULT_LANG ? "/apod" : `/apod?lang=${lang}`;
   const moonBase = lang === DEFAULT_LANG ? "/luna" : `/luna?lang=${lang}`;
   const systemBase = lang === DEFAULT_LANG ? "/sistema" : `/sistema?lang=${lang}`;
-  const postcardBase = lang === DEFAULT_LANG ? "/postal" : `/postal?lang=${lang}`;
+  const postcardBase = lang === DEFAULT_LANG ? "/verpostal" : `/verpostal?lang=${lang}`;
 
   // Helper para extraer pathname de un href relativo/absoluto
   const hrefToPath = (href) => {

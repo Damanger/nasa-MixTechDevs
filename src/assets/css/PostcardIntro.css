@@ -1,0 +1,174 @@
+.postcard-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  pointer-events: none;
+  display: block;
+  animation: postcardIntroFade 6s linear forwards;
+}
+.postcard-intro .ciel { position: absolute; inset: 0; background: transparent; }
+
+.postcard-intro .alien {
+  position: absolute; left: 50%; top: 50%;
+  width: 145px; height: 210px;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -120%) scale(0);
+  animation: alienComing 7000ms cubic-bezier(.2,.9,.2,1) forwards;
+  will-change: transform, opacity;
+}
+
+.postcard-intro .alien .ombre {
+  position: absolute; left: 0; right: 0; margin: 0 auto; margin-top: 150px;
+  width: 108px; height: 35px; border-radius: 100%;
+  background: rgba(0,0,0,0.12);
+}
+
+.postcard-intro .alien .rayon {
+  position: absolute; left: 50%; top: 15px; transform: translateX(-50%) scaleY(0.6);
+  opacity: 0;
+  border-left: 35px solid transparent; border-right: 35px solid transparent;
+  border-bottom: 150px solid #dec500;
+  animation: rayonPulse 2000ms ease-in 1000ms forwards, toggleRayon 7000ms linear infinite;
+  will-change: opacity, transform;
+}
+.postcard-intro .alien .rayon .rayonBas {
+  position: absolute; left: -35px; margin-top: 140px;
+  width: 70px; height: 20px; border-radius: 100%;
+  background: #dec500; opacity: 1;
+}
+
+.postcard-intro .alien .basVaisseau {
+  position: absolute; left: 0; right: 0; margin: 0 auto; margin-top: 38px;
+  width: 32px; height: 18px; border-radius: 100%; background: #c0392b;
+}
+.postcard-intro .alien .corpVaisseau {
+  position: absolute; left: 0; right: 0; margin: 0 auto;
+  width: 145px; height: 43px; border-radius: 100%;
+  background: #bc4d3b; border-bottom: 4px solid #99261a; overflow: hidden;
+}
+.postcard-intro .alien .corpVaisseau .rond3 div {
+  position: absolute; left: 0; right: 0; margin: 0 auto;
+  width: 7px; height: 5px; border-radius: 100%;
+  background: #c0392b; border-top: 2px solid #99261a;
+}
+.postcard-intro .alien .corpVaisseau .rond3 div:nth-child(1){ margin-top: 30px; }
+.postcard-intro .alien .corpVaisseau .rond3 div:nth-child(2){ margin: 18px 0 0 10px; }
+.postcard-intro .alien .corpVaisseau .rond3 div:nth-child(3){ margin: 18px 0 0 128px; }
+
+.postcard-intro .alien .habitacle {
+  position: absolute; left: 0; right: 0; margin: 0 auto; margin-top: -25px;
+  width: 58px; height: 35px; overflow: hidden;
+}
+.postcard-intro .alien .habitacle div {
+  position: absolute; left: 0; right: 0; margin: 0 auto;
+  width: 58px; height: 58px; border-radius: 100%; background: #9ac8ee;
+}
+.postcard-intro .alien .habitacleBas {
+  position: absolute; left: 0; right: 0; margin: 0 auto; margin-top: -9px;
+  width: 58px; height: 27px; border-radius: 100%;
+  background: #9ac8ee; border-bottom: 4px solid #99261a;
+}
+.postcard-intro .alien .refletHabitacle div {
+  position: absolute; left: 0; right: 0; margin: 0 auto; border-radius: 100%; background: #ecf0f1;
+}
+.postcard-intro .alien .refletHabitacle div:nth-child(1){ width: 9px; height: 9px; top: -20px; left: -20px; }
+.postcard-intro .alien .refletHabitacle div:nth-child(2){ top: -10px; left: -35px; width: 5px; height: 5px; }
+
+.postcard-intro .etoiles { position: absolute; inset: 0; pointer-events: none; }
+.postcard-intro .etoiles div{
+  position: absolute; width: 2px; height: 2px; border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  animation: twinkle 2.2s ease-in-out infinite; will-change: opacity, transform;
+}
+.postcard-intro .etoiles div:nth-child(1){ top:12%; left:18%; animation-delay:.1s; }
+.postcard-intro .etoiles div:nth-child(2){ top:28%; left:72%; animation-delay:.4s; transform:scale(1.2); }
+.postcard-intro .etoiles div:nth-child(3){ top:64%; left:14%; animation-delay:.9s; transform:scale(0.9); }
+.postcard-intro .etoiles div:nth-child(4){ top:46%; left:48%; animation-delay:.2s; }
+.postcard-intro .etoiles div:nth-child(5){ top:78%; left:82%; animation-delay:.6s; transform:scale(1.1); }
+
+@keyframes postcardIntroFade {
+  0%, 83% { opacity: 1; }
+  100% { opacity: 0; pointer-events: none; }
+}
+
+@keyframes alienComing {
+  0%   { transform: translate(-50%, -120%) scale(0); opacity: 0; }
+  30%  { transform: translate(-50%, -50%)  scale(1); opacity: 1; }
+  70%  { transform: translate(-50%, -50%)  scale(1) rotate(0); opacity: 1; }
+  100% { transform: translate(120%, -50%)  scale(0) rotate(-10deg); opacity: 0; }
+}
+@keyframes rayonPulse {
+  0% { opacity: 0; transform: translateX(-50%) scaleY(0.6); }
+  50% { opacity: .85; transform: translateX(-50%) scaleY(1); }
+  100% { opacity: .5; transform: translateX(-50%) scaleY(0.9); }
+}
+@keyframes toggleRayon {
+  0%, 29% { opacity: 0; } 30%, 70% { opacity: .5; } 71%, 100% { opacity: 0; }
+}
+@keyframes twinkle {
+  0%, 100% { opacity: .25; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.6); }
+}
+
+/* Postal que aparece desde arriba hacia abajo con fade-in */
+.postcard-intro .postcard {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  transform: translateX(-50%) translateY(-20px);
+  opacity: 0.6; /* casi invisible al inicio */
+  pointer-events: none;
+  z-index: 1001;
+}
+.postcard-intro .postcard .postcard-card {
+  min-width: 260px;
+  max-width: 90vw;
+  background: linear-gradient(180deg, #ffffff, #f7fbff);
+  color: #072033;
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 30px rgba(6,10,20,0.45);
+  border: 1px solid rgba(6,10,20,0.06);
+  transform-origin: top center;
+  text-align: center;
+}
+.postcard-intro .postcard .postcard-header{
+  font-weight: 700;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+.postcard-intro .postcard .postcard-body{
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Clase añadida por JS para iniciar la animación */
+.postcard-intro .postcard.show {
+  animation: postcardDropIn 100ms cubic-bezier(.2,.9,.2,1) forwards;
+  pointer-events: auto;
+}
+
+@keyframes postcardDropIn {
+  0% {
+    transform: translateX(-50%) translateY(-28px) scale(0.995);
+    opacity: 0.06;
+    filter: blur(0.6px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(6px) scale(1.005);
+    opacity: 0.72;
+    filter: blur(0);
+  }
+  100% {
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .postcard-intro *{ animation: none !important; transition: none !important; }
+}
+:root[data-allow-animations="true"] .postcard-intro * {
+  animation-play-state: running !important;
+}

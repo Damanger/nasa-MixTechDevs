@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useRef, useState, useId } from "react";
-// Firebase (optional): used to upload images so they don't need to be embedded in the share URL.
-// Requires setting PUBLIC_FIREBASE_CONFIG in your environment a... authDomain, projectId, storageBucket, messagingSenderId, appId.
 import { initializeApp, getApps } from "firebase/app";
 import { getStorage, ref as storageRef, uploadString, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../assets/css/GalacticPostcardStudio.css";
@@ -225,12 +223,16 @@ function GalacticPostcardStudio() {
   const [lang, setLang] = useState(getLangOrDefault());
   const strings = useStrings(lang);
 
+  // Share route path (configurable via PUBLIC_SHARE_PATH). Keep here so multiple hooks can use it.
+  const sharePath = (import.meta.env && import.meta.env.PUBLIC_SHARE_PATH) || '/verpostal';
+
   const designs = DESIGNS;
 
   const [selectedDesign, setSelectedDesign] = useState(designs[0].id);
   const previousSamplesRef = useRef({ message: "", sender: "" });
   const [message, setMessage] = useState("");
   const [sender, setSender] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [sampleMessage, setSampleMessage] = useState("Wishing you clear skies and gentle gravity.");
   const [sampleSender, setSampleSender] = useState("— Commander Vega");
 
@@ -239,6 +241,7 @@ function GalacticPostcardStudio() {
     const prevSampleSender = previousSamplesRef.current.sender || sampleSender;
     setMessage((current) => (current === prevSampleMessage ? sampleMessage : current));
     setSender((current) => (current === prevSampleSender ? sampleSender : current));
+    setRecipient((current) => current);
     previousSamplesRef.current = { message: sampleMessage, sender: sampleSender };
   }, [sampleMessage, sampleSender]);
 
@@ -254,9 +257,26 @@ function GalacticPostcardStudio() {
   const [shareError, setShareError] = useState(null);
   const [copyFeedback, setCopyFeedback] = useState(null);
   const [isShareView, setIsShareView] = useState(false);
+  const [introPlaying, setIntroPlaying] = useState(true);
+  const [revealPostcard, setRevealPostcard] = useState(false);
 
   // If opening a shared URL, parse the payload to show a minimal read-only preview
   useEffect(() => {
+    // If there's a share token in the hash but the current pathname isn't the canonical
+    // share path, update the URL shown in the browser to the canonical one while
+    // preserving the hash. This doesn't reload the page and preserves the current UI
+    // (so the design from /postal stays intact) but ensures shared links normalize
+  // to the dedicated route (e.g. /postal#share=...).
+    try {
+      const rawHash = window.location.hash.replace(/^#/, '');
+      if (rawHash && window.location.pathname !== sharePath) {
+        // Use replaceState to avoid adding history entries and to keep the app state.
+        window.history.replaceState(null, '', sharePath + window.location.hash);
+      }
+    } catch (e) {
+      // ignore (server-side rendering or other issues)
+    }
+
     const encoded = parseShareFromHash();
     if (!encoded || parsedShareRef.current) return;
 
@@ -273,9 +293,45 @@ function GalacticPostcardStudio() {
         setPhoto({ url, dataUrl: null });
       }
       setIsShareView(true);
+      // Start intro timers so recipients see the OVNI intro before the postcard
+      try {
+        setIntroPlaying(true);
+        setRevealPostcard(false);
+        const INTRO_MS = (typeof window !== 'undefined' && window.__POSTCARD_INTRO_MS) ? window.__POSTCARD_INTRO_MS : 6000;
+        try { (window.__postcardIntroTimers || []).forEach(id => clearTimeout(id)); } catch(e){}
+        window.__postcardIntroTimers = [];
+        try { document.documentElement.setAttribute('data-allow-animations','true'); } catch(e){}
+        const t = setTimeout(() => {
+          try { document.documentElement.setAttribute('data-allow-animations','false'); } catch(e){}
+          setIntroPlaying(false);
+          setTimeout(() => setRevealPostcard(true), 40);
+        }, INTRO_MS);
+        window.__postcardIntroTimers.push(t);
+      } catch (e) {
+        // ignore
+      }
+      try {
+        // Add a global class so page-level chrome (like the page header) can be hidden
+        document.documentElement.classList.add('is-share-view');
+      } catch (e) {
+        // ignore (SSR or private envs)
+      }
     } catch (err) {
       console.warn("Failed to parse shared payload:", err);
     }
+  }, []);
+
+  // Cleanup: ensure we remove the global class if component unmounts or share view toggles off
+  useEffect(() => {
+    return () => {
+      try { document.documentElement.classList.remove('is-share-view'); } catch (e) {}
+      try {
+        const timers = window.__postcardIntroTimers || [];
+        timers.forEach((id) => clearTimeout(id));
+        window.__postcardIntroTimers = [];
+      } catch (e) {}
+      try { document.documentElement.removeAttribute('data-allow-animations'); } catch(e){}
+    };
   }, []);
 
   // Any change after generating a link should mark the link as "stale"
@@ -289,6 +345,7 @@ function GalacticPostcardStudio() {
       d: selectedDesign,
       m: message.trim() || sampleMessage,
       s: sender.trim() || sampleSender,
+      r: recipient.trim() || "",
       p: currentPhotoData,
     });
 
@@ -308,6 +365,7 @@ function GalacticPostcardStudio() {
         d: selectedDesign,
         m: message.trim() || sampleMessage,
         s: sender.trim() || sampleSender,
+        r: recipient.trim() || "",
         p: null,
       };
 
@@ -341,8 +399,10 @@ function GalacticPostcardStudio() {
       const base64 = btoa(json);
       const encoded = safeEncode(base64);
 
-      const base = window.location.origin + window.location.pathname;
-      const url = `${base}#${SHARE_PARAM}=${encoded}`;
+    // Prefer a dedicated share/view route so shared links are consistent
+    // Use the component-level `sharePath` (configurable via PUBLIC_SHARE_PATH)
+    const base = window.location.origin + sharePath;
+  const url = `${base}#share=${encoded}`;
       setShareUrl(url);
 
       // Track snapshot for staleness detection
@@ -350,6 +410,7 @@ function GalacticPostcardStudio() {
         d: payload.d,
         m: payload.m,
         s: payload.s,
+        r: payload.r ?? "",
         p: payload.p ?? null,
       });
       shareSnapshotRef.current = snapshot;
@@ -452,16 +513,19 @@ function GalacticPostcardStudio() {
       canvas.height = h;
 
       const stars = [];
-      const COUNT = Math.round(Math.max(30, (canvas.clientWidth * canvas.clientHeight) / 8000));
+      // More stars to fill the postcard and make movement notable. Tuned divisor for density.
+      const COUNT = Math.round(Math.max(40, (canvas.clientWidth * canvas.clientHeight) / 6000));
       for (let i = 0; i < COUNT; i++) {
         stars.push({
           x: Math.random() * w,
           y: Math.random() * h,
           r: Math.random() * 1.6 + 0.2,
-          alpha: Math.random() * 0.9 + 0.1,
-          twinkle: Math.random() * 0.02 + 0.005,
-          vx: (Math.random() - 0.5) * 0.05,
-          vy: (Math.random() - 0.5) * 0.02
+          alpha: Math.random() * 0.9 + 0.05,
+          // stronger twinkle variation
+          twinkle: Math.random() * 0.04 + 0.01,
+          // slightly faster drift
+          vx: (Math.random() - 0.5) * 0.16,
+          vy: (Math.random() - 0.5) * 0.06
         });
       }
 
@@ -469,23 +533,40 @@ function GalacticPostcardStudio() {
 
       function render() {
         ctx.clearRect(0, 0, w, h);
-        // draw subtle glow by blending
+        // draw a moving nebula gradient behind the stars for depth
+        const t = Date.now() * 0.00012;
+        const gx = w * (0.45 + Math.sin(t * 0.7) * 0.08);
+        const gy = h * (0.35 + Math.cos(t * 0.9) * 0.06);
+        const g = ctx.createRadialGradient(gx, gy, Math.min(w, h) * 0.05, gx, gy, Math.max(w, h) * 0.9);
+        // dynamic color based on activeColor (fallback)
+        try {
+          g.addColorStop(0, activeColor.replace(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/, 'rgba($1,$2,$3,0.35)'));
+        } catch {
+          g.addColorStop(0, 'rgba(255,240,240,0.12)');
+        }
+        g.addColorStop(0.35, 'rgba(8,10,18,0.12)');
+        g.addColorStop(1, 'rgba(4,8,18,0.9)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, w, h);
+
+        // draw subtle glow by blending stars with 'lighter'
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
         stars.forEach((s) => {
-          s.x += s.vx * (dpr || 1);
-          s.y += s.vy * (dpr || 1);
+          // small oscillation for parallax-like motion
+          s.x += (s.vx + Math.sin(t + s.x * 0.0005) * 0.02) * (dpr || 1);
+          s.y += (s.vy + Math.cos(t + s.y * 0.0006) * 0.01) * (dpr || 1);
           if (s.x < 0) s.x = w;
           if (s.x > w) s.x = 0;
           if (s.y < 0) s.y = h;
           if (s.y > h) s.y = 0;
           // twinkle
-          s.alpha += (Math.sin((Date.now() * s.twinkle) + (s.x + s.y)) * 0.5) * 0.02;
-          s.alpha = Math.max(0.05, Math.min(1, s.alpha));
+          s.alpha += (Math.sin((Date.now() * s.twinkle) + (s.x + s.y)) * 0.5) * 0.04;
+          s.alpha = Math.max(0.02, Math.min(1, s.alpha));
 
-          const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 6);
-          grad.addColorStop(0, activeColor);
-          grad.addColorStop(0.3, activeColor.replace(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/, 'rgba($1,$2,$3,' + (s.alpha * 0.75) + ')'));
+          const grad = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * 8);
+          grad.addColorStop(0, activeColor.replace(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/, 'rgba($1,$2,$3,' + (Math.min(1, s.alpha) ) + ')'));
+          grad.addColorStop(0.35, activeColor.replace(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/, 'rgba($1,$2,$3,' + (s.alpha * 0.45) + ')'));
           grad.addColorStop(1, 'rgba(0,0,0,0)');
           ctx.fillStyle = grad;
           ctx.beginPath();
@@ -522,15 +603,29 @@ function GalacticPostcardStudio() {
   if (isShareView) {
     // Minimal read-only view for recipients. Show only the postcard preview and a CTA to create their own.
     return (
-      <section className="postcard-studio shared-view">
+      <section className="postcard-studio shared-view glass">
         <div className="shared-header">
           <h2>{strings.previewHeading}</h2>
           <p className="helper-text">{strings.sharePreview}</p>
         </div>
-        <div className="shared-preview-wrapper">
-          <div className={["postcard-preview", designClassName].join(" ")}
+        <div style={{ padding: '1rem', position: 'relative' }}>
+          {introPlaying ? (
+            <PostcardIntro duration={(typeof window !== 'undefined' && window.__POSTCARD_INTRO_MS) ? window.__POSTCARD_INTRO_MS : 5000} onEnd={() => { setIntroPlaying(false); setTimeout(() => setRevealPostcard(true), 40); }} />
+          ) : null}
+
+          <div
+            className={["postcard-preview", "glass", designClassName].join(" ")}
             role="img"
             aria-label={message || sampleMessage}
+            style={{
+              transition: 'opacity 900ms cubic-bezier(.2,.9,.2,1), transform 900ms cubic-bezier(.2,.9,.2,1), filter 700ms ease',
+              opacity: revealPostcard ? 1 : 0,
+              transform: revealPostcard ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.98)',
+              filter: revealPostcard ? 'blur(0px)' : 'blur(6px)',
+              pointerEvents: introPlaying ? 'none' : 'auto',
+              visibility: revealPostcard ? 'visible' : 'hidden',
+              zIndex: 50
+            }}
           >
             <div className="stamp">POST</div>
             <canvas ref={sharedPreviewCanvasRef} className="postcard-canvas" aria-hidden="true" />
@@ -543,11 +638,12 @@ function GalacticPostcardStudio() {
             )}
             <div className="message-block">
               <p className="message-text">{message || sampleMessage}</p>
-              <span className="sender-text">{sender || sampleSender}</span>
+              <span className="sender-text">{`- ${(sender || sampleSender).toString().trim()}`}</span>
             </div>
           </div>
-          <div className="shared-actions">
-            <a href={window.location.origin + window.location.pathname} className="primary-button">
+
+          <div className="shared-actions" style={{ marginTop: '0.75rem' }}>
+            <a href={window.location.origin + window.location.pathname} className="btn">
               {strings.shareMakeYourOwn}
             </a>
           </div>
@@ -588,7 +684,7 @@ function GalacticPostcardStudio() {
   };
 
   return (
-    <section className="postcard-studio">
+    <section className="postcard-studio glass" style={{ padding: '1rem' }}>
       <header className="studio-header">
         <h2>Galactic Postcard Studio</h2>
         <p className="helper-text">
@@ -597,8 +693,8 @@ function GalacticPostcardStudio() {
       </header>
 
       <div className="studio-grid">
-        <div className="studio-column controls-column">
-          <section className="design-section">
+        <div className="controls-column" style={{ display: 'grid', gap: '1rem' }}>
+          <section className="design-section glass" style={{ padding: '1rem' }}>
             <header>
               <h2>{strings.designHeading}</h2>
               <p>{strings.designDescription}</p>
@@ -608,6 +704,7 @@ function GalacticPostcardStudio() {
                 const isActive = design.id === selectedDesign;
                 const optionClass = [
                   "design-option",
+                  "glass",
                   design.className,
                   isActive ? "is-selected" : null,
                 ]
@@ -633,7 +730,7 @@ function GalacticPostcardStudio() {
             </div>
           </section>
 
-          <section className="message-section">
+          <section className="message-section glass" style={{ padding: '1rem' }}>
             <header>
               <h2>{strings.messageHeading}</h2>
             </header>
@@ -649,6 +746,8 @@ function GalacticPostcardStudio() {
                   setMessage(e.target.value);
                   setShareState("stale");
                 }}
+                className="glass"
+                style={{ width: '100%', padding: '0.75rem' }}
               />
             </div>
             <div className="field">
@@ -663,18 +762,34 @@ function GalacticPostcardStudio() {
                   setSender(e.target.value);
                   setShareState("stale");
                 }}
+                className="glass"
+                style={{ width: '100%', padding: '0.6rem' }}
+              />
+            </div>
+            <div className="field">
+              <label htmlFor="recipient-input">Para (recipient)</label>
+              <input
+                id="recipient-input"
+                type="text"
+                maxLength={100}
+                placeholder="e.g., Friends of the Crew"
+                value={recipient}
+                onChange={(e) => { setRecipient(e.target.value); setShareState('stale'); }}
+                className="glass"
+                style={{ width: '100%', padding: '0.6rem' }}
               />
             </div>
           </section>
 
-          <section className="photo-section">
+          <section className="photo-section glass" style={{ padding: '1rem' }}>
             <header>
               <h2>{strings.photoHeading}</h2>
             </header>
             <div
-              className="photo-dropzone"
+              className="photo-dropzone glass"
               onDragOver={(e) => e.preventDefault()}
               onDrop={handlePhotoDrop}
+              style={{ padding: '0.75rem' }}
             >
               <input
                 id={photoInputId}
@@ -693,7 +808,7 @@ function GalacticPostcardStudio() {
                     alt=""
                     className="photo-img"
                   />
-                  <button type="button" className="ghost-button" onClick={handleRemovePhoto}>
+                  <button type="button" className="btn secondary" onClick={handleRemovePhoto}>
                     {strings.photoRemove}
                   </button>
                 </div>
@@ -701,16 +816,16 @@ function GalacticPostcardStudio() {
             </div>
           </section>
 
-          <section className="share-section">
+          <section className="share-section glass" style={{ padding: '1rem' }}>
             <header>
               <h2>{strings.shareHeading}</h2>
               <p className="helper-text">{strings.shareDescription}</p>
             </header>
 
-            <div className="actions-row">
+            <div className="actions-row" style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
               <button
                 type="button"
-                className="primary-button"
+                className="btn"
                 onClick={handleGenerateShareLink}
                 disabled={shareState === "loading"}
               >
@@ -719,7 +834,7 @@ function GalacticPostcardStudio() {
               {canCopyLink ? (
                 <button
                   type="button"
-                  className="ghost-button"
+                  className="btn secondary"
                   onClick={handleCopyLink}
                 >
                   {copyFeedback === "copied" ? strings.shareCopied : strings.shareCopy}
@@ -741,6 +856,8 @@ function GalacticPostcardStudio() {
                   onFocus={(event) => event.target.select()}
                   onClick={(event) => event.target.select()}
                   aria-describedby="share-hint"
+                  className="glass"
+                  style={{ width: '100%', padding: '0.6rem' }}
                 />
                 <p id="share-hint" className="helper-text">
                   {strings.sharePreview}
@@ -755,7 +872,7 @@ function GalacticPostcardStudio() {
             <h2>Preview</h2>
           </header>
           <div
-            className={["postcard-preview", designClassName].join(" ")}
+            className={["postcard-preview", "glass", designClassName].join(" ")}
             role="img"
             aria-label={message || sampleMessage}
           >
@@ -769,8 +886,17 @@ function GalacticPostcardStudio() {
               </div>
             )}
             <div className="message-block">
-              <p className="message-text">{message || sampleMessage}</p>
-              <span className="sender-text">{sender || sampleSender}</span>
+              <p className="line para-line">
+                <span className="message-label">Para:</span>
+                <span className="recipient-text">{recipient || ''}</span>
+              </p>
+
+              <p className="line message-body">{message || sampleMessage}</p>
+
+              <p className="line from-line">
+                <span className="from-label">De:</span>
+                <span className="sender-text">{sender ? String(sender).trim() : ''}</span>
+              </p>
             </div>
           </div>
         </div>

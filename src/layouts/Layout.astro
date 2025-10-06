@@ -18,7 +18,6 @@ import GalaxyBackground from "../components/GalaxyBackground.jsx";
 import PrismaticBurstBackground from "../components/PrismaticBurstBackground.jsx";
 import LightningBackground from "../components/LightningBackground.jsx";
 import PlasmaBackground from "../components/PlasmaBackground.jsx";
-// Removed DarkVeil and Constellation backgrounds
 import LightRaysBackground from "../components/LightRaysBackground.jsx";
 import LanguagePreferenceListener from "../components/LanguagePreferenceListener.jsx";
 import GlobalToaster from "../components/GlobalToaster.jsx";
@@ -46,7 +45,6 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <!-- theme-color inicial (se actualiza en runtime si hay preferencia) -->
     <meta name="theme-color" content={defaultThemeColor} />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -64,7 +62,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
     />
     <title>{metaTitle}</title>
     <meta name="description" content={metaDescription} />
-    <!-- Aplicar preferencia de fondo lo antes posible (antes de hidratar) -->
+    <slot name="head" />
     <script is:inline>
       (function () {
         try {
@@ -100,9 +98,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
           if (body) body.dataset.background = val;
           var meta = document.querySelector('meta[name="theme-color"]');
           if (meta) meta.setAttribute('content', map[val] || map['default']);
-        } catch (e) {
-          /* ignore */
-        }
+        } catch (e) { }
       })();
     </script>
     <style is:global>
@@ -126,19 +122,12 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
       body {
         height: 100%;
       }
-      /* Paint the overscroll/safe-area background on iOS */
       html { background: var(--layout-background); color-scheme: dark; }
-      /* Para evitar parpadeos oscuros en el primer paint, mantenemos
-         el gradiente por defecto en html. Los overlays se pintan como
-         capas separadas y usan transparencia. */
       body {
         margin: 0;
         color: var(--text);
-        /* Evitar que una regla genérica pise los temas elegidos */
-        /* El fondo por defecto se aplica con una regla específica abajo */
-        /* Avoid white gutters on small screens (iOS Safari) */
         background-attachment: fixed;
-        min-height: 100dvh; /* fill dynamic viewport incl. safe areas */
+        min-height: 100dvh;
         font-family:
           ui-sans-serif,
           system-ui,
@@ -151,21 +140,17 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
           "Apple Color Emoji",
           "Segoe UI Emoji";
       }
-      /* Aplica el gradiente sólo cuando es el fondo por defecto */
       body[data-background="default"],
       body:not([data-background]) {
         background: var(--layout-background);
       }
-      /* iOS Safari has issues painting fixed backgrounds; use scroll on narrow viewports */
       @media (max-width: 820px) {
         body { background-attachment: scroll; }
       }
-      /* Estado de bloqueo al abrir modales */
       html.modal-open, body.modal-open {
         overflow: hidden !important;
         overscroll-behavior: contain;
       }
-      /* El color base del tema lo gestiona html[data-background] */
       a {
         color: var(--accent);
         text-decoration: none;
@@ -176,7 +161,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
         left: 0;
         right: 0;
         z-index: 1000;
-        padding: 0.4rem 0; /* espacio vertical alrededor de la barra */
+        padding: 0.4rem 0;
         background: transparent;
       }
       nav {
@@ -184,7 +169,6 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
         align-items: center;
         gap: 1rem;
       }
-      /* Glass navbar container - ancho contenido */
       .navbar {
         width: 100%;
         padding: 0.6rem 0.8rem;
@@ -209,7 +193,6 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
         background: rgba(255, 255, 255, 0.14);
         border-radius: 6px;
       }
-      /* ensure inner nav items align nicely inside glass */
       .site-header .navbar {
         display: flex;
         align-items: center;
@@ -234,9 +217,7 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
         margin: 0 auto;
         padding: 1.25rem;
       }
-        /* dar espacio al contenido por el header fijo */
         body { padding-top: 96px; }
-      /* Evitar solapamiento: dejar hueco para el header fijo */
       body {
         padding-top: 88px;
       }
@@ -275,7 +256,6 @@ const defaultThemeColor = THEME_COLOR_MAP[DEFAULT_BACKGROUND_KEY];
         color: var(--muted);
         line-height: 1.6;
       }
-      /* High-contrast variants for compare section heading/subtitle */
       .compare-title { color: var(--text); }
       .compare-subtitle { color: var(--text); }
       .cta {
