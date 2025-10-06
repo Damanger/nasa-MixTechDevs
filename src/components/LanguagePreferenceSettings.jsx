@@ -28,16 +28,16 @@ export default function LanguagePreferenceSettings({ strings }) {
   const [labelsSource, setLabelsSource] = useState(strings);
 
   const labels = useMemo(() => ({
-    title: strings?.title ?? "Idioma predeterminado",
-    description: strings?.description ?? "Selecciona el idioma por defecto para MixTechDevs.",
-    loading: strings?.loading ?? "Cargando preferencia…",
-    signedOut: strings?.signedOut ?? "Inicia sesión con Google para elegir tu idioma.",
-    statusSaving: strings?.statusSaving ?? "Guardando…",
-    statusSaved: strings?.statusSaved ?? "Preferencia guardada",
-    statusError: strings?.statusError ?? "No se pudo guardar la preferencia.",
-    saveError: strings?.saveError ?? "Intenta de nuevo más tarde.",
-    options: strings?.options ?? { es: "Español", en: "Inglés", de: "Alemán" },
-  }), [strings]);
+    title: labelsSource?.title ?? "Idioma predeterminado",
+    description: labelsSource?.description ?? "Selecciona el idioma por defecto para MixTechDevs.",
+    loading: labelsSource?.loading ?? "Cargando preferencia…",
+    signedOut: labelsSource?.signedOut ?? "Inicia sesión con Google para elegir tu idioma.",
+    statusSaving: labelsSource?.statusSaving ?? "Guardando…",
+    statusSaved: labelsSource?.statusSaved ?? "Preferencia guardada",
+    statusError: labelsSource?.statusError ?? "No se pudo guardar la preferencia.",
+    saveError: labelsSource?.saveError ?? "Intenta de nuevo más tarde.",
+    options: labelsSource?.options ?? { es: "Español", en: "Inglés", de: "Alemán" },
+  }), [labelsSource]);
 
   // React to global language changes so this card's labels update immediately
   useEffect(() => {
