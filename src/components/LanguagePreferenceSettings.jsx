@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { onValue, ref, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
-import { DEFAULT_LANG, SUPPORTED_LANGUAGES, getLanguageSafe, LANG_COOKIE, LANG_EVENT } from "../i18n/translations.js";
+import { DEFAULT_LANG, SUPPORTED_LANGUAGES, getLanguageSafe, LANG_COOKIE, LANG_EVENT, detectClientLanguage, getTranslations } from "../i18n/translations.js";
 import { emitToast } from "../lib/toast.js";
 
 function setClientLanguage(lang) {
@@ -25,6 +25,7 @@ export default function LanguagePreferenceSettings({ strings }) {
   const [storedChoice, setStoredChoice] = useState(DEFAULT_LANG);
   const [status, setStatus] = useState("idle");
   const [errorDetail, setErrorDetail] = useState(null);
+  const [labelsSource, setLabelsSource] = useState(strings);
 
   const labels = useMemo(() => ({
     title: strings?.title ?? "Idioma predeterminado",
@@ -37,6 +38,24 @@ export default function LanguagePreferenceSettings({ strings }) {
     saveError: strings?.saveError ?? "Intenta de nuevo más tarde.",
     options: strings?.options ?? { es: "Español", en: "Inglés", de: "Alemán" },
   }), [strings]);
+
+  // React to global language changes so this card's labels update immediately
+  useEffect(() => {
+    const apply = (nextLang) => {
+      try {
+        const safe = getLanguageSafe(nextLang || detectClientLanguage(DEFAULT_LANG));
+        const t = getTranslations(safe);
+        setLabelsSource(t.settings?.language || strings);
+      } catch {
+        setLabelsSource(strings);
+      }
+    };
+    apply();
+    const handler = (ev) => apply(ev?.detail?.lang);
+    window.addEventListener(LANG_EVENT, handler);
+    return () => window.removeEventListener(LANG_EVENT, handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {

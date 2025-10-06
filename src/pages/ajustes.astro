@@ -3,6 +3,7 @@ import Layout from "../layouts/Layout.astro";
 import { DEFAULT_LANG, getLanguageSafe, getTranslations } from "../i18n/translations.js";
 import BackgroundColorSettings from "../components/BackgroundColorSettings.jsx";
 import LanguagePreferenceSettings from "../components/LanguagePreferenceSettings.jsx";
+import SettingsHeader from "../components/SettingsHeader.jsx";
 
 const langParam = Astro.url.searchParams.get("lang");
 const lang = getLanguageSafe(langParam ?? DEFAULT_LANG);
@@ -12,8 +13,7 @@ const settings = translations.settings;
 
 <Layout lang={lang} translations={translations}>
   <section class="glass card settings-hero">
-    <h1 style="margin:0; font-size:clamp(2rem,5vw,2.6rem);">{settings.title}</h1>
-    <h3 class="subtitle" style="max-width:560px; margin:0.5rem auto 0; font-weight:500; color:var(--text-secondary);">{settings.subtitle}</h2>
+    <SettingsHeader client:only="react" initial={settings} />
   </section>
 
   <section class="settings-grid">
@@ -23,10 +23,7 @@ const settings = translations.settings;
 </Layout>
 
 <style>
-  .settings-hero { margin-top: 0rem; padding: 2.5rem; text-align: center; }
-  @media (min-width: 821px) {
-    .settings-hero { margin-top: 2rem; }
-  }
+  .settings-hero { margin-top: 3rem; padding: 2.5rem; text-align: center; }
 
   .settings-grid {
     margin-top: 1.5rem;

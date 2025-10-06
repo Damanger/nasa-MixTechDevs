@@ -3,6 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { onValue, ref, set } from "firebase/database";
 import { auth, db } from "../lib/firebaseClient.js";
 import { emitToast } from "../lib/toast.js";
+import { DEFAULT_LANG, LANG_EVENT, detectClientLanguage, getLanguageSafe, getTranslations } from "../i18n/translations.js";
     import {
         applyBackgroundToDocument,
         cacheBackgroundPreference,
@@ -31,93 +32,112 @@ export default function BackgroundColorSettings({ strings }) {
     const [storedChoice, setStoredChoice] = useState(DEFAULT_BACKGROUND_KEY);
     const [status, setStatus] = useState("idle");
     const [errorDetail, setErrorDetail] = useState(null);
+  const [labelsSource, setLabelsSource] = useState(strings);
 
-    const labels = useMemo(
+  // React to global language changes so this card's labels update immediately
+  useEffect(() => {
+    const apply = (nextLang) => {
+      try {
+        const safe = getLanguageSafe(nextLang || detectClientLanguage(DEFAULT_LANG));
+        const t = getTranslations(safe);
+        setLabelsSource(t.settings?.background || strings);
+      } catch {
+        setLabelsSource(strings);
+      }
+    };
+    apply();
+    const handler = (ev) => apply(ev?.detail?.lang);
+    window.addEventListener(LANG_EVENT, handler);
+    return () => window.removeEventListener(LANG_EVENT, handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const labels = useMemo(
         () => ({
-            title: strings?.title ?? "Fondo personalizado",
-            description: strings?.description ?? "Elige un fondo alternativo para MixTechDevs.",
+      title: labelsSource?.title ?? "Fondo personalizado",
+      description: labelsSource?.description ?? "Elige un fondo alternativo para MixTechDevs.",
             options: {
                 default: {
-                    label: strings?.options?.default?.label ?? "Gradiente MixTechDevs",
+          label: labelsSource?.options?.default?.label ?? "Gradiente MixTechDevs",
                     description:
-                        strings?.options?.default?.description ?? "Usa el fondo espacial predeterminado.",
+            labelsSource?.options?.default?.description ?? "Usa el fondo espacial predeterminado.",
                 },
                 matrix: {
-                    label: strings?.options?.matrix?.label ?? "Matrix digital",
+          label: labelsSource?.options?.matrix?.label ?? "Matrix digital",
                     description:
-                        strings?.options?.matrix?.description ?? "Códigos verdes descendiendo en la pantalla.",
+            labelsSource?.options?.matrix?.description ?? "Códigos verdes descendiendo en la pantalla.",
                 },
                 grid: {
-                    label: strings?.options?.grid?.label ?? "Cuadros negros",
+          label: labelsSource?.options?.grid?.label ?? "Cuadros negros",
                     description:
-                        strings?.options?.grid?.description ?? "Retícula gris sobre fondo grafito.",
+            labelsSource?.options?.grid?.description ?? "Retícula gris sobre fondo grafito.",
                 },
                 city: {
-                    label: strings?.options?.city?.label ?? "Ciudad nocturna",
+          label: labelsSource?.options?.city?.label ?? "Ciudad nocturna",
                     description:
-                        strings?.options?.city?.description ?? "Paisaje urbano con haz de luz animado.",
+            labelsSource?.options?.city?.description ?? "Paisaje urbano con haz de luz animado.",
                 },
                 spectrum: {
-                    label: strings?.options?.spectrum?.label ?? "Spectrum",
+          label: labelsSource?.options?.spectrum?.label ?? "Spectrum",
                     description:
-                        strings?.options?.spectrum?.description ?? "Patrón cromático animado retro.",
+            labelsSource?.options?.spectrum?.description ?? "Patrón cromático animado retro.",
                 },
                 terrain: {
-                    label: strings?.options?.terrain?.label ?? "Terreno fractal",
+          label: labelsSource?.options?.terrain?.label ?? "Terreno fractal",
                     description:
-                        strings?.options?.terrain?.description ?? "Ruido procedural con iluminación tenue.",
+            labelsSource?.options?.terrain?.description ?? "Ruido procedural con iluminación tenue.",
                 },
                 shards: {
-                    label: strings?.options?.shards?.label ?? "Fragmentos neón",
+          label: labelsSource?.options?.shards?.label ?? "Fragmentos neón",
                     description:
-                        strings?.options?.shards?.description ?? "Destellos diagonales animados sobre un entramado oscuro.",
+            labelsSource?.options?.shards?.description ?? "Destellos diagonales animados sobre un entramado oscuro.",
                 },
                 aurora: {
-                    label: strings?.options?.aurora?.label ?? "Aurora vectorial",
+          label: labelsSource?.options?.aurora?.label ?? "Aurora vectorial",
                     description:
-                        strings?.options?.aurora?.description ?? "Radiales multicolor con animación suave.",
+            labelsSource?.options?.aurora?.description ?? "Radiales multicolor con animación suave.",
                 },
                 futuristic: {
-                    label: strings?.options?.futuristic?.label ?? "Textura futurista",
+          label: labelsSource?.options?.futuristic?.label ?? "Textura futurista",
                     description:
-                        strings?.options?.futuristic?.description ?? "Metal iridiscente con relieve especular.",
+            labelsSource?.options?.futuristic?.description ?? "Metal iridiscente con relieve especular.",
                 },
                 rain: {
-                    label: strings?.options?.rain?.label ?? "Lluvia azul",
+          label: labelsSource?.options?.rain?.label ?? "Lluvia azul",
                     description:
-                        strings?.options?.rain?.description ?? "Cortinas de lluvia neón sobre blur futurista.",
+            labelsSource?.options?.rain?.description ?? "Cortinas de lluvia neón sobre blur futurista.",
                 },
                 neon: {
-                    label: strings?.options?.neon?.label ?? "Geometría neón",
+          label: labelsSource?.options?.neon?.label ?? "Geometría neón",
                     description:
-                        strings?.options?.neon?.description ?? "Patrón vectorial vibrante con acentos magenta.",
+            labelsSource?.options?.neon?.description ?? "Patrón vectorial vibrante con acentos magenta.",
                 },
                 galaxy: {
-                    label: strings?.options?.galaxy?.label ?? "Galaxia",
-                    description: strings?.options?.galaxy?.description ?? "Campo de estrellas en parallax.",
+          label: labelsSource?.options?.galaxy?.label ?? "Galaxia",
+          description: labelsSource?.options?.galaxy?.description ?? "Campo de estrellas en parallax.",
                 },
                 prismatic: {
-                    label: strings?.options?.prismatic?.label ?? "Destello prismático",
-                    description: strings?.options?.prismatic?.description ?? "Rayos de color con mezcla aditiva.",
+          label: labelsSource?.options?.prismatic?.label ?? "Destello prismático",
+          description: labelsSource?.options?.prismatic?.description ?? "Rayos de color con mezcla aditiva.",
                 },
                 lightning: {
-                    label: strings?.options?.lightning?.label ?? "Relámpago",
-                    description: strings?.options?.lightning?.description ?? "Descargas eléctricas estilizadas.",
+          label: labelsSource?.options?.lightning?.label ?? "Relámpago",
+          description: labelsSource?.options?.lightning?.description ?? "Descargas eléctricas estilizadas.",
                 },
                 plasma: {
-                    label: strings?.options?.plasma?.label ?? "Plasma",
-                    description: strings?.options?.plasma?.description ?? "Neblina energética en movimiento.",
+          label: labelsSource?.options?.plasma?.label ?? "Plasma",
+          description: labelsSource?.options?.plasma?.description ?? "Neblina energética en movimiento.",
                 },
             },
-            loading: strings?.loading ?? "Cargando preferencia…",
-            signedOut:
-                strings?.signedOut ?? "Inicia sesión con Google para editar tu fondo.",
-            statusSaving: strings?.statusSaving ?? "Guardando…",
-            statusSaved: strings?.statusSaved ?? "Preferencia guardada",
-            statusError: strings?.statusError ?? "No se pudo guardar la preferencia.",
-            saveError: strings?.saveError ?? "Intenta de nuevo más tarde.",
+      loading: labelsSource?.loading ?? "Cargando preferencia…",
+      signedOut:
+        labelsSource?.signedOut ?? "Inicia sesión con Google para editar tu fondo.",
+      statusSaving: labelsSource?.statusSaving ?? "Guardando…",
+      statusSaved: labelsSource?.statusSaved ?? "Preferencia guardada",
+      statusError: labelsSource?.statusError ?? "No se pudo guardar la preferencia.",
+      saveError: labelsSource?.saveError ?? "Intenta de nuevo más tarde.",
         }),
-        [strings]
+    [labelsSource]
     );
 
     useEffect(() => {

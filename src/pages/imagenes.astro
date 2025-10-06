@@ -11,7 +11,7 @@ const description = (messages?.apod?.savedSubtitle) || "Tu colección de APOD";
 ---
 <Layout lang={lang} title={title} description={description} translations={messages}>
   <section class="container">
-    <article class="glass" style="padding: 1rem 1.25rem; margin-top: 1rem;">
+    <article class="glass" style="padding: 1rem 1.25rem; margin-top: 2rem;">
       <h1 style="margin: 0 0 12px 0;">{title}</h1>
       <ApodGallery client:only="react" />
     </article>

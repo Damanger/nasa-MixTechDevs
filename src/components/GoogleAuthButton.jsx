@@ -343,7 +343,7 @@ const buttonStyle = {
 const avatarButtonStyle = {
     display: "inline-flex",
     alignItems: "center",
-    gap: 6,
+    gap: 0,
     padding: "0.25rem 0.45rem",
     borderRadius: 999,
     border: "1px solid rgba(255,255,255,0.14)",

@@ -178,7 +178,7 @@ select[multiple] {
 .btn-close:focus{ outline: 2px solid rgba(255,80,80,0.12); }
 
 /* Small action buttons used in prediction panel */
-.btn{ padding:.45rem .7rem; border-radius:8px; border:1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02); color:var(--text); cursor:pointer; }
+.btn{ padding:.5rem .5rem; border-radius:25px; border:1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02); color:var(--text); cursor:pointer; }
 .btn:hover{ background: rgba(255,255,255,.04); }
 
 /* Probabilities visual */
